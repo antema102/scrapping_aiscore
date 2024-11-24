@@ -10,7 +10,7 @@ import requests
 import os
 
 # Définir le chemin vers le ChromeDriver
-chrome_driver_path = r"C:\Users\etech\Downloads\Nouveau dossier\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
+chrome_driver_path = r"C:\Users\antema\Downloads\Compressed\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
 service = Service(chrome_driver_path)
 
 # Fonction pour vérifier la connexion Internet
@@ -95,7 +95,7 @@ def process_url(url):
                     WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, thirst_selector))).click()
                     
                     #affiche les cotes lorsque je clique sur le bouton cote
-                    score1 = '#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus3 > div.font-bold.home-score > span'
+                    score1 = '#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus3 > div.font-bold.home-score > span:last-child'
                     score2 = '#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus3 > div.font-bold.away-score > span'
                     cote_selectorBet365_1 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span > span'
                     cote_selectorBet365_2 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span'
@@ -224,7 +224,7 @@ def process_url(url):
         
 
 # URLs à traiter
-urls = ["https://www.aiscore.com/fr/20241027","https://www.aiscore.com/fr/20241028","https://www.aiscore.com/fr/20241029","https://www.aiscore.com/fr/20241030"]
+urls = ["https://www.aiscore.com/fr/20241122"]
 
 # Traiter chaque URL et enregistrer les données
 for url in urls:
