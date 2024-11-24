@@ -7,6 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 import time
 import requests
 import os
@@ -76,8 +77,18 @@ def scroll_to_last_page(driver, max_scroll_attempts=20):
 def process_url():
     # Définir le chemin vers le ChromeDriver
     chrome_driver_path = r"C:\Users\antema\Downloads\Compressed\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
+
+    # Configurer le mode headless
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Active le mode sans interface graphique
+    chrome_options.add_argument("--disable-gpu")  # Option pour améliorer la compatibilité
+    chrome_options.add_argument("--window-size=1920,1080")  # Définit une taille de fenêtre virtuelle
+    chrome_options.add_argument("--disable-dev-shm-usage")  # Réduit les problèmes de mémoire partagée
+    chrome_options.add_argument("--no-sandbox")  # Requis sur certains systèmes Linux
+
+    # Initialiser le driver avec les options
     service = Service(chrome_driver_path)
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     
     url="https://www.aiscore.com/fr/"
 
@@ -138,10 +149,7 @@ def process_url():
     processed_elements = load_processed_elements(processed_filename)
    
     try:
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#app")))
 
-        second_selector = "#app > DIV:nth-of-type(3) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > LABEL > SPAN > SPAN"
-        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, second_selector))).click()
 
         # time.sleep(2) # Attendre un peu pour permettre le chargement
 
@@ -186,6 +194,12 @@ def process_url():
             ws_buts_total_1xbet.append_row([aujourd_hui_str,"","","","","",""])
         else:
             print("La date est déjà présente 1xBet.")
+        
+        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#app")))
+
+        second_selector = "#app > DIV:nth-of-type(3) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > LABEL > SPAN > SPAN"
+        
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, second_selector))).click()
 
         while True:
             match_elements = driver.find_elements(By.CSS_SELECTOR, 'a.match-container')
