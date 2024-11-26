@@ -38,7 +38,7 @@ def remove_element(element,filename):
 def process_url():
     # Définir le chemin vers le ChromeDriver
     try:
-        chrome_driver_path = r"C:\Users\antema\Downloads\Compressed\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
+        chrome_driver_path = r"C:\Users\etech\Downloads\Nouveau dossier\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
         service = Service(chrome_driver_path)
         driver = webdriver.Chrome(service=service)
         url="https://www.aiscore.com/fr/"
