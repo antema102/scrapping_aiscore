@@ -27,15 +27,15 @@ def save_processed_element(element, filename):
 def process_url():
     try:
         #Intialisations 
-        chrome_driver_path = r"C:\Users\antema\Downloads\Compressed\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
+        chrome_driver_path = r"C:\Users\etech\Downloads\Nouveau dossier\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
         service = Service(chrome_driver_path)
         driver = webdriver.Chrome(service=service)
 
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\etech\Desktop\scrapping_aiscore\credentials.json', scope)
         client = gspread.authorize(creds)
-        sheet_id = "1YhuJe7DZ-2IP3l1DoeBdk1xnALlE1OOtXmX2gFw6c4c"
+        sheet_id = "1XFqx0YLA70c5I61zBrL6vcaEvg85UzHFqo8ub8oTbYU"
         sheet = client.open_by_key(sheet_id)
         wb =sheet.sheet1
         ws = wb.get_all_values()
@@ -45,12 +45,12 @@ def process_url():
         hier_str = hier.strftime('%Y%m%d')
         dateHier= hier.strftime('%d-%m-%Y')
         url = f"https://www.aiscore.com/fr/{hier_str}"
-        processed_filename = f"processed_elements_{hier_str}.txt"
+        processed_filename = f"C:\\Users\\etech\\Desktop\\scrapping_aiscore\\processed_elements_{hier_str}.txt"
         date_present=False
 
         for row in ws[1:]:
             cell_score=row[0]
-            if cell_score == hier_str:
+            if cell_score == dateHier:
                 date_present=True
                 break
 

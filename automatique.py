@@ -336,6 +336,7 @@ def process_url():
                                                 ws_buts_total_1xbet.append_row(["","","","",total_moins_de_2_buts,total_2_buts_ou_plus,TotalBut1xBet])
                                 except Exception:
                                         TotalBut1xBet = '' # En cas d'erreur, TotalBut1xBet est vide
+
                                 driver.close()
                                 driver.switch_to.window(driver.window_handles[0])
                             else:
@@ -350,7 +351,7 @@ def process_url():
                             return
 
                     driver.execute_script("els = document.getElementsByClassName('match-container'); els[els.length-1].scrollIntoView();")
-                    time.sleep(2)  # Attendre un peu pour le chargement des nouvelles données
+                    time.sleep(5)  # Attendre un peu pour le chargement des nouvelles données
                 
         except Exception as e:
             print("Erreur dans le selenium",e)
@@ -367,4 +368,4 @@ while True:
     except Exception:
         print("Erreur")
 
-    time.sleep(600)
+    time.sleep(120)
