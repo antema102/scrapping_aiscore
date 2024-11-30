@@ -27,13 +27,13 @@ def save_processed_element(element, filename):
 def process_url(url):
     try:
         #Intialisations 
-        chrome_driver_path = r"C:\Users\antema\Downloads\Compressed\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
+        chrome_driver_path = r"C:\Users\Administrator\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
         service = Service(chrome_driver_path)
         driver = webdriver.Chrome(service=service)
         
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\antema\Desktop\git\scrapping_aiscore\credentials.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json', scope)
         client = gspread.authorize(creds)
         sheet_id = "1AWFDyzNPppVhY6XUAlyUneAMlwWsV7aSwS-MBYf_62o"
         sheet = client.open_by_key(sheet_id)
@@ -42,7 +42,7 @@ def process_url(url):
 
         #Date
         data_str = url.split('/')[-1]
-        processed_filename = f"C:\\Users\\antema\\Desktop\\git\\scrapping_aiscore\\scrapping_cote_initiales\\processed_elements_{data_str}.txt"
+        processed_filename = f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\scrapping_cote_initiales\\processed_elements_{data_str}.txt"
         date_object = datetime.strptime(str(data_str),"%Y%m%d")
 
         # Formater la date
@@ -259,7 +259,7 @@ def process_url(url):
 # Configuration
 base_url = "https://www.aiscore.com/fr"
 # Date de début
-start_date = datetime.strptime("20241001", "%Y%m%d")  
+start_date = datetime.strptime("20241027", "%Y%m%d")  
 
 # Fonction pour générer des URLs avec des dates
 def generate_urls_until_yesterday(base_url, start_date):
