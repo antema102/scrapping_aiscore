@@ -12,5 +12,5 @@ def supprimer_dossier(chemin):
         print(f"Le dossier n'existe pas : {chemin}")
 
 if __name__ == "__main__":
-    chemin_dossier = r"C:\Users\etech\Desktop\scrapping_aiscore\processed_elements.txt"  # Remplacez par le chemin du dossier à supprimer
+    chemin_dossier = r"C:\Users\Administrator\Desktop\scrapping_aiscore\processed_elements.txt"  # Remplacez par le chemin du dossier à supprimer
     supprimer_dossier(chemin_dossier)
