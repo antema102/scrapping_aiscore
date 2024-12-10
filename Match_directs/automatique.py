@@ -81,7 +81,11 @@ def process_url():
 
         try:
             second_selector = "#app > DIV:nth-of-type(3) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > LABEL > SPAN > SPAN"
+<<<<<<< HEAD:automatique.py
             WebDriverWait(driver, 6).until(EC.element_to_be_clickable((By.CSS_SELECTOR, second_selector))).click()
+=======
+            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, second_selector))).click()
+>>>>>>> 037b6b6d2c67640d37ac0085ebb08150faddd4a2:Match_directs/automatique.py
             time.sleep(10) # Attendre un peu pour permettre le chargement
             # Initialiser la variable date_deja_presente
             aujourd_hui = datetime.today().date()
@@ -369,4 +373,8 @@ while True:
     except Exception:
         print("Erreur")
 
+<<<<<<< HEAD:automatique.py
     time.sleep(30)
+=======
+    time.sleep(10)
+>>>>>>> 037b6b6d2c67640d37ac0085ebb08150faddd4a2:Match_directs/automatique.py
