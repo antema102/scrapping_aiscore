@@ -82,7 +82,7 @@ def process_url():
         try:
             second_selector = "#app > DIV:nth-of-type(3) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > LABEL > SPAN > SPAN"
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, second_selector))).click()
-            time.sleep(2) # Attendre un peu pour permettre le chargement
+            time.sleep(10) # Attendre un peu pour permettre le chargement
             # Initialiser la variable date_deja_presente
             aujourd_hui = datetime.today().date()
             aujourd_hui_str = aujourd_hui.strftime('%Y-%m-%d')
@@ -368,4 +368,4 @@ while True:
     except Exception:
         print("Erreur")
 
-    time.sleep(120)
+    time.sleep(10)
