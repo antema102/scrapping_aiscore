@@ -1,10 +1,31 @@
 import pandas as pd
+import gspread
+from gspread_formatting import *
+from google.oauth2.service_account import Credentials
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, PatternFill
+import io
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
+# Configuration des accès à Google Sheets
+scope = ["https://www.googleapis.com/auth/spreadsheets","https://www.googleapis.com/auth/drive.file"
+]
+credentials = Credentials.from_service_account_file(r"C:\Users\antem\Desktop\scrapping_aiscore\credentials.json", scopes=scope)
+gc = gspread.authorize(credentials)
 
-# Charger le fichier Excel
-df = pd.read_excel("../1xBet.xlsx")
+# # Charger le fichier Excel
+# df = pd.read_excel("../1xBet.xlsx")
+# Charger le fichier Google Sheets existant
+spreadsheet_id = "1JOhzvbqC_eV0mPRXnjGsOo3CPpoa94udB9pEN5MtbEs"
+spreadsheet = gc.open_by_key(spreadsheet_id)
+parent_id_floder="1c94YkueTJmw4yGeiXEPNQd8vRb7ecu8A"
+
+# Charger la première feuille dans un DataFrame
+worksheet = spreadsheet.sheet1 # Remplacez par le nom de la feuille si nécessaire
+data = worksheet.get_all_records()[1:]
+df = pd.DataFrame(data)
+
 
 # Convertir la date en format datetime et extraire le mois
 df["Date"] = pd.to_datetime(df["Date"], format="%d/%m/%Y")
@@ -26,20 +47,25 @@ df["Location"] = df["1XBET ODDS"].apply(determine_location)
 
 # Fonction pour calculer les stats Under/Over
 def calculate_stats(df):
+    
     stats = []
     for _, row in df.iterrows():
-        if isinstance(row.iloc[0], str) and "-" in row.iloc[0]:
-            score1, score2 = map(int, row[0].split("-"))
-            total_buts = score1 + score2
-            under_condition = 1 if total_buts < 3 else 0
-            over_condition = 1 if total_buts > 2 else 0
-            stats.append({
-                "Cotes": row.iloc[2],
-                "Mois": row["Mois"],
-                "Under": under_condition,
-                "Over": over_condition
-            })
-        
+        if row.iloc[2]:
+            if isinstance(row.iloc[0], str) and "-" in row.iloc[0]:
+                    score1, score2 = map(int, row[0].split("-"))
+                    total_buts = score1 + score2
+                    under_condition = 1 if total_buts < 3 else 0
+                    over_condition = 1 if total_buts > 2 else 0
+                    stats.append({
+                        "Cotes": row.iloc[2],
+                        "Mois": row["Mois"],
+                        "Under": under_condition,
+                        "Over": over_condition
+                     })
+            else:
+                print("error")
+
+            
     return pd.DataFrame(stats)
 
 # Filtrer d'abord par la localisation, puis appliquer les conditions sur les cotes
@@ -100,6 +126,7 @@ def add_stats_to_sheet(sheet_name, data):
     # Ajouter les titres des mois et fusionner les cellules pour "Under" et "Over"
     months = data.columns.levels[1].tolist()  # Extraire les mois
     col_start = 2
+    
     for month in months:
         ws.merge_cells(start_row=1, start_column=col_start, end_row=1, end_column=col_start + 1)
         cell = ws.cell(row=1, column=col_start)
@@ -127,7 +154,7 @@ def add_stats_to_sheet(sheet_name, data):
             under_cell.value = under_val
             over_cell.value = over_val 
 
-                     # Coloration conditionnelle
+            # Coloration conditionnelle
             if under_val > over_val:
                 under_cell.fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
             elif over_val > under_val:
@@ -152,5 +179,70 @@ add_stats_to_sheet("Extérieur > 200", away_greater_200_plus_stats_formatted)
 
 # Sauvegarder le fichier Excel
 wb.save("cotes_stats_formatte.xlsx")
+
+# ID du fichier à mettre à jour
+
+# Télécharger ou mettre à jour un fichier Excel sur Google Drive avec un ID fixe
+def upload_to_drive(file_path, mime_type, file_name, parent_id_folder):
+    drive_service = build('drive', 'v3', credentials=credentials)
+
+    # Rechercher un fichier avec le même nom dans le dossier
+    query = f"'{parent_id_folder}' in parents and name = '{file_name}'"
+    
+    try:
+        # Chercher des fichiers dans le dossier avec ce nom
+        results = drive_service.files().list(q=query, fields="files(id, name)").execute()
+        files = results.get('files', [])
+
+        if files:
+            # Si un fichier existe déjà avec ce nom, on met à jour ce fichier
+            file_id = files[0]['id']  # L'ID du premier fichier trouvé avec ce nom
+            print(f"Le fichier avec le nom '{file_name}' existe déjà, mise à jour en cours...")
+
+            file_metadata = {
+                'name': file_name, 
+                'mimeType': mime_type,
+                # Ajouter ou retirer des parents, mais ici nous gardons le même parent_id_folder
+                'addParents': parent_id_folder
+            }
+            media = MediaFileUpload(file_path, mimetype=mime_type)
+
+            # Mise à jour du fichier (ajout de parent)
+            updated_file = drive_service.files().update(
+                fileId=file_id,
+                body=file_metadata,
+                media_body=media,
+                fields='id, parents'
+            ).execute()
+
+            print(f"Fichier mis à jour avec succès sur Google Drive avec ID : {updated_file['id']}")
+
+        else:
+            # Si le fichier n'existe pas, on le crée
+            print(f"Aucun fichier trouvé avec le nom '{file_name}', création d'un nouveau fichier...")
+
+            file_metadata = {
+                'name': file_name,
+                'mimeType': mime_type,
+                'parents': [parent_id_folder]
+            }
+            media = MediaFileUpload(file_path, mimetype=mime_type)
+
+            # Création du fichier
+            new_file = drive_service.files().create(
+                body=file_metadata,
+                media_body=media,
+                fields='id'
+            ).execute()
+
+            print(f"Fichier téléchargé sur Google Drive avec ID : {new_file['id']}")
+
+    except Exception as error:
+        print(f"Une erreur est survenue : {error}")
+
+        
+# Exemple d'appel de la fonction
+file_name = 'stats_buts_totaux_Domcile_extérieurs'
+upload_to_drive("cotes_stats_formatte.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name, parent_id_floder)
 
 print("Analyse terminée et exportée vers 'cotes_stats_formatte.xlsx'.")
