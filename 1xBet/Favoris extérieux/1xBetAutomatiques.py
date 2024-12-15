@@ -4,7 +4,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 def filter_odds_and_sort():
     # Authentification avec l'API Google Sheets
     scope = ["https://spreadsheets.google.com/feeds"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("C:/Users/etech/Desktop/scrapping_aiscore/credentials.json", scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\antem\Desktop\scrapping_aiscore\credentials.json", scope)
     client = gspread.authorize(creds)
 
     # Ouvrir le fichier Google Sheets via son ID
