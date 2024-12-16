@@ -11,7 +11,7 @@ from googleapiclient.http import MediaFileUpload
 # Configuration des accès à Google Sheets
 scope = ["https://www.googleapis.com/auth/spreadsheets","https://www.googleapis.com/auth/drive.file"
 ]
-credentials = Credentials.from_service_account_file(r"C:\Users\antem\Desktop\scrapping_aiscore\credentials.json", scopes=scope)
+credentials = Credentials.from_service_account_file(r"C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json", scopes=scope)
 gc = gspread.authorize(credentials)
 
 # # Charger le fichier Excel
@@ -178,7 +178,7 @@ add_stats_to_sheet("Extérieur 150 < x <= 200", away_greater_betwen_150_200_stat
 add_stats_to_sheet("Extérieur > 200", away_greater_200_plus_stats_formatted)
 
 # Sauvegarder le fichier Excel
-wb.save("cotes_stats_formatte.xlsx")
+wb.save("C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\1xBet\\buts totaux stats\\cotes_stats_formatte.xlsx")
 
 # ID du fichier à mettre à jour
 

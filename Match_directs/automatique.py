@@ -38,13 +38,13 @@ def remove_element(element,filename):
 def process_url():
     # Définir le chemin vers le ChromeDriver
     try:
-        chrome_driver_path = r"C:\Users\Administrator\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
+        chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe" 
         service = Service(chrome_driver_path)
         driver = webdriver.Chrome(service=service)
         url="https://www.aiscore.com/fr/"
         driver.get(url)
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json', scope)
         client = gspread.authorize(creds)
         sheet_id = "1YhuJe7DZ-2IP3l1DoeBdk1xnALlE1OOtXmX2gFw6c4c"
         sheet = client.open_by_key(sheet_id)
@@ -369,8 +369,4 @@ while True:
     except Exception:
         print("Erreur")
 
-<<<<<<< HEAD:automatique.py
-    time.sleep(30)
-=======
     time.sleep(10)
->>>>>>> 037b6b6d2c67640d37ac0085ebb08150faddd4a2:Match_directs/automatique.py

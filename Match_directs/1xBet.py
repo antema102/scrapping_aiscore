@@ -38,19 +38,19 @@ def remove_element(element,filename):
 def process_url():
     # Définir le chemin vers le ChromeDriver
     try:
-        chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver-win64\chromedriver.exe" 
+        chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe" 
         service = Service(chrome_driver_path)
         driver = webdriver.Chrome(service=service)
         url="https://www.aiscore.com/fr/"
         driver.get(url)
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:/Users/Administrator/Desktop/scrapping_aiscore/credentials.json", scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\Administrator\Desktop\scrapping_aiscore/credentials.json", scope)
         client = gspread.authorize(creds)
         sheet_id = "1YhuJe7DZ-2IP3l1DoeBdk1xnALlE1OOtXmX2gFw6c4c"
         sheet = client.open_by_key(sheet_id)
         wb_comparison =sheet.sheet1
         ws_comparison = wb_comparison.get_all_values()
-        processed_filename = f"processed_elements.txt"
+        processed_filename = f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\Match_directs\\processed_elements.txt"
         # Créer ou accéder à des onglets dans Google Sheets
         try:
             ws_main = sheet.worksheet("Match Data")  # Onglet principal
@@ -111,112 +111,90 @@ def process_url():
             while True: 
                 
                     match_elements = driver.find_elements(By.CSS_SELECTOR, 'a.match-container')
-                    # Traiter les éléments de match
-                    for element in match_elements:
-                        nomEquipe = element.find_element(By.CSS_SELECTOR, 'span.name.minitext.maxWidth160').text.strip()
-                        if nomEquipe in processed_elements:
-                            print(f"L'équipe {nomEquipe} a déjà été traitée, passage au suivant.")
-                            continue  # Passe au prochain élément sans traiter
+                    if match_elements:
+                        # Traiter les éléments de match
+                        for element in match_elements:
+                            nomEquipe = element.find_element(By.CSS_SELECTOR, 'span.name.minitext.maxWidth160').text.strip()
+                            if nomEquipe in processed_elements:
+                                print(f"L'équipe {nomEquipe} a déjà été traitée, passage au suivant.")
+                                continue  # Passe au prochain élément sans traiter
 
-                        times = element.find_element(By.CSS_SELECTOR,'span.time.minitext').text
-                        href = element.get_attribute("href")
-                        # new_data_found = True
-                        try:
-                            # Ouvre le lien et récupère les données
-                            driver.execute_script("window.open(arguments[0]);", href)
-                            driver.switch_to.window(driver.window_handles[-1])
-                            thirst_selector = "#app > div.detail.view.border-box.back > div.tab-bar > div > div > a:nth-child(2)"         
-                            thirst_selectorText= WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, thirst_selector))).text.strip()
-                            temps = "#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus2 > div.flex-1.text-center.scoreBox > div.h-16.m-b-4 > span > span:nth-child(1)"
-                            ligue = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.top.color-333.flex-col.flex.align-center > div.comp-name > a"))).text.strip()
-                            
-                            try: 
-                                temps__text = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, temps)))
+                            times = element.find_element(By.CSS_SELECTOR,'span.time.minitext').text
+                            href = element.get_attribute("href")
+                            # new_data_found = True
+                            try:
+                                # Ouvre le lien et récupère les données
+                                driver.execute_script("window.open(arguments[0]);", href)
+                                driver.switch_to.window(driver.window_handles[-1])
+                                thirst_selector = "#app > div.detail.view.border-box.back > div.tab-bar > div > div > a:nth-child(2)"         
+                                thirst_selectorText= WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, thirst_selector))).text.strip()
+                                temps = "#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus2 > div.flex-1.text-center.scoreBox > div.h-16.m-b-4 > span > span:nth-child(1)"
+                                ligue = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR,"div.top.color-333.flex-col.flex.align-center > div.comp-name > a"))).text.strip()
                                 
-                                if thirst_selectorText == "Cotes":
+                                try: 
+                                    temps__text = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, temps)))
+                                    
+                                    if thirst_selectorText == "Cotes":
 
-                                    #Cliquer sur le Bouton si cotes 
-                                    WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, thirst_selector))).click()
+                                        #Cliquer sur le Bouton si cotes 
+                                        WebDriverWait(driver,10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, thirst_selector))).click()
 
-                                    deuxiemeEquipe__selector ="#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.away-box > div > a"
+                                        deuxiemeEquipe__selector ="#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.away-box > div > a"
 
-                                    deuxiementEquipe = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, deuxiemeEquipe__selector))).text.strip()
+                                        deuxiementEquipe = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, deuxiemeEquipe__selector))).text.strip()
 
-                                    ws_main.append_row(["",times,ligue,f"{nomEquipe} vs {deuxiementEquipe}","","",""])
+                                        ws_main.append_row(["",times,ligue,f"{nomEquipe} vs {deuxiementEquipe}","","",""])
 
-                                    cote_selectorBet365_1 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span > span'
-                                    cote_selectorBet365_2 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span'
-                                    cote_selectorBet365_3 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span > span'
-                                    cote_nombreButBet365  = "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div.flex.w100.borderBottom > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span"
-                                    cote_plusBut365       = "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span"
-                                    cote_moinsBut365      = "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span"
+                                        cote_selectorBet365_1 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span > span'
+                                        cote_selectorBet365_2 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span'
+                                        cote_selectorBet365_3 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span > span'
+                                        cote_nombreButBet365  = "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div.flex.w100.borderBottom > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span"
+                                        cote_plusBut365       = "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span"
+                                        cote_moinsBut365      = "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span"
 
-                                    # Ligue ="#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.comp-name > a"
+                                        # Ligue ="#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.comp-name > a"
 
-                                    try:
-                                            cote_Bet365   = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selectorBet365_1))).text.strip().replace('.', '')
-                                            cote_Bet365_2 = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selectorBet365_2))).text.strip().replace('.', '')
-                                            cote_Bet365_3 = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selectorBet365_3))).text.strip().replace('.', '')
-                                            cotesBet365   = f"{cote_Bet365}/{cote_Bet365_2}/{cote_Bet365_3}"
-                                            
-                                            for row in ws_comparison[1:]:  # Commence à la ligne 2 pour ignorer l'en-tête
-                                                # On récupère la cellule dans la colonne B de chaque ligne
-                                                cell_a = row[0]  
-                                                cell_b = row[3]
-                                                if cell_b == cotesBet365:
-                                                    scoreBet365 = cell_a
-                                                    ws_main.append_row(["","","","",scoreBet365,cotesBet365])  # Colonne de score à gauche, colonne de cote 1xBet vide pour l'instant                      
-                                    except Exception:
-                                            cotesBet365 = ''
-
-                                    try:
-                                            # Récupère la donnée brute de nombre de buts
-                                            nombreButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_nombreButBet365))).text.strip()
-                                            # Initialisation des valeurs
-                                            TotalButBet365 = ''
-                                            ws_buts_total_bet365.append_row(["",times,ligue,f"{nomEquipe} vs {deuxiementEquipe}","","", ""])  # Ajoute une ligne vide pour séparer les matchs
-                                            total_moins_de_2_buts = 0
-                                            total_2_buts_ou_plus = 0
-                                            # Vérifie s'il y a un '/' pour extraire les deux nombres
-                                            if '/' in nombreButBet:
-                                                # Sépare les deux valeurs
-                                                valeurs = nombreButBet.split('/')
-                                                premier_nombre = float(valeurs[0])
-                                                second_nombre = float(valeurs[1])
-                                                # Vérifie si les deux valeurs sont entre 2 et 3
-                                                if 2 <= premier_nombre <= 3 and 2 <= second_nombre <= 3.0:
-                                                    # Récupère les valeurs pour plus et moins si les conditions sont respectées
-                                                    plusButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_plusBut365))).text.strip().replace('.', '')
-                                                    moinsButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_moinsBut365))).text.strip().replace('.', '')
-                                                    TotalButBet365 = f"{plusButBet}/{moinsButBet}"
-
-                                                    for row in ws_comparison[1:]:
-                                                        cell_a = row[0]
-                                                        cell_c = row[4]
-                                                        if cell_c == TotalButBet365:  
-                                                            scoreButBetToTaux = cell_a
-                                                            equipe_domicile, equipe_exterieur = map(int, scoreButBetToTaux.split("-"))
-                                                            total_buts = equipe_domicile + equipe_exterieur
-                                                            if total_buts < 2:
-                                                                total_moins_de_2_buts +=1
-                                                            else:
-                                                                total_2_buts_ou_plus  += 1
+                                        try:
+                                                cote_Bet365   = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selectorBet365_1))).text.strip().replace('.', '')
+                                                cote_Bet365_2 = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selectorBet365_2))).text.strip().replace('.', '')
+                                                cote_Bet365_3 = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selectorBet365_3))).text.strip().replace('.', '')
+                                                cotesBet365   = f"{cote_Bet365}/{cote_Bet365_2}/{cote_Bet365_3}"
                                                 
-                                                ws_buts_total_bet365.append_row(["","","","",total_moins_de_2_buts,total_2_buts_ou_plus,TotalButBet365])
-                                            else:
-                                                # Si aucun '/' alors on vérifie si le nombre unique est entre 2 et 3
-                                                unique_nombre = float(nombreButBet)
-                                                if 2 <= unique_nombre <= 3:
+                                                for row in ws_comparison[1:]:  # Commence à la ligne 2 pour ignorer l'en-tête
+                                                    # On récupère la cellule dans la colonne B de chaque ligne
+                                                    cell_a = row[0]  
+                                                    cell_b = row[3]
+                                                    if cell_b == cotesBet365:
+                                                        scoreBet365 = cell_a
+                                                        ws_main.append_row(["","","","",scoreBet365,cotesBet365])  # Colonne de score à gauche, colonne de cote 1xBet vide pour l'instant                      
+                                        except Exception:
+                                                cotesBet365 = ''
+
+                                        try:
+                                                # Récupère la donnée brute de nombre de buts
+                                                nombreButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_nombreButBet365))).text.strip()
+                                                # Initialisation des valeurs
+                                                TotalButBet365 = ''
+                                                ws_buts_total_bet365.append_row(["",times,ligue,f"{nomEquipe} vs {deuxiementEquipe}","","", ""])  # Ajoute une ligne vide pour séparer les matchs
+                                                total_moins_de_2_buts = 0
+                                                total_2_buts_ou_plus = 0
+                                                # Vérifie s'il y a un '/' pour extraire les deux nombres
+                                                if '/' in nombreButBet:
+                                                    # Sépare les deux valeurs
+                                                    valeurs = nombreButBet.split('/')
+                                                    premier_nombre = float(valeurs[0])
+                                                    second_nombre = float(valeurs[1])
+                                                    # Vérifie si les deux valeurs sont entre 2 et 3
+                                                    if 2 <= premier_nombre <= 3 and 2 <= second_nombre <= 3.0:
+                                                        # Récupère les valeurs pour plus et moins si les conditions sont respectées
                                                         plusButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_plusBut365))).text.strip().replace('.', '')
                                                         moinsButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_moinsBut365))).text.strip().replace('.', '')
                                                         TotalButBet365 = f"{plusButBet}/{moinsButBet}"
 
                                                         for row in ws_comparison[1:]:
-
                                                             cell_a = row[0]
-                                                            cell_c = row[4]   
-
-                                                            if cell_c == TotalButBet365:
+                                                            cell_c = row[4]
+                                                            if cell_c == TotalButBet365:  
                                                                 scoreButBetToTaux = cell_a
                                                                 equipe_domicile, equipe_exterieur = map(int, scoreButBetToTaux.split("-"))
                                                                 total_buts = equipe_domicile + equipe_exterieur
@@ -224,34 +202,58 @@ def process_url():
                                                                     total_moins_de_2_buts +=1
                                                                 else:
                                                                     total_2_buts_ou_plus  += 1
-                                                                
-                                                        ws_buts_total_bet365.append_row(["","","","",total_moins_de_2_buts,total_2_buts_ou_plus,TotalButBet365]) 
-                                    except Exception:
-                                            TotalButBet365 = ''  # En cas d'erreur, TotalButBet365 est vide
+                                                    
+                                                    ws_buts_total_bet365.append_row(["","","","",total_moins_de_2_buts,total_2_buts_ou_plus,TotalButBet365])
+                                                else:
+                                                    # Si aucun '/' alors on vérifie si le nombre unique est entre 2 et 3
+                                                    unique_nombre = float(nombreButBet)
+                                                    if 2 <= unique_nombre <= 3:
+                                                            plusButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_plusBut365))).text.strip().replace('.', '')
+                                                            moinsButBet = WebDriverWait(driver,20).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_moinsBut365))).text.strip().replace('.', '')
+                                                            TotalButBet365 = f"{plusButBet}/{moinsButBet}"
 
-                                    driver.close()
-                                    driver.switch_to.window(driver.window_handles[0])
-                                else:
-                                    print("match sans cote")
-                                    driver.close()
-                                    driver.switch_to.window(driver.window_handles[0])    
+                                                            for row in ws_comparison[1:]:
 
-                                print(nomEquipe)
-                                processed_elements.add(nomEquipe)
-                                save_processed_element(nomEquipe, processed_filename)  
+                                                                cell_a = row[0]
+                                                                cell_c = row[4]   
 
+                                                                if cell_c == TotalButBet365:
+                                                                    scoreButBetToTaux = cell_a
+                                                                    equipe_domicile, equipe_exterieur = map(int, scoreButBetToTaux.split("-"))
+                                                                    total_buts = equipe_domicile + equipe_exterieur
+                                                                    if total_buts < 2:
+                                                                        total_moins_de_2_buts +=1
+                                                                    else:
+                                                                        total_2_buts_ou_plus  += 1
+                                                                    
+                                                            ws_buts_total_bet365.append_row(["","","","",total_moins_de_2_buts,total_2_buts_ou_plus,TotalButBet365]) 
+                                        except Exception:
+                                                TotalButBet365 = ''  # En cas d'erreur, TotalButBet365 est vide
+
+                                        driver.close()
+                                        driver.switch_to.window(driver.window_handles[0])
+                                    else:
+                                        print("match sans cote")
+                                        driver.close()
+                                        driver.switch_to.window(driver.window_handles[0])    
+
+                                    print(nomEquipe)
+                                    processed_elements.add(nomEquipe)
+                                    save_processed_element(nomEquipe, processed_filename)  
+
+                                except Exception as e:
+                                    print(nomEquipe)
+                                    remove_element(nomEquipe,processed_filename)
+                                    print("Fin matchs en direct")
+                                    driver.quit()
+                                    return
+                                
                             except Exception as e:
-                                print(nomEquipe)
-                                remove_element(nomEquipe,processed_filename)
-                                print("Fin matchs en direct")
-                                driver.quit()
-                                return
-                            
-                        except Exception as e:
-                            print("Erreur lors l'ouverture de la nouvelle onglet",e)
-                    driver.execute_script("els = document.getElementsByClassName('match-container'); els[els.length-1].scrollIntoView();")
-                    time.sleep(5)  # Attendre un peu pour le chargement des nouvelles données
-
+                                print("Erreur lors l'ouverture de la nouvelle onglet",e)
+                        driver.execute_script("els = document.getElementsByClassName('match-container'); els[els.length-1].scrollIntoView();")
+                        time.sleep(5)  # Attendre un peu pour le chargement des nouvelles données
+                    else:
+                        print(f"pas de matchs")
                 
         except Exception as e:
             print("Erreur dans le selenium",e)
