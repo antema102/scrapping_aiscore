@@ -10,7 +10,7 @@ import requests
 import os
 
 # Définir le chemin vers le ChromeDriver
-chrome_driver_path = r"C:\Users\etech\Downloads\Nouveau dossier\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
+chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe" 
 service = Service(chrome_driver_path)
 
 # Fonction pour vérifier la connexion Internet

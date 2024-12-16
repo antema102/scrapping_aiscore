@@ -4,11 +4,11 @@ from oauth2client.service_account import ServiceAccountCredentials
 def filter_odds_and_sort():
     # Authentification avec l'API Google Sheets
     scope = ["https://spreadsheets.google.com/feeds"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\antem\Desktop\scrapping_aiscore\credentials.json", scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json", scope)
     client = gspread.authorize(creds)
 
     # Ouvrir le fichier Google Sheets via son ID
-    spreadsheet = client.open_by_key("1uQSHqJShVfICDFJLfCCNzm7xFrTZMtAe_3n0dFQGi9E")  # Remplacez par l'ID de votre feuille
+    spreadsheet = client.open_by_key("1ROzI-Xnz-Y4y-QGP_-KsCir3FBquSCNteUIWt2AB5DM")  # Remplacez par l'ID de votre feuille
     sheet = spreadsheet.sheet1  # Par défaut, la première feuille active
 
     # Extraire les données de la feuille
