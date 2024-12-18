@@ -183,6 +183,7 @@ wb.save("C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\1xBet\\buts totau
 # ID du fichier à mettre à jour
 
 # Télécharger ou mettre à jour un fichier Excel sur Google Drive avec un ID fixe
+# Fonction pour télécharger ou mettre à jour un fichier
 def upload_to_drive(file_path, mime_type, file_name, parent_id_folder):
     drive_service = build('drive', 'v3', credentials=credentials)
 
@@ -195,24 +196,17 @@ def upload_to_drive(file_path, mime_type, file_name, parent_id_folder):
         files = results.get('files', [])
 
         if files:
-            # Si un fichier existe déjà avec ce nom, on met à jour ce fichier
-            file_id = files[0]['id']  # L'ID du premier fichier trouvé avec ce nom
+            # Si un fichier existe déjà avec ce nom, on le met à jour
+            file_id = files[0]['id']
             print(f"Le fichier avec le nom '{file_name}' existe déjà, mise à jour en cours...")
 
-            file_metadata = {
-                'name': file_name, 
-                'mimeType': mime_type,
-                # Ajouter ou retirer des parents, mais ici nous gardons le même parent_id_folder
-                'addParents': parent_id_folder
-            }
             media = MediaFileUpload(file_path, mimetype=mime_type)
 
-            # Mise à jour du fichier (ajout de parent)
+            # Mise à jour du fichier
             updated_file = drive_service.files().update(
                 fileId=file_id,
-                body=file_metadata,
                 media_body=media,
-                fields='id, parents'
+                fields='id'
             ).execute()
 
             print(f"Fichier mis à jour avec succès sur Google Drive avec ID : {updated_file['id']}")
@@ -223,10 +217,10 @@ def upload_to_drive(file_path, mime_type, file_name, parent_id_folder):
 
             file_metadata = {
                 'name': file_name,
-                'mimeType': mime_type,
+                'mimeType': "application/vnd.google-apps.spreadsheet",  # Convertir en Google Sheets
                 'parents': [parent_id_folder]
             }
-            media = MediaFileUpload(file_path, mimetype=mime_type)
+            media = MediaFileUpload(file_path, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
             # Création du fichier
             new_file = drive_service.files().create(
@@ -239,10 +233,9 @@ def upload_to_drive(file_path, mime_type, file_name, parent_id_folder):
 
     except Exception as error:
         print(f"Une erreur est survenue : {error}")
-
-        
 # Exemple d'appel de la fonction
 file_name = 'stats_buts_totaux_Domcile_extérieurs'
-upload_to_drive("cotes_stats_formatte.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", file_name, parent_id_floder)
+
+upload_to_drive("cotes_stats_formatte.xlsx", "application/vnd.google-apps.spreadsheet", file_name, parent_id_floder)
 
 print("Analyse terminée et exportée vers 'cotes_stats_formatte.xlsx'.")
