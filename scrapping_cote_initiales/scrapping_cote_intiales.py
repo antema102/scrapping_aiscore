@@ -27,34 +27,22 @@ def save_processed_element(element, filename):
 def process_url(url):
     try:
         #Intialisations 
-<<<<<<< HEAD
-        chrome_driver_path = r"C:\Users\Administrator\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
-=======
-        chrome_driver_path = r"C:\Users\etech\Downloads\Nouveau dossier\chromedriver-win64\chromedriver-win64\chromedriver.exe" 
->>>>>>> 037b6b6d2c67640d37ac0085ebb08150faddd4a2
+        chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe" 
         service = Service(chrome_driver_path)
         driver = webdriver.Chrome(service=service)
         
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-<<<<<<< HEAD
         creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json', scope)
-=======
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\etech\Desktop\scrapping_aiscore\credentials.json', scope)
->>>>>>> 037b6b6d2c67640d37ac0085ebb08150faddd4a2
         client = gspread.authorize(creds)
-        sheet_id = "1AWFDyzNPppVhY6XUAlyUneAMlwWsV7aSwS-MBYf_62o"
+        sheet_id = "16c6lONHjvr5--8A6Ed729mNY1lCorTShVYZUo-fwPsE"
         sheet = client.open_by_key(sheet_id)
         wb =sheet.sheet1
         ws = wb.get_all_values()
 
         #Date
         data_str = url.split('/')[-1]
-<<<<<<< HEAD
         processed_filename = f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\scrapping_cote_initiales\\processed_elements_{data_str}.txt"
-=======
-        processed_filename = f"C:\\Users\\etech\\Desktop\\scrapping_aiscore\\scrapping_cote_initiales\\processed_elements_{data_str}.txt"
->>>>>>> 037b6b6d2c67640d37ac0085ebb08150faddd4a2
         date_object = datetime.strptime(str(data_str),"%Y%m%d")
 
         # Formater la date
@@ -68,7 +56,7 @@ def process_url(url):
                 break
 
         if not date_present:
-            wb.append_row([formatted_date,"", "","","",""])
+            wb.append_row([formatted_date,"", "",""])
         else:
             print("date deja présent")
 
@@ -121,34 +109,15 @@ def process_url(url):
                         score1 = '#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus3 > div.font-bold.home-score > span:last-child'
                         score2 = '#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus3 > div.font-bold.away-score > span'
 
-                        #Cotes avants matchs
-                        # cote_selectorBet365_1 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span > span'
-                        # cote_selectorBet365_2 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span'
-                        # cote_selectorBet265_3 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span > span'
+                        cote_selectorBet365_1 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span > span'
+                        cote_selectorBet365_2 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span'
+                        cote_selectorBet265_3 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span > span'
 
-                        #Cotes Intiales
-                        cote_selectorBet365_1 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(1) > span > span'
-                        cote_selectorBet365_2 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(2) > span'
-                        cote_selectorBet265_3 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(3) > span > span'
-                        
                         cote_nombreButBet365  ="#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span"
-                        cote_plusBut365="#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span"
-                        cote_moinsBut365="#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span"
+                        cote_plusBut365=       "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span"
+                        cote_moinsBut365=      "#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span"
 
-                        #Cotes Avant matchs
-                        # cote_selector1xBet_1= '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span > span'
-                        # cote_selector1xBet_2 ='#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span'
-                        # cote_selector1xBet_3 ='#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(3) > span > span'
-
-                        #Cotes Intiales 
-                        cote_selector1xBet_1= '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(1) > span > span'
-                        cote_selector1xBet_2 ='#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(2) > span'
-                        cote_selector1xBet_3 ='#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(3) > span > span'
-           
-                        cote_nombreBut1xBet='#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(1) > span'
-                        cote_plusBut1xBet='#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(2) > span'
-                        cote_moinBut1xBet='#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(2) > div.flex-1 > div > div:nth-child(3) > div.box.flex.w100.brr.openingBg1 > div > div:nth-child(3) > span'
-
+ 
                         try:
                             score_text = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, score1))).text.strip()
                             score_text1 = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, score2))).text.strip()
@@ -192,47 +161,8 @@ def process_url(url):
                             except Exception:
                                 TotalButBet365 = ''  # En cas d'erreur, TotalButBet365 est vide
                             
-                            try:
-                                cote_1xBet= WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selector1xBet_1))).text.strip().replace('.', '')
-                                cote_1xBet_2= WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selector1xBet_2))).text.strip().replace('.', '')
-                                cote_1xBet_3= WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_selector1xBet_3))).text.strip().replace('.', '')
-                                cotes1xBet = f"{cote_1xBet}/{cote_1xBet_2}/{cote_1xBet_3}"  
-                            except Exception:
-                                cotes1xBet = ''
-                        
-                            try:
-                                # Récupère la donnée brute de nombre de buts
-                                nombreBut1xBet = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_nombreBut1xBet))).text.strip()
-
-                                # Initialisation de la variable
-                                TotalBut1xBet = ''
-
-                                # Vérifie s'il y a un '/' pour extraire les deux nombres
-                                if '/' in nombreBut1xBet:
-                                    # Sépare les deux valeurs
-                                    valeurs = nombreBut1xBet.split('/')
-                                    premier_nombre = float(valeurs[0])
-                                    second_nombre = float(valeurs[1])
-
-                                    # Vérifie si les deux valeurs sont entre 2 et 3
-                                    if 2 <= premier_nombre <= 3 and 2 <= second_nombre <= 3:
-                                        # Récupère les valeurs pour plus et moins si les conditions sont respectées
-                                        plusBut1xBet = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_plusBut1xBet))).text.strip().replace('.', '')
-                                        moinsBut1xBet = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_moinBut1xBet))).text.strip().replace('.', '')
-                                        TotalBut1xBet = f"{plusBut1xBet}/{moinsBut1xBet}"
-                                else:
-                                    # Si aucun '/' alors on vérifie si le nombre unique est entre 2 et 3
-                                    unique_nombre = float(nombreBut1xBet)
-                                    if 2 <= unique_nombre <= 3:
-                                        plusBut1xBet = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_plusBut1xBet))).text.strip().replace('.', '')
-                                        moinsBut1xBet = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, cote_moinBut1xBet))).text.strip().replace('.', '')
-                                        TotalBut1xBet = f"{plusBut1xBet}/{moinsBut1xBet}"
-
-                            except Exception:
-                                TotalBut1xBet = ''  # En cas d'erreur, TotalBut1xBet est vide
-
-                            wb.append_row([f"{score_text}-{score_text1}",cotesBet365,TotalButBet365,cotes1xBet,TotalBut1xBet,nomEquipe])
-                            print(f"{score_text}-{score_text1}",cotesBet365,TotalButBet365,cotes1xBet,TotalBut1xBet,nomEquipe)
+                            wb.append_row([f"{score_text}-{score_text1}",cotesBet365,TotalButBet365,formatted_date])
+                            print(f"{score_text}-{score_text1}",cotesBet365,TotalButBet365,formatted_date,nomEquipe)
                         
                         except Exception as e:
                             print("match reporté")
@@ -271,11 +201,7 @@ def process_url(url):
 # Configuration
 base_url = "https://www.aiscore.com/fr"
 # Date de début
-<<<<<<< HEAD
-start_date = datetime.strptime("20241027", "%Y%m%d")  
-=======
-start_date = datetime.strptime("20241024", "%Y%m%d")  
->>>>>>> 037b6b6d2c67640d37ac0085ebb08150faddd4a2
+start_date = datetime.strptime("20241214", "%Y%m%d")  
 
 # Fonction pour générer des URLs avec des dates
 def generate_urls_until_yesterday(base_url, start_date):
