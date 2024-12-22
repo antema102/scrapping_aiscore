@@ -39,7 +39,7 @@ def process_url():
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")  # Démarrer en mode maximisé
         service = Service(chrome_driver_path)
-        driver = webdriver.Chrome(service=service, options=chrome_options)
+        driver = webdriver.Chrome(service=service)
         url="https://www.aiscore.com/fr/"
         driver.get(url)
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -139,6 +139,17 @@ def process_url():
             WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'span.el-checkbox__inner[data-v-d4c6fef0]'))).click()
             time.sleep(5) # Attendre un peu pour permettre le chargement
 
+            # Injecter un script JS pour écouter l'événement de scroll et stocker la position dans window
+            script = """
+                    window.lastScrollPosition = 0;  // Initialisation à 0
+                    window.addEventListener('scroll', () => {
+                    window.lastScrollPosition = window.scrollY;  // Stockage dans window
+                    });
+                    """
+
+            driver.execute_script(script)
+            print("Écouteur de scroll ajouté.")
+
             while True: 
                     try:              
                         match_elements = driver.find_elements(By.CSS_SELECTOR, 'a.match-container')
@@ -147,33 +158,26 @@ def process_url():
                             print(f"pas de matchs")
                             time.sleep(10)
 
-                        max_no_team_count = 5  # Limite d'occurrences successives sans nom d'équipe
+                        max_no_team_count = 4  #e d'occurrences successives sans nom d'équipe
                         no_team_counter = 0    # Compteur d'occurrences successives sans nom d'équipe
 
-                        # Dictionnaire pour compter les répétitions par équipe
-                        team_repetition_counts = {}
-                        max_repetitions_per_team = 3  # Limite d'occurrences répétées par équipe
-
-                            # Traiter les éléments de match
+                        # Traiter les éléments de match
                         for element in match_elements:
                                 # temps_home = element.find_element(By.CSS_SELECTOR, 'span.status.minitext.on').text.strip()
                                 nomEquipe = element.find_element(By.CSS_SELECTOR, 'span.name.minitext.maxWidth160').text.strip()
                                 times = element.find_element(By.CSS_SELECTOR,'span.time.minitext').text
 
-                                 # Vérifier si l'équipe a déjà été traitée
+                                scroll_position = driver.execute_script("return window.lastScrollPosition;")
+
+                                if scroll_position is None:
+                                    scroll_position = 0  # Par sécurité, éviter les None
+                                    
+                                print(f"Nouvelle position de scroll : {scroll_position}px")
+
+                                # Vérifier si l'équipe a déjà été traitée
                                 if nomEquipe in processed_elements:
-                                    team_repetition_counts[nomEquipe] = team_repetition_counts.get(nomEquipe, 0) + 1
-                                    print(f"L'équipe {nomEquipe} a déjà été traitée, passage au suivant. (Répétée {team_repetition_counts[nomEquipe]} fois)")
-
-                                    # Arrêter si une équipe spécifique est répétée trop souvent
-                                    if team_repetition_counts[nomEquipe] >= max_repetitions_per_team:
-                                        print(f"Trop de répétitions pour l'équipe {nomEquipe}, arrêt du traitement.")
-                                        break
+                                    print(f"L'équipe {nomEquipe} a déjà été traitée, passage au suivant")
                                     continue  # Passe au prochain élément
-
-                                # Réinitialiser le compteur de répétitions pour cette équipe
-                                if nomEquipe in team_repetition_counts:
-                                    del team_repetition_counts[nomEquipe]
 
                                 if not element.is_displayed():
                                     print("L'élément n'est plus visible, passage au suivant.")
@@ -182,9 +186,11 @@ def process_url():
                                 if not nomEquipe:
                                     no_team_counter += 1
                                     print(f"Aucun nom d'équipe trouvé pour cet élément. ({no_team_counter}/{max_no_team_count})")
-                                    if no_team_counter >= max_no_team_count:
+
+                                    if no_team_counter >= max_no_team_count and scroll_position == 0:
                                         print("Trop d'éléments sans nom d'équipe, arrêt du traitement.")
                                         return  # Arrête la boucle si le compteur atteint la limite
+
                                     continue  # Passe au prochain élément
 
                                 # Réinitialiser le compteur si un nom d'équipe est trouvé
@@ -473,10 +479,9 @@ def process_url():
 
     finally:
         print(f"script fin")
-        ws_main.append_rows(data_array)
         driver.quit()
 
-process_url()
+
 
 while True:
     try:
@@ -486,4 +491,4 @@ while True:
     finally:
         process_url()
 
-    time.sleep(5)
+    time.sleep(60)
