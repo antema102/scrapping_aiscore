@@ -56,7 +56,7 @@ def process_url():
         ws_comparison = wb_comparison.get_all_values()
 
         # wb_comparison =sheet.sheet1
-        id_recuperation="19F_f1opf_dWCzhFsLe-TcF9nHdOyUomuU7V8p_V0W4c"
+        id_recuperation="1zjp5Jt3WuVcUwrYJBfDDUbfc8QE4T683O6uqtXNv2Ak"
         sheet_recuperation=client.open_by_key(id_recuperation)
 
         #Home
@@ -481,14 +481,12 @@ def process_url():
         print(f"script fin")
         driver.quit()
 
-
-
 while True:
     try:
         process_url()
     except Exception:
         print("Erreur")
-    finally:
-        process_url()
 
     time.sleep(60)
+
+

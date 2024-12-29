@@ -236,6 +236,6 @@ def upload_to_drive(file_path, mime_type, file_name, parent_id_folder):
 # Exemple d'appel de la fonction
 file_name = 'stats_buts_totaux_Domcile_extérieurs'
 
-upload_to_drive("cotes_stats_formatte.xlsx", "application/vnd.google-apps.spreadsheet", file_name, parent_id_floder)
+upload_to_drive("C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\1xBet\\buts totaux stats\\cotes_stats_formatte.xlsx", "application/vnd.google-apps.spreadsheet", file_name, parent_id_floder)
 
 print("Analyse terminée et exportée vers 'cotes_stats_formatte.xlsx'.")
