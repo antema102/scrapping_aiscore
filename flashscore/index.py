@@ -67,7 +67,7 @@ def recuperer_cotes(driver,name,ui_table="div.ui-table__row"):
 
     return result 
 
-def recuper_cotes_over_under(driver,score,date,cote_over_under,cotes1x2,ui_table="div.ui-table__row"):
+def recuper_cotes_over_under(driver,score,date,cotes1x2,spreadsheet,ui_table="div.ui-table__row"):
     result=[]
     ui_table_elements = driver.find_elements(By.CSS_SELECTOR, ui_table)
     for item in ui_table_elements:
@@ -86,19 +86,32 @@ def recuper_cotes_over_under(driver,score,date,cote_over_under,cotes1x2,ui_table
 
                 # Ajouter à result uniquement si 2 cotes sont présentes
                 if len(cotes) == 2:
-                    result.append([score,cotes1x2,odds_span, f"{cotes[0]}/{cotes[1]}", date])
+                    row = [score, cotes1x2, odds_span, f"{cotes[0]}/{cotes[1]}", date]
+                    
+                    # Trier par feuille
+                    sheet_name = f"{odds_span}"
+                    
+                    # Vérifier si la feuille existe
+                    try:
+                        cote_sheet = spreadsheet.worksheet(sheet_name)
+                    except gspread.exceptions.WorksheetNotFound:
+                        # Créer la feuille si elle n'existe pas
+                        cote_sheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="10")
+                        cote_sheet.append_row(["Score", "1XBET ODDS", "Total", "OVER/UNDER", "Date"])
+
+                    # Ajouter la ligne à la feuille correspondante
+                    cote_sheet.append_row(row)
+                    # result.append(row)
 
         except Exception as e:
             print("error cotes_over_under", e)
-
-    cote_over_under.append_rows(result)
 
     return result
 
 def flashScore(url):
     try:
         # Chemin vers le driver Chrome
-        chrome_driver_path = r"C:\Users\etech\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
+        chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")  # Démarrer en mode maximisé
 
@@ -121,7 +134,7 @@ def flashScore(url):
 
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\etech\Desktop\scrapping_aiscore\credentials.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\antem\Desktop\scrapping_aiscore\credentials.json', scope)
         client = gspread.authorize(creds)
         spreadsheet = client.open_by_key("1-agugik6J7Bo6XU2GqioAC68PWGDFkDW97TacDdA8SY")  
     
@@ -145,12 +158,6 @@ def flashScore(url):
         except gspread.exceptions.WorksheetNotFound:
             cotes_ODD_event = spreadsheet.add_worksheet(title="Cotes_ODD/EVENT", rows="100", cols="10")
             cotes_ODD_event.append_row(["Score","1XBET ODDS","ODD/EVENT","Date"])
-
-        try:
-            cote_over_under = spreadsheet.worksheet("cote_over_under")
-        except gspread.exceptions.WorksheetNotFound:
-            cote_over_under = spreadsheet.add_worksheet(title="cote_over_under", rows="100", cols="10")
-            cote_over_under.append_row(["Score","1XBET ODDS","Total","OVER/UNDER","Date"])
   
         attendre_element(driver, "#onetrust-accept-btn-handler").click()
 
@@ -225,7 +232,7 @@ def flashScore(url):
                             attendre_element(driver, "div.ui-table__body", EC.presence_of_element_located, 20)
 
                             #Récuperation de la cotes  over under
-                            recuper_cotes_over_under(driver,score,formatted_date,cote_over_under,cotes_1x2)
+                            recuper_cotes_over_under(driver,score,formatted_date,cotes_1x2,spreadsheet)
 
                             attendre_element(driver, "div.filterOver.filterOver--indent > div > a:nth-child(4)").click()
 
@@ -240,6 +247,7 @@ def flashScore(url):
 
                             #Récuperation de la cotes odd events
                             cotes_odd_event = recuperer_cotes(driver,"cotes odd event")
+
                             if cotes_odd_event:
                                 cotes_1x2_both_matchs.append_row([score,cotes_1x2,cote_both,cotes_odd_event,formatted_date])
                                 cotes_ODD_event.append_row([score,cotes_1x2,cotes_odd_event,formatted_date])
