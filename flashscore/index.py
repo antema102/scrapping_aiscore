@@ -67,7 +67,7 @@ def recuperer_cotes(driver,name,ui_table="div.ui-table__row"):
 
     return result 
 
-def recuper_cotes_over_under(driver,score,date,cote_over_under,ui_table="div.ui-table__row"):
+def recuper_cotes_over_under(driver,score,date,cote_over_under,cotes1x2,ui_table="div.ui-table__row"):
     result=[]
     ui_table_elements = driver.find_elements(By.CSS_SELECTOR, ui_table)
     for item in ui_table_elements:
@@ -83,16 +83,18 @@ def recuper_cotes_over_under(driver,score,date,cote_over_under,ui_table="div.ui-
                 for link in odds_links[:2]:
                     cote = link.find_element(By.CSS_SELECTOR, "span").text.strip().replace('.', '')
                     cotes.append(cote)
+
                 # Ajouter à result uniquement si 2 cotes sont présentes
                 if len(cotes) == 2:
-                    result.append([score, odds_span, f"{cotes[0]}/{cotes[1]}", date])
-                    cote_over_under.append_row([score, odds_span, f"{cotes[0]}/{cotes[1]}", date])
-             
+                    result.append([score,cotes1x2,odds_span, f"{cotes[0]}/{cotes[1]}", date])
+                    cote_over_under.append_row([score,cotes1x2, odds_span,f"{cotes[0]}/{cotes[1]}", date])
+
         except Exception as e:
             print("error cotes_over_under", e)
+
     return result
 
-def flashScore():
+def flashScore(url):
     try:
         # Chemin vers le driver Chrome
         chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
@@ -103,36 +105,52 @@ def flashScore():
         driver = webdriver.Chrome(service=service, options=chrome_options)
 
         # URL cible
-        driver.get("https://www.flashscore.com/football/england/premier-league-2020-2021/results/")
+        driver.get(url)
 
         # Attente jusqu'à ce que les éléments soient visibles
-        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".sportName.soccer")))
-        time.sleep(5)  # Attendre un peu pour permettre le chargement
+        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.sportName.soccer")))
+        # time.sleep(5)  # Attendre un peu pour permettre le chargement
 
         # Charger les éléments déjà traités
-        processed_filename = "processed_elements.txt"
+        date_text = url.split('/')[-3]
+        years=int(date_text.split('-')[-1])
+
+        processed_filename = f"processed_elements_{date_text}.txt"
         processed_elements = load_processed_elements(processed_filename)
 
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\antem\Desktop\scrapping_aiscore\credentials.json', scope)
         client = gspread.authorize(creds)
-        spreadsheet = client.open_by_key("1-agugik6J7Bo6XU2GqioAC68PWGDFkDW97TacDdA8SY")  # Remplacez par l'ID de votre feuille
+        spreadsheet = client.open_by_key("1-agugik6J7Bo6XU2GqioAC68PWGDFkDW97TacDdA8SY")  
     
         #Créer ou réinitialiser les feuilles pour les résultats
         try:
-            cotes_1x2_both_matchs = spreadsheet.worksheet("Cotes_1x2_both_matchs")
+            cotes_1x2_both_matchs = spreadsheet.worksheet("Cotes_Total")
         except gspread.exceptions.WorksheetNotFound:
-            cotes_1x2_both_matchs = spreadsheet.add_worksheet(title="Cotes_1x2_both_matchs", rows="100", cols="10")
+            cotes_1x2_both_matchs = spreadsheet.add_worksheet(title="Cotes_Total", rows="100", cols="10")
             cotes_1x2_both_matchs.append_row(["Score","1XBET ODDS","Both_teams_to_score","ODD/EVENT","Date"])
 
+        #Créer ou réinitialiser les feuilles pour les résultats
+        try:
+            cotes_Both_teams_to_score = spreadsheet.worksheet("Cotes_Both_teams_to_score")
+        except gspread.exceptions.WorksheetNotFound:
+            cotes_Both_teams_to_score = spreadsheet.add_worksheet(title="Cotes_Both_teams_to_score", rows="100", cols="10")
+            cotes_Both_teams_to_score.append_row(["Score","1XBET ODDS","Both_teams_to_score","Date"])
+
+        #Créer ou réinitialiser les feuilles pour les résultats
+        try:
+            cotes_ODD_event = spreadsheet.worksheet("Cotes_ODD/EVENT")
+        except gspread.exceptions.WorksheetNotFound:
+            cotes_ODD_event = spreadsheet.add_worksheet(title="Cotes_ODD/EVENT", rows="100", cols="10")
+            cotes_ODD_event.append_row(["Score","1XBET ODDS","ODD/EVENT","Date"])
 
         try:
             cote_over_under = spreadsheet.worksheet("cote_over_under")
         except gspread.exceptions.WorksheetNotFound:
             cote_over_under = spreadsheet.add_worksheet(title="cote_over_under", rows="100", cols="10")
-            cote_over_under.append_row(["Score","Total","OVER/UNDER","Date"])
-
+            cote_over_under.append_row(["Score","1XBET ODDS","Total","OVER/UNDER","Date"])
+  
         attendre_element(driver, "#onetrust-accept-btn-handler").click()
 
         while True:
@@ -189,14 +207,16 @@ def flashScore():
 
                             score=f"{score_home}-{score_away}"
 
-                            odds="#detail > div.detailOver > div > a:nth-child(2)"
+                            if years < 2022:
+                                odds="#detail > div.detailOver > div > a:nth-child(2)"
+                            else:
+                                odds="#detail > div.detailOver > div > a:nth-child(3)"
 
                             attendre_element(driver, odds).click()
                             
                             attendre_element(driver, "div.ui-table__body", EC.presence_of_element_located, 20)
 
                             #Récuperation de la cotes 1X2
-
                             cotes_1x2 = recuperer_cotes(driver,"1X2")
 
                             attendre_element(driver, "div.filterOver.filterOver--indent > div > a:nth-child(2)").click()
@@ -204,40 +224,26 @@ def flashScore():
                             attendre_element(driver, "div.ui-table__body", EC.presence_of_element_located, 20)
 
                             #Récuperation de la cotes  over under
-
-                            cotes_over_under = recuper_cotes_over_under(driver,score,formatted_date,cote_over_under)
+                            recuper_cotes_over_under(driver,score,formatted_date,cote_over_under,cotes_1x2)
 
                             attendre_element(driver, "div.filterOver.filterOver--indent > div > a:nth-child(4)").click()
 
                             attendre_element(driver, "div.ui-table__body", EC.presence_of_element_located, 20)
 
                             #Recuperationde la cotes both teams to score
-
                             cote_both=recuperer_cotes(driver,"Both_teams_to_score")
+                            cotes_Both_teams_to_score.append_row([score,cotes_1x2,cote_both,formatted_date])
 
                             attendre_element(driver, "div.filterOver.filterOver--indent > div > a:nth-child(10)").click()
                             attendre_element(driver, "div.ui-table__body", EC.presence_of_element_located, 20)
-                            #Récuperation de la cotes odd events
 
+                            #Récuperation de la cotes odd events
                             cotes_odd_event = recuperer_cotes(driver,"cotes odd event")
-                            print(cotes_odd_event)
                             if cotes_odd_event:
                                 cotes_1x2_both_matchs.append_row([score,cotes_1x2,cote_both,cotes_odd_event,formatted_date])
+                                cotes_ODD_event.append_row([score,cotes_1x2,cotes_odd_event,formatted_date])
                             else:
                                 cotes_1x2_both_matchs.append_row([score,cotes_1x2,cote_both,"",formatted_date])
-
-
-
-                            # print(formatted_date,score_home,score_away)
-                            # tableau_reponse.append([score,cotes_1x2,cote_both,cotes_odd_event,formatted_date])
-                            # tableaux_over_under.append(cotes_over_under)
-                            
-                            # cotes_1x2_both_matchs.append_row([score,cotes_1x2,cote_both,cotes_odd_event,formatted_date])
-
-                            # cote_over_under.append_row(tableaux_over_under)
-
-                            # print("1x2",tableau_reponse)
-                            print("OVER/UNDER",tableaux_over_under)
 
                             driver.close()
                             driver.switch_to.window(driver.window_handles[0])    
@@ -292,5 +298,18 @@ def flashScore():
         driver.quit()
         print("Fin du scrapping.")
 
-# Lancer le script
-flashScore()
+# Traiter chaque URL et enregistrer les données
+urls = ["https://www.flashscore.com/football/england/premier-league-2014-2015/results/",
+        "https://www.flashscore.com/football/england/premier-league-2015-2016/results/",
+        "https://www.flashscore.com/football/england/premier-league-2016-2017/results/",
+        "https://www.flashscore.com/football/england/premier-league-2017-2018/results/",
+        "https://www.flashscore.com/football/england/premier-league-2018-2019/results/",
+        "https://www.flashscore.com/football/england/premier-league-2019-2020/results/",
+        "https://www.flashscore.com/football/england/premier-league-2020-2021/results/",
+        "https://www.flashscore.com/football/england/premier-league-2021-2022/results/",
+        "https://www.flashscore.com/football/england/premier-league-2022-2023/results/",
+        "https://www.flashscore.com/football/england/premier-league-2023-2024/results/",
+        ]
+
+for url in urls:
+    flashScore(url)
