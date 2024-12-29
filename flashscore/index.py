@@ -87,17 +87,18 @@ def recuper_cotes_over_under(driver,score,date,cote_over_under,cotes1x2,ui_table
                 # Ajouter à result uniquement si 2 cotes sont présentes
                 if len(cotes) == 2:
                     result.append([score,cotes1x2,odds_span, f"{cotes[0]}/{cotes[1]}", date])
-                    cote_over_under.append_row([score,cotes1x2, odds_span,f"{cotes[0]}/{cotes[1]}", date])
 
         except Exception as e:
             print("error cotes_over_under", e)
+
+    cote_over_under.append_rows(result)
 
     return result
 
 def flashScore(url):
     try:
         # Chemin vers le driver Chrome
-        chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
+        chrome_driver_path = r"C:\Users\etech\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")  # Démarrer en mode maximisé
 
@@ -120,7 +121,7 @@ def flashScore(url):
 
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\antem\Desktop\scrapping_aiscore\credentials.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\etech\Desktop\scrapping_aiscore\credentials.json', scope)
         client = gspread.authorize(creds)
         spreadsheet = client.open_by_key("1-agugik6J7Bo6XU2GqioAC68PWGDFkDW97TacDdA8SY")  
     
