@@ -111,7 +111,7 @@ def recuper_cotes_over_under(driver,score,date,cotes1x2,spreadsheet,ui_table="di
 def flashScore(url):
     try:
         # Chemin vers le driver Chrome
-        chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
+        chrome_driver_path = r"C:\Users\etech\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
         chrome_options = Options()
         chrome_options.add_argument("--start-maximized")  # Démarrer en mode maximisé
 
@@ -134,7 +134,7 @@ def flashScore(url):
 
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\antem\Desktop\scrapping_aiscore\credentials.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\etech\Desktop\scrapping_aiscore\credentials.json', scope)
         client = gspread.authorize(creds)
         spreadsheet = client.open_by_key("1-agugik6J7Bo6XU2GqioAC68PWGDFkDW97TacDdA8SY")  
     
@@ -308,16 +308,12 @@ def flashScore(url):
         print("Fin du scrapping.")
 
 # Traiter chaque URL et enregistrer les données
-urls = ["https://www.flashscore.com/football/england/premier-league-2014-2015/results/",
-        "https://www.flashscore.com/football/england/premier-league-2015-2016/results/",
-        "https://www.flashscore.com/football/england/premier-league-2016-2017/results/",
-        "https://www.flashscore.com/football/england/premier-league-2017-2018/results/",
-        "https://www.flashscore.com/football/england/premier-league-2018-2019/results/",
-        "https://www.flashscore.com/football/england/premier-league-2019-2020/results/",
+urls = [
         "https://www.flashscore.com/football/england/premier-league-2020-2021/results/",
         "https://www.flashscore.com/football/england/premier-league-2021-2022/results/",
         "https://www.flashscore.com/football/england/premier-league-2022-2023/results/",
         "https://www.flashscore.com/football/england/premier-league-2023-2024/results/",
+        "https://www.flashscore.com/football/england/premier-league-2024-2025/results/",
         ]
 
 for url in urls:
