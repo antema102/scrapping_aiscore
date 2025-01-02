@@ -91,13 +91,13 @@ def process_url():
             ws_main.append_row([
                 "Date", "Time", "League", "Match", "Score", "1XBET ODDS", "Match Date",
                 "1XBET O/U 2.5", "Approach", "Score", "Match Date",
-                "September", ".", "October", ".", "November", ".", "December", "."
+                "September", ".", "October", ".", "November", ".", "December", ".","January","."
             ])
 
             # Ligne secondaire (sous-colonnes UNDER et OVER alignées sous les mois)
             ws_main.append_row([
                 "", "", "", "", "", "", "", "", "", "", "",
-                "UNDER", "OVER", "UNDER", "OVER", "UNDER", "OVER", "UNDER", "OVER"
+                "UNDER", "OVER", "UNDER", "OVER", "UNDER", "OVER", "UNDER", "OVER","UNDER", "OVER"
             ])
 
             # Fusion des cellules pour chaque mois
@@ -105,6 +105,8 @@ def process_url():
             ws_main.merge_cells("N1:O1")  # Fusion pour "Octobre"
             ws_main.merge_cells("P1:Q1")  # Fusion pour "Novembre"
             ws_main.merge_cells("R1:S1")  # Fusion pour "Décembre"
+            ws_main.merge_cells("T1:U1")  # Fusion pour "January"
+
 
             # Formatage pour centrer les mois
             ws_main.format("A1:S1000", {
@@ -131,7 +133,7 @@ def process_url():
 
             # Ajouter la date si elle n'est pas déjà présente
             if not date_deja_presenteMain:              
-                ws_main.append_row([aujourd_hui_str,"","","","","","","","","","","","","","","","","",""])
+                ws_main.append_row([aujourd_hui_str,"","","","","","","","","","","","","","","","","","",""])
             else:
                 print("La date est déjà présente Main.")
 
@@ -224,7 +226,7 @@ def process_url():
                                                         deuxiementEquipe = WebDriverWait(driver,10).until(EC.presence_of_element_located((By.CSS_SELECTOR, deuxiemeEquipe__selector))).text.strip()
 
                                                         # ws_main.append_row(["",times,ligue,f"{nomEquipe} vs {deuxiementEquipe}", "", "", "","", "","", "","", "", "", "", "", "", "", ""])
-                                                        data_array.append(["",times,ligue,f"{nomEquipe} vs {deuxiementEquipe}", "", "", "","", "","", "","", "", "", "", "", "", "", ""])
+                                                        data_array.append(["",times,ligue,f"{nomEquipe} vs {deuxiementEquipe}", "", "", "","", "","", "","", "", "", "", "", "", "", "","",""])
 
                                                         cote_selectorBet365_1 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(1) > span > span'                                                                                            
                                                         cote_selectorBet365_2 = '#app > div.detail.view.border-box.back > div.content-box > span > div > div.newOdds > div:nth-child(3) > div:nth-child(1) > div.flex-1 > div > div:nth-child(1) > div.box.flex.w100.brr.preMatchBg1 > div > div:nth-child(2) > span'
@@ -251,7 +253,7 @@ def process_url():
                                                                         scoreBet365 = cell_a
                                                                         dateMatchs  = cell_c
                                                                         # ws_main.append_row(["", "", "", "",scoreBet365, cotesBet365,dateMatchs,"", "", "", "", "", "", "", "", "", "", "", ""])
-                                                                        data_array.append(["", "", "", "",scoreBet365, cotesBet365,dateMatchs,"", "", "", "", "", "", "", "", "", "", "", ""])
+                                                                        data_array.append(["", "", "", "",scoreBet365, cotesBet365,dateMatchs,"", "", "", "", "", "", "", "", "", "", "", "","",""])
                                                                         # Colonne de score à gauche, colonne de cote 1xBet vide pour l'instant    
                                                                                         
                                                         except Exception:
@@ -316,16 +318,16 @@ def process_url():
                                                                                                     if (cote_dom <= 150 ):
                                                                                                         for row in wb_home_150[2:]:
                                                                                                             if row[0] == TotalButBet365:
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
                                                                                                     elif( 150 < cote_dom <= 200):
                                                                                                         for row in wb_home_150_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
                                                                                 
                                                                                                     else:
                                                                                                         for row in wb_home_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                         else:
                                                                                                 diff_ext = abs(cote_ext - troisieme_favoris)
@@ -334,17 +336,17 @@ def process_url():
                                                                                                     if (cote_ext <= 150 ):
                                                                                                         for row in wb_away_150[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                                     elif( 150 < cote_ext <= 200):
                                                                                                         for row in wb_away_150_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                                     else:
                                                                                                         for row in wb_away_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                         
                                                                                     except ValueError:
@@ -396,17 +398,17 @@ def process_url():
                                                                                                     if (cote_dom <= 150 ):
                                                                                                         for row in wb_home_150[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                                     elif( 150 < cote_dom <= 200):
                                                                                                         for row in wb_home_150_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                                     else:
                                                                                                         for row in wb_home_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                             else:
                                                                                                 diff_ext = abs(cote_ext - troisieme_favoris)
@@ -414,18 +416,18 @@ def process_url():
                                                                                                     if (cote_ext <= 150 ):
                                                                                                         for row in wb_away_150[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
 
                                                                                                     elif( 150 < cote_ext <= 200):
                                                                                                         for row in wb_away_150_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                                                                                                     else:
                                                                                                         for row in wb_away_200[2:]:
                                                                                                             if row[0] == TotalButBet365: 
-                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8]])                                      
+                                                                                                                data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet,scoreButBetToTaux,date, row[1] , row[2],  row[3],  row[4], row[5], row[6],row[7], row[8],row[9], row[10]])                                      
 
                 
                                                                                         except ValueError:
