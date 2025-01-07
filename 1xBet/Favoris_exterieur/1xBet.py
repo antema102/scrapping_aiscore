@@ -170,8 +170,6 @@ def process_url():
                             driver.switch_to.window(driver.window_handles[0])
                         # Faire défiler vers le bas pour charger plus de tâches
 
-
-
                         # Si aucun nouvel élément n'a été trouvé, sortir de la boucle
                     if not new_data_found:
                         print("Aucun nouvel élément trouvé, sortie de la boucle.")
