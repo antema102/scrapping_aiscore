@@ -146,7 +146,7 @@ def process_odds(spreadsheet, _name, column_index, sheet_suffix=""):
 def trie_flashscore():
     # Authentification avec l'API Google Sheets
     scope = ["https://spreadsheets.google.com/feeds"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\antem\Desktop\scrapping_aiscore\credentials.json", scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json", scope)
     client = gspread.authorize(creds)
     spreadsheet = client.open_by_key("1-agugik6J7Bo6XU2GqioAC68PWGDFkDW97TacDdA8SY") 
     trie_1_x_2(spreadsheet)
