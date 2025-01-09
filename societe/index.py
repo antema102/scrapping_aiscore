@@ -25,22 +25,23 @@ def save_processed_element(element, filename):
         file.write(f"{element}\n")
 
 def societe():
-    chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
+    chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
     chrome_options = Options()
     chrome_options.add_argument("--start-maximized")  # Démarrer en mode maximisé
     service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)            
-    processed_filename = f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\societe.txt"
+    processed_filename = f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\societe\\societe_dep_1_part_3.txt"
     processed_elements = load_processed_elements(processed_filename)
 
     #Array excel
     scope = ["https://www.googleapis.com/auth/spreadsheets"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\antem\Desktop\scrapping_aiscore\credentials.json', scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json', scope)
     client = gspread.authorize(creds)
     sheet_id = "1QZV0VJrHosEoeuPraz3oK_N06hiVFcVOD2qbgoRIFyk" 
     
     sheet = client.open_by_key(sheet_id)
-    wb = sheet.sheet1
+    # wb = sheet.sheet1
+    wb = sheet.worksheet("part_3")
     ws = wb.get_all_values()
 
     try:
@@ -56,7 +57,7 @@ def societe():
             print("Le bouton de cookies n'est pas apparu, poursuite de l'exécution...")
 
 
-        for i, row in enumerate(ws[2:], start=3):  # Commence à la ligne 3 (index Excel)
+        for i, row in enumerate(ws[1:], start=1):  # Commence à la ligne 3 (index Excel)
 
             name_company=row[1] #Nom entreprise
 
@@ -163,9 +164,6 @@ def societe():
 
     except Exception as e:
         print(f"Erreur lors de l'exécution : {e}")
-
-    finally:
-        driver.quit()
-
+        
 
 societe()
