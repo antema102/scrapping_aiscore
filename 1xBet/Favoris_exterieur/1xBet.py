@@ -34,7 +34,7 @@ def process_url():
 
         #Google sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json', scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r'C:\Users\Administrator\Desktop\scrapping_aiscore\xbet-identifiants.json', scope)
         client = gspread.authorize(creds)
         sheet_id = "1ROzI-Xnz-Y4y-QGP_-KsCir3FBquSCNteUIWt2AB5DM"
         sheet = client.open_by_key(sheet_id)
