@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "xbet-447306",
+  "private_key_id": "bf65391761a441b2797b20128fb71b055f554b75",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCRcVvMyZvAfapA\nPfHBkq7WEcBIvnZdHIWbqwdFGm2JkKV3zMITlBr1iOwNkmaoOayC5jshbGOsW8Ip\n2PKICNCNQIesk7KlgbjSPhZuYiYZvMWbP6dcjBLTpSny85O7olHWIxThGdY+gtjK\nNbZ48aCYp9jugve9dzxlSG8Z9fWYUUw6XOjc2Y8UeAlK6bi4YnzD4Iv5mcz7T+TP\n0deQGyHfxPjksI0196WHYYa8q7kC1JVdceLnUxGEtIKxDduDXGRyJ6OacZ1ZSD9j\n+irON4snVicZIHmhc6K+6b8xvKkvjm1+kq5VyjFU6iOLaSBM4+/nh+v2NiYAB4xd\nfuaHraizAgMBAAECggEAAXeIOn+KD5302qMFTjOBie0x6EnrfbLs8g3+i8bhdfK8\niIHLL1FeGD3iS5y/ZlD2mXdi/0pNkw513eAvSgn0uIf/FlGDCsJNL+mqZkCdK8NI\npvE0ae2LvxC6ZJXqVokjlCpUapTNIWJGd3ulNIETYpbGzFkL0KBkPo1FeZiOepPL\ncMrBvJCGweYTwc8mDyiCkxgUxP2hXePRSSnUatXBIz9vHicnDKjBwfNPzCe65lY7\ne547A3h+F5ae7iB3YKuUitO88W5Wn6UXCY/YUrkLBZEukUQIyf66yVnqBbDgdCnf\nGsRCLuBEfg+v9AKSUw23HGqCBMmsHric4407L4LIaQKBgQDIwTEjc3TxGASP1gSn\nEBrVP7rWt1awd29zYgC1WyYQHIsJDdaIzXkBIugzwDn6EZRDFUbd+wMUhnpZ3pzX\nk5mtP3AAc8DY9mlNExIYs08qdPCruklk0NV9zhipNt2342RhjWIYMquUvB0zBwTW\n7PDfCt5zlxrKW5PqwGvznQysPQKBgQC5d4udZWsTjulYMYrhg6drQIEpaykGPO5R\nSodSv4qTHgS8fUhRKjc4EGebOpgRBboAO+K9AKSWVFEyNvvbmvXBf0rlsyshV8AW\nFOv8+K8oTZ8i5P9WpKci+RDYKowBjFQoWsemWfDEv3XLESmtDdQEzheuFzCx2ynP\nQBPTQitHrwKBgQDD3mpZEl74k9xvkfp8HWRwx3s93yc/iWg+BVJ3n3Tlp1OoA85b\nL05uY2Z2h4iJiflD8lBwaGW68vIRGPeiBaqctBZM+qMfjFt1DbRMUTZeUDY49sqB\nCJgj5J9/Cb8NmVjpLQ6WWWm69kbu8Fwybn8cvvgHg1hqMyuAkTlCOOqSaQKBgQCa\n4u4SvR7GD6Rpxb4RBUyssgrr1xVEo1/3PYFzpoiIwhn8e7gIKHRC+tg7d5yFIr4p\n8dkyNDY/YR0KDYcZ5/hy5uZam91aFBlTl5dZBSnqQ6CxmIJxDkKSX2Qk0qtno5So\nut9e2l/LP4WU17lxT0oP1TlLZwyAi+IHtaCY3fqc+wKBgFKBImTy5VsKZvk0ABF0\ncCJ1CVJDxraiRBiQwNNSDT105pyZZOvkmUatH8bFN+G+o/wsdo9IfmX06cNC68dl\nz7RYBooW8/yG8cpzj0fvABi1lyWLMQRAIVauxNNqnvekfcKEF7VznLXzclNTArIc\nSvtjspVNy9x4GGeFqfbcPqgJ\n-----END PRIVATE KEY-----\n",
+  "client_email": "id-xbet-api@xbet-447306.iam.gserviceaccount.com",
+  "client_id": "118426747443503069224",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-xbet-api%40xbet-447306.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

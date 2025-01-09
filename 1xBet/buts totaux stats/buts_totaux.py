@@ -158,7 +158,7 @@ def upload_to_drive(file_path, mime_type, file_name, parent_id_folder):
 
 try:
     scope = ["https://www.googleapis.com/auth/spreadsheets","https://www.googleapis.com/auth/drive.file"]
-    credentials = Credentials.from_service_account_file(r"C:\Users\Administrator\Desktop\scrapping_aiscore\credentials.json", scopes=scope)
+    credentials = Credentials.from_service_account_file(r"C:\Users\Administrator\Desktop\scrapping_aiscore\xbet-identifiants.json", scopes=scope)
     gc = gspread.authorize(credentials)
 
     # Charger le fichier Google Sheets existant

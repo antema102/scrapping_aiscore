@@ -43,7 +43,7 @@ def process_url():
         url="https://www.aiscore.com/fr/"
         driver.get(url)
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\Administrator\Desktop\scrapping_aiscore/credentials.json", scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_name(r"C:\Users\Administrator\Desktop\scrapping_aiscore/xbet-identifiants.json", scope)
         client = gspread.authorize(creds)
 
         sheet_id = "13h2YXSaJcKjaNa6PO19AJphd-s1VxdO4aBwORng_6Qs"
