@@ -173,7 +173,7 @@ def process_url():
                         # Si aucun nouvel élément n'a été trouvé, sortir de la boucle
                     if not new_data_found:
                         print("Aucun nouvel élément trouvé, sortie de la boucle.")
-                        # break
+                        break
                     
                     print(f"Tous les éléments traités pour {url}.")  # Afficher que tous les éléments ont été traités pour cette URL.
 

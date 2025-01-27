@@ -1,63 +1,620 @@
-Tigres de la UANL (Femmes)
-United Bharat FC
-Huda Hue U19
-Can Tho U19
-Dao Ha U19
-Ville de Melbourne
-Bengaluru Racines FC
-Binh Phuoc U19
-Phu Dong Ninh Binh U19
-PVF Vietnam U19
-Becamex Binh Duong U19
-Généralisé U19
-Hoang Anh Gia Lai U19
-Chittagong Abahani
-Nangkiew Irat
-CLB TPHCM U19
-Nam Dinh U19
-Viettel U19
-Abahani Limited Dhaka
-Terengganu U23
-Rugissement de Brisbane
-Friends United
-Pilau PinangU23
-Trabzonspor U19
-Prostejov
-Bagmati Yuwa Club (W)
-Song Lam Nghe An U19
-MKE Ankaragucu
-Club Brugge (Femmes)
-Pax de Nagoa
+Perth Glory
+RCD Espanyol (Femmes)
+UDG Tenerife Egatesa (Femmes)
+Shabana FC
+Lamphun Warrior
+Nakhon Ratchasima Mazda FC
+Song Lam Nghe An
+Elche CF Ilicitano
+Suphanburi FC
+Angkor Tiger
+Police Commissary
+Huetor Tajar
+Arucas CF U19
+Osasuna U19
+Valence U19
+OFI FC (Femmes)
+Dynamo Dresde
+FC Otelul Galati
+Hansa Rostock
+Soroksár
+Winterthour
+Al Ramadi
+Kadhimiya SC
+Racing Power (Femmes)
+Sao Joao de Ver
+Las Palmas II
+Vision Foot (W)
+AEK Athènes B
+Juventus (Femmes)
+CD Riudoms(Femmes)
+Paide Linnameeskond
+Vilaverdense (Femmes)
+Portuguesa Santista U20
+Kuopion Palloseura
+Bristol City
+Middlesbrough
+Ville de Birmingham
+Découverte de Pattaya United FC
+Phrae United FC
+Forêt d'Uthai Thani
+Sukhothai
+Dewa United FC
+Boulangerie Pulido
+Olympiakos Le Pirée U19
+MOFA FC
+Al-Wehdat SC B
+Tróttur (Femmes)
+Valur
+Arminia Bielefeld
+Liverpool
+Atalanta Bergamo U19
+Austria Wien
+Budapest Honvéd
+Farul Constanta
+GKS Tychy II
+Hannover 96 II
+Inter Turku
+KF Liria Prizren
+Rigas Futbola skola
+SpVgg Greuther Fürth
+SSV Jeddeloh
+Stilon Gorzów Wielkopolski
+SV Darmstadt 98
+Tatran Liptovsky Mikulaš
+USV Hercules
+Wiener SC
+Muhoroni Youth
+STK Samorin
+Viettel
+Johor Darul Ta'zim FC
+Maccabi Bnei Abu Snan
+Comté de Ross
+FK Vora
+Agia Napa FC
+Akritas Chloraka
+Chalkanoras Idaliou
+Olympiakos Nicosie FC
+Othellos Athienou
+Yaounde FC II
+PAEEK
+PO Ahironas-Onisilos
+Spartakos Kitiou
+Rotherham United
+Grimsby Town
+Walsall
+Ceuta B
+Marino
+Shafaram
+IR Ngaous
+Volos Nps U19
+Ilioupoli U19
+Eintracht Brunswick
+Tombense
+Al-Arabi (Arabie Saoudite)
+Aberystwyth Town
+Newtown
+Neom SC
+Ohod Club
+Atakas Hatayspor
+Al Arabi Umm Al Quwain
+Majd FC
+Masfout
+AS Maniema
+Maccabi Haïfa Football Club
+Racing de Ferrol
+AS Slimane
+Club Africain
+Tataouine
+Bastia
+Caen
+Paris FC
+Makedonikos
+Erokspor
+Beni Thamou
+Chaouia
+ESM Kolea
+FC Talanta
+Napsa Stars
+Deportivo Alavés
+Bengaluru
+Grenade CF B
+Chiangmai Utd
+Hapoel Ihud Bnei Gat
 PAOK Salonique U19
-Lee Man FC U22
-Hapoel Kfar Saba U19
-Vasco SC
-Al-Naft SC
-Sabah U23
-Hapoel Beit She'any
-Hapoel Ironi Baqa Al-Gharbiyye
-Bali United
+PAS Lamia U19
+Eclair de Saa (Femmes)
+Hadiya Hossana
+HJK Helsinki
+Kouris Erimi
+Thoi Lakatamias
+Cordoba (femmes)
+Red Arrows
+Dubai United
+Gent II (femmes)
+Birkirkara FC
+Naxxar Lions
+Pieta Hotspurs
+Jeunesse Al Ittihad
+1. Cologne II
+Bayern Alzenau
+Bocholt FC
+KR Reykjavik
+Concarneau
+CSKA 1948 Sofia
+Grazer AK
+Hartberg
+Hassleholms IF
 Hermannstadt
-Jahn Regensburg
-Polonia Varsovie
-Beitar Jérusalem Oren U19
-Tzeirey Haifa
-Al Safa SC
-Karagumruk
-Doxa Katokopias
-Ulmu
+Al Ittihad Kalba U23
+Al-Sharjah
+Baniyas
+Iraklis 1908 FC U19
+Hertha II
+SC Fribourg (Femmes)
+Universitatea Cluj
+Unterhaching
+Zalaegerszegi
 Al Urooba U23
-Baniyas SC U23
-Dibba Al Hisn U23
-Brentford U21
-Ipswich U21
-Peterborough United U21
-Wigan Athletic U21
-FC Viktoria Cologne
-SV Sandhausen
-Uruguay U20
-Airtel Kitara FC
-BUL FC
-Héros de Mbale
-Mbarara City
-Etincelles
+Al-Ain SCC U23
+Shabab Al Ahli Dubai U23
+Maccabi Tel Aviv Shachar U19
+Ashdod MS U19
+Bnei Yehuda Tel Aviv U19
+Hapoel Beer Sheva U19
+Hapoel Raanana Roei U19
+Al-Gharafa
+Beitar Nes Tubruk U19
+Magesi
+Marumo Gallants FC
+JDR Stars
+Leruma United
+Venda
+Ville d'Upington
+ACV Assen
+Excelsior Maassluis
+GVVV Veenendaal
+HHC Hardenberg
+Noordwijk
+RKAV Volendam
+A.S.D. Varesina
+NovaRomentin
+A.S.D. Calcio Chieri 1955
+Cairese
+Chantilly
+Las Palmas U19
+Anzio Calcio 1924 U19
+Brindisi U19
+AS Avellino Youth
+Ascoli U19
+Calcio Padova U19
+Como U19
+Jeunesse du FC Sudtirol
+Modena Youth
+Napoli U19
+Palerme U20
+Pro Vercelli U20
+Spal U19
+Vicence U20
+Wits University
+Tekstilac
+Bala Town
+AC Oulu
+Aube Szczecin
+Berlin Turkspor
+Sigma Olomouc
+Tallinna Kalev
+Doumbe FC
+Ajax (Am)
+Al-Orubah
+Vitoria da Conquista U20
+Burreli
+Empoli
+Udinese
+Leicester City Football Club
+Banque nationale d'Égypte
+Cwmbran Celtic
+Llandudno
+Llantwit Major
+Llay Miners Welfare
+Penrhiwceiber Rangers
+Ville de Buckley
+Aigle Royal du Moungo
+FCF Como (Femmes)
+Sassuolo (Femmes)
+Mohun Bagan
+Dundela
+Brighton & Hove Albion (Femmes)
+Rangers of Bafut
+Cailungo
+Fiorentino
+Murata
+SP Domagnano
+ASD Caldiero Terme
+Giana
+Lumezzane
+Novare
+Tarente FC 1927
+Trente
+AC Chievo Vérone
+S.S.D. Pro Sesto
+Villa d'Alme Valbrembana
+Kozakken Boys
+Rousset Ste Victoire
+Juventus-AC (Jeunesse)
+Gaborone United
+Amazone FAP (Femmes)
+Caiman Douala (Femmes)
+FC Ebolowa (Femmes)
+FC Bâle 1893
+Finn Harps
+Lausanne-Sport
+Pogon Szczecin
+Sportfreunde Lotte
+Sturm Graz
+TSV Victoria Clarholz
+Allemagne U16
+Académica Coimbra U19
+Dragons de Baglan
+Abilasheha
+Desenzano Calvina
+Trévise
+US Breno
+Virtus CiseranoBergamo
+A.C. Bra
+ASD Brian Lignano
+1. FC Heidenheim
+FC St. Pauli
+FSV Mayence 05
+SC Fribourg
+TSG Hoffenheim
+Al Watan
+Airbus UK Broughton
+Ammanford
+AS Fap
+Katwijk
+Berceo
+Pampelune
+Valle Egüés
+Gabon (W) U17
+Celta De Vigo II
+Intercity San Juan de Alicante
+SD Ponferradina
+Slavia Sofia
+Al Salibikhaet
+Al-Shabab Ahmadi
+CD Cortes
+Al-Qadisiya
+ACD Campodarsego
+Asteras Tripoli B
+Almere City Youth
+CD Atletico Mansilles
+CD Lakua Arriaga
+Caravaggio
+Folgore Caratese A.S.D.
+Imperia
+Gatika KT
+Bournemouth AFC
+Legia Varsovie
+KVC Westerlo
+Brentford
+Chelsea Football Club
+Exeter City
+Forêt de Nottingham
+Norwich City
+Reading
+Sunderland
+Hibernian
+Saint Mirren
+Enosis Neon Paralimni
+Jeunesse Sportive Soualem
+Ballymena United FC
+Croisés
+Glenavon Lurgan
+Linfield FC
+Loughgall FC
+Falkirk
+ES Mostaganem
+Blackpool
+AD Alcorcon II
+Alcantarilla
+Ardoi Futbol Elkartea
+Atzeneta UE
+Barreda Balompié
+Beasain
+Beti Onak
+CD Huarte
+Club Deportivo Baskonia
+Ebro
+Stevenage
+Eibar (Femmes)
+Ballinamallard United
+Camarades de Ballyclare
+Institut FC
+Ville d'Armagh
+Subiza
+Alloa Athletic
+AFC Wimbledon
+Swindon Town
+Porreres
+Silva SD
+UD Fraga
+UD Levante B
+East Fife
+Forfar Athletic FC
+Ville d'Édimbourg
+Aldershot Town
+Boston United
+Yeovil Town
+Buxton FC
+Rushall Olympic F.C.
+Aveley
+Bath City
+Boreham Wood
+Eastbourne Borough
+Hemel Hempstead Town
+Maidstone United
+Tonbridge Angels
+Torquay United
+Ville de Salisbury
+Weston-super-Mare
+Weymouth
+Boldmere St Michaels
+Cleethorpes Town
+Loughborough University
+Carshalton Athletic FC
+Chatham Town
+Cray Wanderers
+Bognor Regis Town
+Bowers & Pitsea
+Canvey Island
+Bo'ness United
+Atletico Madrid U19
+CD Vasconia U19
+Cd Burgos International
+Valdefierro (Femmes)
+Wolaita Dicha
+Nomme Kalju
+Atletico San Luis U23
+Chivas Guadalajara U23
+Cruz Azul U23
+Estoril(Femmes)
+Atletico Arcos
+Grupo Desp Lagoa
+Académico Viseu U19
+Belenenses U19
+CD Mafra U19
+FC Famalicão U19
+FC Porto U19
+Gil Vicente U19
+Oliveirense U19
+Rio Ave (Femmes)
+SC Uniao Torreense U19
+Sporting CP U19
+Vitoria SC Femmes
+Amora FC U19
+Anadia FC U19
+Leixoes U19
+LimianosU19
+Moreirense U19
+Quarteirense U19
+SC Leira Marrazes U19
+Uniao Leiria U19
+Uniao Madeira Funchal U19
+Vitoria FC Setubal U19
+Mukura Victory Sports
+Helmond Sport
+Albacete Balompié SAD
+Huesca
+Real Aviles CF (Femmes)
+Renaissance
+Al Ahli Doha
+Europa FC
+Hamrun Spartans
+Marsaxlokk FC
+Sliema Wanderers
+CD Binissalem
+CD Paracuellos Antamira
+CD Roda
+Constancia
+Marchamalo
+Pasaia
+Penya Independent
+Torina
+UDC Chantrea
+Villarreal C
+Palamos
+AC Sparta Prague (Femmes)
+Real Valladolid
+Heracles Almelo
+FAP Yaoundé
+Horsham
+Basford United
+Ville de Macclesfield
+Bedford Town
+Harborough Town
+Basingstoke Town
+Gosport Borough
+Merthyr Town
+Plymouth Parkway
+Wimborne Town
+AS Les Oisillons (W)
+Al-Jazira (EAU)
+Cascavel Youth
+USFAS Bamako
+Santangelo
+Stade d'Abidjan
+G.D. Sagrada Esperanca
+Barcelone II (Femmes)
+Besiktas JK
+Beitar Jerusalem
+Maccabi Netanya
+Maccabi Petah Tikva FC
+FK Partizani Tirana
+KS Elbasani
+USM Annaba
+A'Ali FC
+Manama Club
+Arenas Armilla
+CD Coria
+Stade Brestois 29
+Arandina
+Atletico Mineros
+Atlético Saguntino
+CD Cristo Atlético
+CD Gares
+Jeune Espagnol
+Manchego
+Samanod
+SD Portmany
+UD Somozas
+Agde
+Colmar
+Guingamp B
+Reims II
+Toulouse FC II
+Sierra Leone (Femmes) U17
+Guaratinguetá U20
+Athletic Bilbao U19
+Cultural y Deportiva Leonesa
+CD Guiniguada Apolinario B (W)
+Banjul Hawks
+TMTFA
+Afrique Football Elite
+Casertana
+Pescara
+Renate AC
+Sestri Levante
+Ternana
+Club Deportivo Santa Úrsula
+UD Collerense
+Atlético de Madrid II
+Gimnàstic Tarragone
+Ourense
+EMF Fuensalida (Femmes)
+Mislata CF (Femmes)
+AS Dakar Sacre Coeur
+Jamono Fatick
+Oslo Football Academy Dakar
+NGB Dakar
+SONACOS
+US Gorée
+Al-Ittihad Al-Sakndary
+Aris Limassol
+Al-Fayha
+Anvers B
+De Treffers
+Villarreal (Femmes)
+Juvenes-Dogana
+CD Derio
+CD Mensajero
+Herbanie
+Sarriana
+AS Beauvais Oise
+Balagne
+Cannes AS
+Créteil-Lusitanos
+Fleury 91
+Granville
+Hyères
+Laval-II
+Lyonnais II
+CD San Ignacio B
+CF Aranbizkarra
+Saint-Malo
+Thionville FC
+Auxerre II
+Chassieu Décines FC
+Chatou
+Dijon II
+ES Troyes AC B
+Espaly Saint Marcel
+FC Ouest Tourangeau
+Marseille II
+Oissel
+Rennes II
+Strasbourg Koenigshoffen
+Torcy
+US Lusitanos Saint-Maur
+Real Oviedo B femmes (Femmes)
+Turin
+Olympique de Safi
+Fréjus St-Raphaël
+Toulon
+Racing Genk
+Manchester United (Femmes)
+Carajas PA Jeunesse
+Espanyol de Barcelone
+Borussia Mönchengladbach
+Ironi Tiberias
+Málaga
+Ténérife
+Barcelone (Femmes)
+Kelty Hearts
+Vierzon
+Hercule II
+Atletico San Luis U19
+CDSyC Cruz Azul U19
+Chivas Guadalajara U19
+Monterrey U19
+Academico Viseu B U19
+AFC Ajax
+Leeds United
+Manchester City
+Athletic Bilbao C (Femmes)
+Stade de Reims
+Coventry City
+Leyton Orient
+Santa Cruz RN
+Xalísco FC
+CF San Bartolome
+FC Bassin d'Arcachon
+US Lege-Cap-Ferret
+Referencia SP Youth
+UD San Pedro
+Botafogo SP
+Brusque FC
+Chaleur de San Pedro
+Etoiles Mande
+Maccabi Ashdod
+Beitar Ironi Kiryat Gat
+Olympiakos Le Pirée
+Gent II
+Merelbeke
+Benidorm
+GOES
+Real Madrid II
+Dorense SE
+PEC Zwolle
+FAR Rabat
+Lorient
+Botafogo RJ
+America Natal
+Vitoria BA
+Décision
+Clube Atlético Paranaense
+RWD Molenbeek
+Zulte-Waregem
+K.S.K. Heist
+Ninove
+Imperatriz MA
+Atlético-CAP
+4 juillet
+SC Penedense
+CS Sergipe
+Lorca Deportiva FC
+Sporting CP B Femmes
+Fortaleza (Jeunesse)
+Maccabi Ahva Fureidis
+Clube Náutico Capibaribe
+Serra Branca EC
+Joinville SC
+Nova Iguacu
+Nova Mutum
+R.Charleroi
+Sport Clube de Portugal
+AC Milan
+PSV Eindhoven
+Séville
+Real Oviedo
+Stade Rennais FC
