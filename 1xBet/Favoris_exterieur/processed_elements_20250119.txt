@@ -1,0 +1,344 @@
+
+AS Saint-Etienne
+Cagliari
+Parme
+Everton
+Forêt de Nottingham
+Manchester United
+Almere City FC
+SC Heerenveen
+Real Club Celta de Vigo SAD
+ACF Fiorentina
+NAC Breda
+Union Berlin
+Real Madrid
+Moreirense
+Nacional da Madeira
+NEC Nimègue
+Angers
+Stade de Reims
+Ipswich Town
+Werder Brême
+Vérone
+CA Osasuna
+CF Estrela Amadora SAD
+Sparta Rotterdam
+Inter Milan
+Marseille
+Valence
+Gil Vicente
+Puntarenas
+Clube do Remo
+C.D. Victoria
+Cobán Imperial
+Service Pénitentiaire FC
+Jalapa
+XV de Piracicaba
+Deportivo Saprissa U21
+Cerro Largo
+Cobreloa
+Sports La Serena
+Costa Del Este Réserve
+Esporte Clube Noroeste
+Uniao Inhumas
+America Natal
+Jequie BA
+O'Higgins
+Aguacateros de Periban FC
+Deportiva Venados
+Zacatepec
+Leon U19 (W)
+Queretaro U19 (W)
+Fluminense RJ
+Figueirense
+Itabirito
+Luverdense
+FC Los Angeles
+Coruripe Al
+Colo Colo
+Artesanos Metepec FC
+CD Mexiquense
+Tritons Vallarta MFC
+SE do Gama
+Imperatriz MA
+Juarez
+CF Atlante
+CD Universitario
+C.S.D.Comunicaciones
+La Horquetta Rangers
+San Juan Jabloteh
+Pabellon FC
+Sucreries de Tezonapa
+Rancho Santana FC
+Deportivo Cali
+Montevideo Wanderers
+Nublense
+Tigres de Alica FC
+Saint-Martin FC
+Lobos UPNFM
+Associacao Portuguesa de Desportos
+Sao Paulo U20
+Union La Calera
+AA Portugaise
+Estrella
+Lobos ULMX
+Capitale de Salto
+Criciúma U20
+San José Interior
+Maldonado Interior
+Toluca
+Antigua GFC
+AFF Guatemala
+Once Caldas
+Chiapas
+Irapuato
+Capitale de Maldonado
+Capitale de Rio Negro
+Intérieur de la Floride
+Paysandu Intérieur
+Tacuarembo Intérieur
+Club Deportivo Plaza Amador
+Real C.D. Espana
+Municipal Limeno
+Gavilanes FC Matamoros
+Defensor Sporting Club
+Alajuelense
+Guadalupe FC
+International San Carlos
+Sacachispas GT
+Walter Ferretti
+Atlas
+Marquense
+Wellington Phoenix (Femmes)
+Club. Cienciano Cusco
+Inter Miami CF
+Ressources Capital FC
+Kwun Tong
+Tuen Mun
+WSE
+Sun Hei
+Sydney FC (Femmes)
+Hong Kong Rangers
+Citoyen
+Wong Tai Sin
+Brisbane Roar (Femmes)
+Kaya Iloilo
+Sha Tin
+Sing FC
+Club de Football Mutuel
+Leaper MG
+Real Kashmir
+Golden Arrow II
+Réserves du Cape Town City FC
+Sekhukhune United II
+Flora Tallinn U21
+Jagiellonia Białystok
+Novi Pazar
+Gresik United
+Persipal Palu BU
+Nairobi United
+Gazisehir Gaziantep FK U19
+Hong Kong FC
+Persik Kediri
+Pusamania Borneo
+Bhayangkara Presisi Indonésie FC
+PSMS Medan
+Adhyaksa Farmel FC
+Bekasi City
+Viengchanh
+Kirivong Sok Sen Chey
+Imigresen FC
+Murcie B
+Inter Bangkok
+Royal Thai Air Force FC
+Université de Pathumthani
+Force aérienne et côtière Commande FC
+Pluakdaeng United
+Suranaree Chat Noir
+Pattani
+Assumption United
+Samut Songkhram City
+Panaitolikos U19
+Mohammedan SC U21
+Giresun Sanayispor (Femmes)
+ISPE
+Pannafpliakos
+Ville de Hua Hin
+District de Kwai Tsing FA
+Fu Moon FC
+AE Kifisias
+Bandari
+Nairobi City Stars
+FC Talanta
+Rajasthan United FC
+FC Pas de la Casa
+Hougang United FC
+Chiang Rai City FC
+Richards Bay II
+Santuxu
+SPA Merignacais U19
+Monaco U19
+Lecce U20
+MilanU19
+Zurich II
+Santurtzi
+Goztepe
+Iğdır FK
+Keçiörengücü
+GMG Kastamonuspor
+Bala Azul
+Cazalegas
+CD Canillas
+CF Platges de Calvià
+CF Trival Valderas
+Club Deportivo Baskonia
+Minerva
+Parla
+SD Huesca II
+UD Collado Villalba
+Villaverde Boetticher CF
+Athletic Bilbao U19
+CD Thader
+Burgos(Femmes)
+Tabasalu Charma
+Aviles Stadium
+FE Grama
+Muglaspor
+Vizela
+Real Madrid (Femmes)
+Real Sociedad (Femmes)
+Buriram United
+Ratchaburi FC
+Nam Dinh FC
+SHB Da Nang
+Étoiles de Mutondo
+Deportivo de La Coruna II
+Real Aviles CF
+Union Montanesa Escobedo
+Andratx
+Ibiza Islas Pitiusas
+SCR Pena Deportiva
+Terrassa
+Torrent
+Águilas
+Cadix B
+CD Linares Deportivo
+Estepona
+Juventud Torremolinos
+Real Balompédica Linense
+Villanovense
+CD Guadalajara
+CF Talavera de la Reina
+CP Cacereno
+Rayo Majadahonda
+Real Madrid C
+Tenerife II
+Union Adarve
+Sporting de Huelva (Femmes)
+Kasetsart
+Mahasarakham SBT FC
+Binh Phuoc
+Khatoco Khanh Hoa
+TP Ho Chi Minh II
+Afyonspor
+Erzincanspor
+Ispartaspor
+Kepez
+Kırklarelispor
+Tuzlaspor
+Bukaspor
+Celspor
+Derincespor
+Diyarbakırspor
+Karacabey Belediyespor
+Karaman FK
+Police Commissary
+Visakha FC
+AE Prat
+Albacete B
+Athletic Torrellano
+Atzeneta UE
+Beasain
+Berceo
+Caravaca CF
+Casalarreina
+CD Azuqueca
+CD Calamonte
+CD Diocesano
+CD El Palo
+CE Manresa
+CE Mercadal
+CE Sabadell B
+Condal CF
+CPVillarrobledo
+Cuarte
+Girona II
+Las Rosas
+Manzanares
+Olivenza FC
+Racing Club Villalbés
+San Cristobal
+San Roque de Lepe
+Séville III
+SP Villafranca
+Sporting de Gijon II
+UC Ceares
+UD Levante B
+UD Logrones B
+Utrera
+Varea
+Asteras Stavros
+Padriew City
+Phitsanulok Unity FC
+Khonkaen FC
+Muang Trang United
+Ranong United
+Bursaspor
+Elazig Belediyespor
+Kahramanmarasspor
+Kartal Bulvarspor
+Kirsehir Koyhizmetleri
+Kusadasispor
+Kutahyaspor
+1954 Kelkit Belediyespor
+Fatsa Belediyespor
+Inegol Jeunesse du Caucase
+Mazidagi Fosfat Spor
+Turk Metal 1963
+Utas Usakspor
+Aliaga Futbol
+Cankaya
+Corluspor
+Karabuk Idman
+Kestelspor
+Pazarspor
+Viransehir
+1926 Polatli Belediye
+Agri 1970 Spor
+EdirnesporGenclik
+Nigde Belediyesispor
+Talasgucu Belediyespor
+Tepecik B.S.
+Almeria U19
+Antiguoko U19
+Calavera CF U19
+Malaga U19
+Real Saragosse U19
+Txantrea U19
+Atarfe Industrial CF
+CD Sariegos
+Chiclana
+Pobla De Mafumet CF
+San Fernando CD B
+Andorre CF
+Unionistas de Salamanca CF
+Zamora CF
+CD Alcoyano
+Mérida
+Prainsa Saragosse (Femmes)
+Alhama CF B(Femmes)
+Victoria FC Santiago (Femmes)
+Saint-Étienne U19
+Bordeaux U19 (femmes)
+Trikala 2011(Femmes)
+FC Augsbourg II
