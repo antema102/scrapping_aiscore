@@ -31,3 +31,7 @@ time.sleep(100000)
 
 # Fermer le navigateur
 driver.quit()
+#pip install selenium_wire
+#pip install blinker==1.4
+#pip install setuptools
+#pip install webdriver-manager
