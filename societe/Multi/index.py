@@ -1,4 +1,4 @@
-from selenium import webdriver
+from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
@@ -13,7 +13,16 @@ from multiprocessing import Process,Lock
 
 files_and_sheets=[]
 
-for i in range(7,8):  # Départements de 8 à 12
+# Configuration du proxy avec authentification via URL
+seleniumwire_options = {
+    'proxy': {
+        'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+        'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+    }
+}
+
+
+for i in range(18,19):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
     parts = [f"part_{j}" for j in range(1, 7)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -44,7 +53,7 @@ def societe(file_path,sheets):
     chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
     chrome_options = Options()
     chrome_options.add_argument("--window-size=800,600")  # Dimensions de la fenêtre
-    chrome_options.add_argument("--headless")  # Mode sans interface graphique
+    # chrome_options.add_argument("--headless")  # Mode sans interface graphique
     chrome_options.add_argument("--disable-infobars")  # Désactive les barres d'information
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")  # Empêche la détection d'automatisation
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
@@ -63,7 +72,7 @@ def societe(file_path,sheets):
     chrome_options.add_experimental_option("prefs", prefs)
 
     service = Service(chrome_driver_path)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver = webdriver.Chrome(service=service, options=chrome_options, seleniumwire_options=seleniumwire_options)
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
     number = processed_text.split("_")[-1]  # Sépare à "_" et prend la 2e partie
     processed_filename = f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\societe_{processed_text}_{sheets}.txt"
