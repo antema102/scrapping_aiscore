@@ -20,6 +20,9 @@ import pandas as pd
 files_and_sheets=[]
 lock = Lock()
 
+# Récupérer l'utilisateur courant
+user_name = os.getlogin()
+
 # Configuration du proxy avec authentification via URL
 seleniumwire_options = {
     'proxy': {
@@ -32,7 +35,7 @@ for i in range(19,21):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
     parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
     files_and_sheets.append(
-        (f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx", parts)
+        (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT_{dep_formatted}.xlsx", parts)
     )
 
 def check_internet(url="https://www.google.com", timeout=5):
@@ -62,7 +65,7 @@ def societe(file_path,sheets):
             (socket.SOL_SOCKET, socket.SO_RCVBUF, 1000000)
         ])
 
-    chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
+    chrome_driver_path = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/chromedriver/chromedriver.exe"
     chrome_options = Options()
     chrome_options.add_argument("--window-size=800,600")  # Dimensions de la fenêtre
     # chrome_options.add_argument("--headless")  # Mode sans interface graphique
@@ -88,11 +91,11 @@ def societe(file_path,sheets):
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
     number = processed_text.split("_")[-1]  # Sépare à "_" et prend la 2e partie
 
-    processed_filename = f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\{processed_text}_{sheets}.txt"
+    processed_filename = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/{processed_text}_{sheets}.txt"
 
     processed_elements = load_processed_elements(processed_filename)
 
-    new_file_path= f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\{processed_text}_{sheets}.xlsx"
+    new_file_path= f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societ/Multi/{processed_text}_{sheets}.xlsx"
 
     workbook = load_workbook(file_path)
 
@@ -313,7 +316,7 @@ def send_to_google_sheets(excel_file, dep_number):
         # Authentification Google Sheets
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(
-            r'C:\Users\antem\Desktop\scrapping_aiscore\credentials.json', scope
+            f'C:/Users/{user_name}/Desktop/scrapping_aiscore/credentials.json', scope
         )
         client = gspread.authorize(creds)
         sheet_id = "1JkycUQRhV7kDnrA-wEfukJAUmEYFj_qFAN6JVx9wVto"
