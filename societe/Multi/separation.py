@@ -5,7 +5,7 @@ from openpyxl import load_workbook
 input_files = []  # Initialiser la liste des fichiers
 
 # Générer les noms de fichiers pour les départements 7 à 12
-for i in range(8, 9):  # i va de 7 à 12
+for i in range(19,21):  # i va de 7 à 12
     dep_formatted = str(i).zfill(2)
     input_files.append(f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx")
 
@@ -21,15 +21,15 @@ def split_excel(input_file):
     total_rows = len(df)
 
     # Calculer la taille des différentes parties (environ 10 000 lignes par partie)
-    part_size = total_rows // 6  # On divise en 6 parties égales
+    part_size = total_rows // 2  # On divise en 6 parties égales
 
     # Ouvrir le fichier Excel existant
     with pd.ExcelWriter(input_file, engine='openpyxl', mode='a') as writer:
         # Créer les 6 parties et les ajouter dans des onglets
-        for i in range(6):
+        for i in range(2):
             # Définir l'indice de début et de fin pour chaque partie
             start_idx = i * part_size
-            if i == 5:  # Dernière partie, prendre tout ce qui reste
+            if i == 1:  # Dernière partie, prendre tout ce qui reste
                 end_idx = total_rows
             else:
                 end_idx = (i + 1) * part_size

@@ -5,15 +5,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from openpyxl import load_workbook
-import sys  # Importer le module pour la sortie du script
+import gspread
+import pandas as pd
+from oauth2client.service_account import ServiceAccountCredentials
 import socket
 from urllib3.connection import HTTPConnection
 import os
 from multiprocessing import Process,Lock
 import requests
 import time
-files_and_sheets=[]
+import pandas as pd
+
 # Verrou global
+files_and_sheets=[]
 lock = Lock()
 
 # Configuration du proxy avec authentification via URL
@@ -24,14 +28,12 @@ seleniumwire_options = {
     }
 }
 
-
-for i in range(18,19):  # Départements de 8 à 12
+for i in range(19,21):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
     files_and_sheets.append(
-        (f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx", parts)
+        (f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx", parts)
     )
-
 
 def check_internet(url="https://www.google.com", timeout=5):
     """Teste la connexion Internet en envoyant une requête à Google."""
@@ -41,15 +43,6 @@ def check_internet(url="https://www.google.com", timeout=5):
     except requests.ConnectionError:
         return False
     
-
-def h1(url="https://www.google.com", timeout=5):
-    """Teste la connexion Internet en envoyant une requête à Google."""
-    try:
-        response = requests.get(url, timeout=timeout)
-        return response.status_code == 200
-    except requests.ConnectionError:
-        return False
-
 # Fonction pour charger les éléments déjà traités depuis un fichier spécifique
 def load_processed_elements(filename):
     if os.path.exists(filename):
@@ -69,7 +62,7 @@ def societe(file_path,sheets):
             (socket.SOL_SOCKET, socket.SO_RCVBUF, 1000000)
         ])
 
-    chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
+    chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
     chrome_options = Options()
     chrome_options.add_argument("--window-size=800,600")  # Dimensions de la fenêtre
     # chrome_options.add_argument("--headless")  # Mode sans interface graphique
@@ -94,9 +87,12 @@ def societe(file_path,sheets):
     driver = webdriver.Chrome(service=service, options=chrome_options, seleniumwire_options=seleniumwire_options)
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
     number = processed_text.split("_")[-1]  # Sépare à "_" et prend la 2e partie
-    processed_filename = f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\societe\\Multi\\societe_{processed_text}_{sheets}.txt"
+
+    processed_filename = f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\{processed_text}_{sheets}.txt"
+
     processed_elements = load_processed_elements(processed_filename)
-    new_file_path= f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\societe\\Multi\\{processed_text}_{sheets}.xlsx"
+
+    new_file_path= f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\{processed_text}_{sheets}.xlsx"
 
     workbook = load_workbook(file_path)
 
@@ -105,7 +101,7 @@ def societe(file_path,sheets):
         if feuille != sheets:  # Si ce n'est pas l'onglet à garder
             ws = workbook[feuille]
             workbook.remove(ws)  # Supprimer l'onglet
-            print(f"Onglet {feuille} supprimé.")  # Afficher le nom de l'onglet supprimé
+            # print(f"Onglet {feuille} supprimé.")  # Afficher le nom de l'onglet supprimé
 
     # Sélectionner la feuille active
     worksheet_name = sheets  # Nom de la feuille à garder dans le fichier Excel
@@ -118,6 +114,7 @@ def societe(file_path,sheets):
         total_elements = worksheet.max_row  # Total des éléments dans la source de données
         processed_count = 0       # Compteur des éléments déjà traités
 
+        # print(total_elements)
         #ne pas ignire ligne 1 si igner le 
         # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
         for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):  # Ignore la première ligne si c'est un en-tête
@@ -146,24 +143,28 @@ def societe(file_path,sheets):
                 print("❌ Pas de connexion Internet. Fermeture du script.")
                 driver.close()
                 driver.quit()
-                return  # Quitte immédiatement
+                return  False# Quitte immédiatement
 
             try:                
                 elements = driver.find_elements(By.CSS_SELECTOR, 'a.ResultBloc__link__content')
-
                 if not elements:
+                    try:
+                        h1 = driver.find_element(By.CSS_SELECTOR, '#appMain > div > section > div > h1')
+
+                        if h1:
+                            print("ip bloquer")
+                            driver.close()
+                            driver.quit()
+                            return False
+                        
+                    except Exception as e:
+                        print("pas blocage")
                     
-                    h1 = driver.find_element(By.CSS_SELECTOR, '#appMain > div > section > div > h1')
-
-                    if h1:
-                        print("ip bloquer")
-                        driver.close()
-                        driver.quit()
-                        return False
-
+                    print("pas donnée")
                     processed_elements.add(name_company)
                     save_processed_element(name_company, processed_filename)
                     processed_count += 1    
+
                 else:
                     for item in elements:
                         try: 
@@ -237,9 +238,10 @@ def societe(file_path,sheets):
                 driver.switch_to.window(driver.window_handles[0])
                                                       
             except Exception as e:
-                print("Error",e)
+                print("Error")
                 driver.close()
                 driver.switch_to.window(driver.window_handles[0])
+
 
         # Vérifiez si tous les éléments ont été traités
         if processed_count >= total_elements:
@@ -250,7 +252,8 @@ def societe(file_path,sheets):
             return True 
            
     except Exception as e:
-        print(f"Erreur lors de l'exécution : {e}")    
+        print(f"Erreur lors de l'exécution ")
+        driver.close()     
         driver.quit()  # Nettoyer correctement le driver
         return False  # Retourne False pour signaler une erreur
 
@@ -260,30 +263,115 @@ def retry_societe(file_path, sheet_name):
     """
     while True:  # Boucle infinie jusqu'à ce que le traitement soit terminé avec succès
         success = societe(file_path, sheet_name)
-        time.sleep(10)
+        print(success)
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
             print(f"Relance du traitement pour {file_path} - {sheet_name}")
-
-        
+      
 def launch_processes():
     """
     Fonction pour lancer les traitements en simultané.
     """
-    processes = []  # Liste pour stocker les processus
-
+     # Liste pour stocker les processus
+    departments = [] 
     for file_path, sheets in files_and_sheets:
+
+        dep_number = os.path.basename(file_path).split('_')[1].split('.')[0]
+
+        if dep_number not in departments:
+            departments.append(dep_number)
+
+        processes = [] 
+        
         for sheet_name in sheets:
             print(f"Création d'un processus pour {file_path} - {sheet_name}")
             # Créer un processus pour chaque combinaison fichier/feuille
             process = Process(target=retry_societe, args=(file_path, sheet_name))
             processes.append(process)
             process.start()  # Lancer le processus
+            time.sleep(20)
 
-    # Attendre que tous les processus soient terminés
-    for process in processes:
-        process.join()
+        # Attendre que tous les processus soient terminés
+        for process in processes:
+            process.join()
+    
+        print(f"Traitement du département {dep_number} terminé.")
+
+        # Générer dynamiquement le nom du fichier fusionné
+        departments_str = dep_number  # Ici, juste le département en cours
+        output_file = f"news_dep_{departments_str}.xlsx"
+    
+        # Une fois tous les processus terminés, fusionner les fichiers
+        merge_excel_files(output_file,dep_number)
+
+    print("Tous les départements ont été traités.")
+
+def send_to_google_sheets(excel_file, dep_number):
+    """Ajoute les nouvelles données dans Google Sheets sans effacer l'existant."""
+    try:
+        # Authentification Google Sheets
+        scope = ["https://www.googleapis.com/auth/spreadsheets"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name(
+            r'C:\Users\antem\Desktop\scrapping_aiscore\credentials.json', scope
+        )
+        client = gspread.authorize(creds)
+        sheet_id = "1JkycUQRhV7kDnrA-wEfukJAUmEYFj_qFAN6JVx9wVto"
+        google_sheet = client.open_by_key(sheet_id)
+
+        # Vérifier si l'onglet existe
+        try:
+            dep_sheet = google_sheet.worksheet(f"dep_{dep_number}")
+            print(f"L'onglet dep_{dep_number} existe déjà. Mise à jour en cours...")
+        except gspread.exceptions.WorksheetNotFound:
+            # Si l'onglet n'existe pas, le créer
+            dep_sheet = google_sheet.add_worksheet(title=f"dep_{dep_number}", rows="1000", cols="20")
+            print(f"L'onglet dep_{dep_number} a été créé.")
+
+        # Lire le fichier Excel
+        df = pd.read_excel(excel_file)
+
+        # Remplacer les valeurs NaN par une chaîne vide (évite l'erreur JSON)
+        df = df.fillna("")
+
+        # Convertir les données en liste de listes
+        data = df.values.tolist()
+
+        # Ajouter les nouvelles données sous l'ancienne
+        dep_sheet.append_rows(data, value_input_option="RAW")
+
+        print(f"Les données ont été ajoutées avec succès dans l'onglet dep_{dep_number}.")
+
+    except Exception as e:
+        print(f"Erreur lors de l'envoi des données à Google Sheets : {e}")
+
+# Fonction pour fusionner les fichiers Excel
+def merge_excel_files(output_file,dep_number):
+    all_data = []
+
+    # Parcourir les fichiers générés
+    for file_path, sheets in files_and_sheets:
+        for sheet_name in sheets:
+            base_name = file_path.replace(".xlsx", "")
+            individual_file = f"{base_name}_{sheet_name}.xlsx"
+            print(f"Fichier attendu : {individual_file}")  # Vérification
+
+            if os.path.exists(individual_file):
+                df = pd.read_excel(individual_file)
+                all_data.append(df)
+
+                # Supprimer le fichier après l'avoir lu
+                os.remove(individual_file)
+    
+    # Fusionner toutes les données
+    if all_data:
+        merged_df = pd.concat(all_data, ignore_index=True)
+        merged_df.to_excel(output_file, index=False)
+        print(f"Fichier fusionné créé : {output_file}")
+
+        send_to_google_sheets(output_file, dep_number)
+    else:
+        print("Aucun fichier à fusionner.")
 
 if __name__ == "__main__":
     print("Lancement des traitements en simultané...")
