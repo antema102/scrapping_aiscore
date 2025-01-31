@@ -10,8 +10,11 @@ import socket
 from urllib3.connection import HTTPConnection
 import os
 from multiprocessing import Process,Lock
-
+import requests
+import time
 files_and_sheets=[]
+# Verrou global
+lock = Lock()
 
 # Configuration du proxy avec authentification via URL
 seleniumwire_options = {
@@ -24,13 +27,29 @@ seleniumwire_options = {
 
 for i in range(18,19):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 7)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
     files_and_sheets.append(
-        (f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx", parts)
+        (f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx", parts)
     )
 
-# Verrou global
-lock = Lock()
+
+def check_internet(url="https://www.google.com", timeout=5):
+    """Teste la connexion Internet en envoyant une requête à Google."""
+    try:
+        response = requests.get(url, timeout=timeout)
+        return response.status_code == 200
+    except requests.ConnectionError:
+        return False
+    
+
+def h1(url="https://www.google.com", timeout=5):
+    """Teste la connexion Internet en envoyant une requête à Google."""
+    try:
+        response = requests.get(url, timeout=timeout)
+        return response.status_code == 200
+    except requests.ConnectionError:
+        return False
+
 # Fonction pour charger les éléments déjà traités depuis un fichier spécifique
 def load_processed_elements(filename):
     if os.path.exists(filename):
@@ -50,7 +69,7 @@ def societe(file_path,sheets):
             (socket.SOL_SOCKET, socket.SO_RCVBUF, 1000000)
         ])
 
-    chrome_driver_path = r"C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
+    chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
     chrome_options = Options()
     chrome_options.add_argument("--window-size=800,600")  # Dimensions de la fenêtre
     # chrome_options.add_argument("--headless")  # Mode sans interface graphique
@@ -75,9 +94,9 @@ def societe(file_path,sheets):
     driver = webdriver.Chrome(service=service, options=chrome_options, seleniumwire_options=seleniumwire_options)
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
     number = processed_text.split("_")[-1]  # Sépare à "_" et prend la 2e partie
-    processed_filename = f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\societe_{processed_text}_{sheets}.txt"
+    processed_filename = f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\societe\\Multi\\societe_{processed_text}_{sheets}.txt"
     processed_elements = load_processed_elements(processed_filename)
-    new_file_path= f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\{processed_text}_{sheets}.xlsx"
+    new_file_path= f"C:\\Users\\Administrator\\Desktop\\scrapping_aiscore\\societe\\Multi\\{processed_text}_{sheets}.xlsx"
 
     workbook = load_workbook(file_path)
 
@@ -95,14 +114,6 @@ def societe(file_path,sheets):
     try:
         url = "https://www.societe.com/cgi-bin/recherche"
         driver.get(url)
-
-        # Accepter les cookies
-        try:
-            WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, '#didomi-notice-agree-button'))
-            ).click()
-        except Exception:
-            print("Le bouton de cookies n'est pas apparu, poursuite de l'exécution...")
 
         total_elements = worksheet.max_row  # Total des éléments dans la source de données
         processed_count = 0       # Compteur des éléments déjà traités
@@ -130,12 +141,29 @@ def societe(file_path,sheets):
 
             driver.switch_to.window(driver.window_handles[-1])
 
+
+            if not check_internet():
+                print("❌ Pas de connexion Internet. Fermeture du script.")
+                driver.close()
+                driver.quit()
+                return  # Quitte immédiatement
+
             try:                
-                WebDriverWait(driver, 2).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#search_details")))
                 elements = driver.find_elements(By.CSS_SELECTOR, 'a.ResultBloc__link__content')
 
                 if not elements:
-                    print("pas de donnés") 
+                    
+                    h1 = driver.find_element(By.CSS_SELECTOR, '#appMain > div > section > div > h1')
+
+                    if h1:
+                        print("ip bloquer")
+                        driver.close()
+                        driver.quit()
+                        return False
+
+                    processed_elements.add(name_company)
+                    save_processed_element(name_company, processed_filename)
+                    processed_count += 1    
                 else:
                     for item in elements:
                         try: 
@@ -201,26 +229,23 @@ def societe(file_path,sheets):
                         except Exception as e:
                             print(f"Erreur lors du traitement de l'élément : {e}")
 
-                processed_elements.add(name_company)
-                save_processed_element(name_company, processed_filename)
-                processed_count += 1     
+                    processed_elements.add(name_company)
+                    save_processed_element(name_company, processed_filename)
+                    processed_count += 1    
+
                 driver.close()
                 driver.switch_to.window(driver.window_handles[0])
                                                       
             except Exception as e:
-                print("pas de data")
-                processed_elements.add(name_company)
-                save_processed_element(name_company, processed_filename)
-                processed_count += 1
+                print("Error",e)
                 driver.close()
                 driver.switch_to.window(driver.window_handles[0])
 
-                # Vérifiez si tous les éléments ont été traités
+        # Vérifiez si tous les éléments ont été traités
         if processed_count >= total_elements:
             print("Tous les éléments ont été traités.")
             driver.close()  # Fermer l'onglet actif
             driver.quit()   # Fermer complètement le navigateur
-            # sys.exit("Script arrêté car aucune correspondance n'a été trouvée.")  # Sortie immédiate
             print("Script arrêté car aucune correspondance n'a été trouvée.")  # Sortie immédiate
             return True 
            
@@ -235,6 +260,7 @@ def retry_societe(file_path, sheet_name):
     """
     while True:  # Boucle infinie jusqu'à ce que le traitement soit terminé avec succès
         success = societe(file_path, sheet_name)
+        time.sleep(10)
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
