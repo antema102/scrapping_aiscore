@@ -266,10 +266,10 @@ def retry_societe(file_path, sheet_name):
     """
     while True:  # Boucle infinie jusqu'à ce que le traitement soit terminé avec succès
         success = societe(file_path, sheet_name)
-        print(success)
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
+            time.sleep(500)
             print(f"Relance du traitement pour {file_path} - {sheet_name}")
       
 def launch_processes():
