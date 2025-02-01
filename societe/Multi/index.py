@@ -31,7 +31,7 @@ seleniumwire_options = {
     }
 }
 
-for i in range(19,21):  # Départements de 8 à 12
+for i in range(8,9):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
     parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -95,7 +95,7 @@ def societe(file_path,sheets):
 
     processed_elements = load_processed_elements(processed_filename)
 
-    new_file_path= f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societ/Multi/{processed_text}_{sheets}.xlsx"
+    new_file_path= f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/{processed_text}_{sheets}.xlsx"
 
     workbook = load_workbook(file_path)
 
@@ -222,7 +222,7 @@ def societe(file_path,sheets):
                                         span_adresse_str = ''
                                 
                                             
-                                print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ") 
+                                print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
                                 # Mise à jour de la colonne B avec le nouveau sirene
                                 worksheet.cell(row=i, column=1, value=sirene_number)
                                 worksheet.cell(row=i, column=7, value=salarier_text) 
