@@ -31,9 +31,9 @@ seleniumwire_options = {
     }
 }
 
-for i in range(8,9):  # Départements de 8 à 12
+for i in range(8,10):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
-    parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1,17)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -68,7 +68,7 @@ def societe(file_path,sheets):
     chrome_driver_path = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/chromedriver/chromedriver.exe"
     chrome_options = Options()
     chrome_options.add_argument("--window-size=800,600")  # Dimensions de la fenêtre
-    # chrome_options.add_argument("--headless")  # Mode sans interface graphique
+    chrome_options.add_argument("--headless")  # Mode sans interface graphique
     chrome_options.add_argument("--disable-infobars")  # Désactive les barres d'information
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")  # Empêche la détection d'automatisation
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
@@ -222,7 +222,7 @@ def societe(file_path,sheets):
                                         span_adresse_str = ''
                                 
                                             
-                                print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
+                                print(f" {sheets} Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
                                 # Mise à jour de la colonne B avec le nouveau sirene
                                 worksheet.cell(row=i, column=1, value=sirene_number)
                                 worksheet.cell(row=i, column=7, value=salarier_text) 
@@ -231,7 +231,7 @@ def societe(file_path,sheets):
                                 workbook.save(new_file_path) # Mise à jour du texte des salariés
 
                         except Exception as e:
-                            print(f"Erreur lors du traitement de l'élément : {e}")
+                            print(f"Erreur lors du traitement de l'élément")
 
                     processed_elements.add(name_company)
                     save_processed_element(name_company, processed_filename)
@@ -265,11 +265,11 @@ def retry_societe(file_path, sheet_name):
     Fonction pour exécuter et relancer le traitement si une erreur se produit.
     """
     while True:  # Boucle infinie jusqu'à ce que le traitement soit terminé avec succès
+        time.sleep(10)
         success = societe(file_path, sheet_name)
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
-            time.sleep(500)
             print(f"Relance du traitement pour {file_path} - {sheet_name}")
       
 def launch_processes():
@@ -293,7 +293,7 @@ def launch_processes():
             process = Process(target=retry_societe, args=(file_path, sheet_name))
             processes.append(process)
             process.start()  # Lancer le processus
-            time.sleep(20)
+            time.sleep(5)
 
         # Attendre que tous les processus soient terminés
         for process in processes:
@@ -357,7 +357,6 @@ def merge_excel_files(output_file,dep_number):
         for sheet_name in sheets:
             base_name = file_path.replace(".xlsx", "")
             individual_file = f"{base_name}_{sheet_name}.xlsx"
-            print(f"Fichier attendu : {individual_file}")  # Vérification
 
             if os.path.exists(individual_file):
                 df = pd.read_excel(individual_file)
