@@ -1,13 +1,16 @@
 import pandas as pd
 from openpyxl import load_workbook
+import os
+
+user_name = os.getlogin()
 
 # Liste des fichiers Excel à traiter
 input_files = []  # Initialiser la liste des fichiers
 
 # Générer les noms de fichiers pour les départements 7 à 12
-for i in range(19,21):  # i va de 7 à 12
+for i in range(18,19):  # i va de 7 à 12
     dep_formatted = str(i).zfill(2)
-    input_files.append(f"C:\\Users\\antem\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx")
+    input_files.append(f"C:\\Users\\{user_name}\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT_{dep_formatted}.xlsx")
 
 # Préfixe pour les fichiers de sortie
 output_file_prefix = 'partie_'
