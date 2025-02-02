@@ -3,35 +3,48 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import time
 
-# Configuration du proxy avec authentification via URL
+# Définition du proxy
+proxy_host = "gate2.proxyfuel.com"
+proxy_port = "2000"
+proxy_user = "antema103.gmail.com"
+proxy_pass = "9yucvu"
+
 seleniumwire_options = {
     'proxy': {
-        'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-        'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+        'http': f'http://{proxy_host}:{proxy_port}',
+        'https': f'https://{proxy_host}:{proxy_port}',
+        'no_proxy': 'localhost,127.0.0.1'
     }
 }
 
-# Créez un objet Service avec le chemin du chromedriver
+# Service ChromeDriver
 service = Service(r'C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe')
 
-# Créez les options pour Chrome
+# Options Chrome
 options = Options()
 
-# Lancer le navigateur Chrome avec les options définies et le service
-driver = webdriver.Chrome(service=service, options=options, seleniumwire_options=seleniumwire_options)
+try:
+    # Lancer le navigateur
+    driver = webdriver.Chrome(service=service, options=options, seleniumwire_options=seleniumwire_options)
+    
+    # Ajouter authentification manuelle (si nécessaire)
+    driver.proxy_auth = (proxy_user, proxy_pass)
 
-# Accéder à l'URL pour vérifier l'IP
-driver.get("http://checkip.amazonaws.com")
+    # Tester le proxy
+    driver.get("http://checkip.amazonaws.com")
+    
+    # Afficher l'IP obtenue
+    print("✅ Connexion réussie :", driver.page_source)
 
-# Afficher le contenu de la page
-print(driver.page_source)
+except Exception as e:
+    if "Invalid proxy server credentials supplied" in str(e):
+        print("❌ Erreur : Identifiants proxy incorrects. Vérifie ton username/password.")
+    else:
+        print(f"❌ Autre erreur détectée : {e}")
 
-# Attendre un peu avant de fermer
-time.sleep(100000)
-
-# Fermer le navigateur
-driver.quit()
-#pip install selenium_wire
-#pip install blinker==1.4
-#pip install setuptools
-#pip install webdriver-manager
+finally:
+    # Fermer le navigateur si ouvert
+    try:
+        driver.quit()
+    except:
+        pass
