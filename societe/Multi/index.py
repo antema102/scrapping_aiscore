@@ -35,7 +35,7 @@ for i in range(8,9):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
     parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
     files_and_sheets.append(
-        (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT_{dep_formatted}.xlsx", parts)
+        (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
 
 def check_internet(url="https://www.google.com", timeout=5):
@@ -215,7 +215,6 @@ def societe(file_path,sheets):
                                             # Vérifie si des parties existent avant d'accéder à l'index
                                             if len(span_adresse_parts) > 0:
                                                 span_adresse_str = str(span_adresse_parts[0])
-                                                worksheet.cell(row=i, column=3, value=span_adresse_str)
                                             else:
                                                 span_adresse_str = ''
                                     except Exception as e: 
@@ -223,12 +222,17 @@ def societe(file_path,sheets):
                                 
                                             
                                 print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
+                                try:
                                 # Mise à jour de la colonne B avec le nouveau sirene
-                                worksheet.cell(row=i, column=1, value=sirene_number)
-                                worksheet.cell(row=i, column=7, value=salarier_text) 
+                                    worksheet.cell(row=i, column=3, value=span_adresse_str)
+                                    worksheet.cell(row=i, column=1, value=sirene_number)
+                                    worksheet.cell(row=i, column=7, value=salarier_text) 
+                                
+                                    # Sauvegarder les modifications dans le fichier Excel
+                                    workbook.save(new_file_path) # Mise à jour du texte des salariés
 
-                                # Sauvegarder les modifications dans le fichier Excel
-                                workbook.save(new_file_path) # Mise à jour du texte des salariés
+                                except Exception as e:
+                                    print('error lors sauvegarde',e)
 
                         except Exception as e:
                             print(f"Erreur lors du traitement de l'élément : {e}")
