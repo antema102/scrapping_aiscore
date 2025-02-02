@@ -24,14 +24,17 @@ lock = Lock()
 user_name = os.getlogin()
 
 # Configuration du proxy avec authentification via URL
-seleniumwire_options = {
-    'proxy': {
-        'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-        'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-    }
-}
 
-for i in range(8,9):  # Départements de 8 à 12
+# seleniumwire_options = {
+#     'proxy': {
+#         'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+#         'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+#     }
+# }
+
+directory = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/"
+
+for i in range(18,19):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
     parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -87,7 +90,7 @@ def societe(file_path,sheets):
     chrome_options.add_experimental_option("prefs", prefs)
 
     service = Service(chrome_driver_path)
-    driver = webdriver.Chrome(service=service, options=chrome_options, seleniumwire_options=seleniumwire_options)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
     number = processed_text.split("_")[-1]  # Sépare à "_" et prend la 2e partie
 
@@ -221,9 +224,9 @@ def societe(file_path,sheets):
                                         span_adresse_str = ''
                                 
                                             
-                                print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
                                 try:
-                                # Mise à jour de la colonne B avec le nouveau sirene
+                                    print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
+                                    # Mise à jour de la colonne B avec le nouveau sirene
                                     worksheet.cell(row=i, column=3, value=span_adresse_str)
                                     worksheet.cell(row=i, column=1, value=sirene_number)
                                     worksheet.cell(row=i, column=7, value=salarier_text) 
@@ -307,10 +310,11 @@ def launch_processes():
 
         # Générer dynamiquement le nom du fichier fusionné
         departments_str = dep_number  # Ici, juste le département en cours
-        output_file = f"news_dep_{departments_str}.xlsx"
+
+        output_file = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/news_dep_{departments_str}.xlsx"
     
         # Une fois tous les processus terminés, fusionner les fichiers
-        merge_excel_files(output_file,dep_number)
+        merge_excel_files(output_file,dep_number,directory)
 
     print("Tous les départements ont été traités.")
 
@@ -352,23 +356,29 @@ def send_to_google_sheets(excel_file, dep_number):
     except Exception as e:
         print(f"Erreur lors de l'envoi des données à Google Sheets : {e}")
 
+
+
 # Fonction pour fusionner les fichiers Excel
-def merge_excel_files(output_file,dep_number):
+def merge_excel_files(output_file,dep_number,directory):
     all_data = []
 
     # Parcourir les fichiers générés
-    for file_path, sheets in files_and_sheets:
+    for  sheets in files_and_sheets:
+        
         for sheet_name in sheets:
-            base_name = file_path.replace(".xlsx", "")
-            individual_file = f"{base_name}_{sheet_name}.xlsx"
-            print(f"Fichier attendu : {individual_file}")  # Vérification
+                 
+                basename = f"DEPT_{dep_number}"
+                 
+                individual_file = os.path.join(directory, f"{basename}_{sheet_name}.xlsx")
 
-            if os.path.exists(individual_file):
-                df = pd.read_excel(individual_file)
-                all_data.append(df)
+                print(f"Fichier attendu : {individual_file}") 
 
-                # Supprimer le fichier après l'avoir lu
-                os.remove(individual_file)
+                if os.path.exists(individual_file):
+                    df = pd.read_excel(individual_file)
+                    all_data.append(df)
+
+                    # Supprimer le fichier après l'avoir lu
+                    os.remove(individual_file)
     
     # Fusionner toutes les données
     if all_data:
