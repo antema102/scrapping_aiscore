@@ -142,7 +142,7 @@ def societe(file_path,sheets):
             driver.switch_to.window(driver.window_handles[-1])
 
             if not check_internet():
-                print("❌ Pas de connexion Internet. Fermeture du script.")
+                print("❌ Pas de connexion Internet. Fermeture du scripts.")
                 driver.close()
                 driver.quit()
                 return  False# Quitte immédiatement
@@ -288,11 +288,8 @@ def launch_processes():
         
         # Générer dynamiquement le nom du fichier fusionné
         departments_str = dep_number  # Ici, juste le département en cours
-
         directory = os.path.join(f"C:\\", "Users", user_name, "Desktop", "scrapping_aiscore", "societe", "Multi", f"DEPT_{dep_number}")
-
         print(f"Traitement du département {dep_number} terminé.")
-
         output_file = os.path.join(directory, f"news_dep_{departments_str}.xlsx")
         print(output_file)
 
