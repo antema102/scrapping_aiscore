@@ -23,8 +23,7 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-# Configuration du proxy avec authentification via URL
-
+# # Configuration du proxy avec authentification via URL
 # seleniumwire_options = {
 #     'proxy': {
 #         'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
@@ -32,9 +31,7 @@ user_name = os.getlogin()
 #     }
 # }
 
-directory = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/"
-
-for i in range(18,19):  # Départements de 8 à 12
+for i in range(19,19):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
     parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -90,16 +87,22 @@ def societe(file_path,sheets):
     chrome_options.add_experimental_option("prefs", prefs)
 
     service = Service(chrome_driver_path)
+    # driver = webdriver.Chrome(service=service, options=chrome_options,seleniumwire_options=seleniumwire_options)
     driver = webdriver.Chrome(service=service, options=chrome_options)
+
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
-    number = processed_text.split("_")[-1]  # Sépare à "_" et prend la 2e partie
+    number = processed_text.split("_")[-1]
+    directory = os.path.join(f"DEPT_{number}")
 
-    processed_filename = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/{processed_text}_{sheets}.txt"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"Le dossier {directory} a été créé.")
+    else:
+        print(f"Le dossier {directory} existe déjà.")
 
+    processed_filename = os.path.join(directory, f"{processed_text}_{sheets}.txt")
+    new_file_path = os.path.join(directory, f"{processed_text}_{sheets}.xlsx")
     processed_elements = load_processed_elements(processed_filename)
-
-    new_file_path= f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/{processed_text}_{sheets}.xlsx"
-
     workbook = load_workbook(file_path)
 
     # Parcourir toutes les feuilles et supprimer celles qui ne sont pas 'sheets'
@@ -120,17 +123,11 @@ def societe(file_path,sheets):
         total_elements = worksheet.max_row  # Total des éléments dans la source de données
         processed_count = 0       # Compteur des éléments déjà traités
 
-        # print(total_elements)
-        #ne pas ignire ligne 1 si igner le 
         # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
-        for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):  # Ignore la première ligne si c'est un en-tête
-
+        for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
             name_company=row[1] #Nom entreprise
-
             sirene_number = str(row[0])  # Convertit en chaîne de caractères
-
             last_four_digits_sirene = sirene_number[-4:]  # Prend les 4 derniers chiffres
-
             if name_company in processed_elements:
                 print('element deja traiter')
                 processed_count += 1
@@ -144,7 +141,6 @@ def societe(file_path,sheets):
 
             driver.switch_to.window(driver.window_handles[-1])
 
-
             if not check_internet():
                 print("❌ Pas de connexion Internet. Fermeture du script.")
                 driver.close()
@@ -156,7 +152,6 @@ def societe(file_path,sheets):
                 if not elements:
                     try:
                         h1 = driver.find_element(By.CSS_SELECTOR, '#appMain > div > section > div > h1')
-
                         if h1:
                             print("ip bloquer")
                             driver.close()
@@ -164,7 +159,7 @@ def societe(file_path,sheets):
                             return False
                         
                     except Exception as e:
-                        print("pas blocage")
+                        print("")
                     
                     print("pas donnée")
                     processed_elements.add(name_company)
@@ -178,22 +173,16 @@ def societe(file_path,sheets):
                             sirene_result=sirene.split(' ')
                             sirene_number = int(sirene_result[-1])
                             last_four_digits = str(sirene_number)[-4:] 
-
                             # Prend les 4 derniers chiffres
                             href = item.get_attribute("href")
-                        
                             if last_four_digits == last_four_digits_sirene:
-
                                 driver.get(href)
-                                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#identite")))
-                                
+                                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#identite")))
                                 try:
                                     salarier = driver.find_element(By.CSS_SELECTOR, "#trancheeff-histo-description").text.strip()
-
                                     if salarier:
                                         # Extraction du dernier élément après découpage par espaces
                                         salarie_parts = salarier.split()
-                                        
                                         # Parcourt à l'envers pour trouver le premier chiffre
                                         for part in reversed(salarie_parts):
                                             if part.isdigit():
@@ -221,19 +210,15 @@ def societe(file_path,sheets):
                                             else:
                                                 span_adresse_str = ''
                                     except Exception as e: 
-                                        span_adresse_str = ''
-                                
-                                            
+                                        span_adresse_str = ''                                                                      
                                 try:
-                                    print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
                                     # Mise à jour de la colonne B avec le nouveau sirene
                                     worksheet.cell(row=i, column=3, value=span_adresse_str)
                                     worksheet.cell(row=i, column=1, value=sirene_number)
                                     worksheet.cell(row=i, column=7, value=salarier_text) 
-                                
+                                    print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
                                     # Sauvegarder les modifications dans le fichier Excel
                                     workbook.save(new_file_path) # Mise à jour du texte des salariés
-
                                 except Exception as e:
                                     print('error lors sauvegarde',e)
 
@@ -251,8 +236,6 @@ def societe(file_path,sheets):
                 print("Error")
                 driver.close()
                 driver.switch_to.window(driver.window_handles[0])
-
-
         # Vérifiez si tous les éléments ont été traités
         if processed_count >= total_elements:
             print("Tous les éléments ont été traités.")
@@ -276,7 +259,7 @@ def retry_societe(file_path, sheet_name):
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
-            time.sleep(500)
+            time.sleep(30)
             print(f"Relance du traitement pour {file_path} - {sheet_name}")
       
 def launch_processes():
@@ -286,35 +269,35 @@ def launch_processes():
      # Liste pour stocker les processus
     departments = [] 
     for file_path, sheets in files_and_sheets:
-
         dep_number = os.path.basename(file_path).split('_')[1].split('.')[0]
-
         if dep_number not in departments:
             departments.append(dep_number)
-
         processes = [] 
-        
         for sheet_name in sheets:
             print(f"Création d'un processus pour {file_path} - {sheet_name}")
+
             # Créer un processus pour chaque combinaison fichier/feuille
             process = Process(target=retry_societe, args=(file_path, sheet_name))
             processes.append(process)
             process.start()  # Lancer le processus
-            time.sleep(20)
+            # time.sleep(20)
 
         # Attendre que tous les processus soient terminés
         for process in processes:
             process.join()
-    
-        print(f"Traitement du département {dep_number} terminé.")
-
+        
         # Générer dynamiquement le nom du fichier fusionné
         departments_str = dep_number  # Ici, juste le département en cours
 
-        output_file = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/news_dep_{departments_str}.xlsx"
-    
+        directory = os.path.join(f"C:\\", "Users", user_name, "Desktop", "scrapping_aiscore", "societe", "Multi", f"DEPT_{dep_number}")
+
+        print(f"Traitement du département {dep_number} terminé.")
+
+        output_file = os.path.join(directory, f"news_dep_{departments_str}.xlsx")
+        print(output_file)
+
         # Une fois tous les processus terminés, fusionner les fichiers
-        merge_excel_files(output_file,dep_number,directory)
+        merge_excel_files(output_file, dep_number, directory)
 
     print("Tous les départements ont été traités.")
 
@@ -350,45 +333,38 @@ def send_to_google_sheets(excel_file, dep_number):
 
         # Ajouter les nouvelles données sous l'ancienne
         dep_sheet.append_rows(data, value_input_option="RAW")
-
         print(f"Les données ont été ajoutées avec succès dans l'onglet dep_{dep_number}.")
 
     except Exception as e:
         print(f"Erreur lors de l'envoi des données à Google Sheets : {e}")
 
-
-
 # Fonction pour fusionner les fichiers Excel
 def merge_excel_files(output_file,dep_number,directory):
     all_data = []
-
+    i=0
     # Parcourir les fichiers générés
     for  sheets in files_and_sheets:
-        
-        for sheet_name in sheets:
-                 
-                basename = f"DEPT_{dep_number}"
-                 
-                individual_file = os.path.join(directory, f"{basename}_{sheet_name}.xlsx")
-
-                print(f"Fichier attendu : {individual_file}") 
-
-                if os.path.exists(individual_file):
-                    df = pd.read_excel(individual_file)
-                    all_data.append(df)
-
-                    # Supprimer le fichier après l'avoir lu
-                    os.remove(individual_file)
+        for sheet_name in sheets:   
+            i += 1
+            basename = f"DEPT_{dep_number}_part_{i}"
+            individual_file = os.path.join(directory, f"{basename}.xlsx")
+            if os.path.exists(individual_file):
+                df = pd.read_excel(individual_file)
+                all_data.append(df)
+                os.remove(individual_file)
     
     # Fusionner toutes les données
     if all_data:
         merged_df = pd.concat(all_data, ignore_index=True)
         merged_df.to_excel(output_file, index=False)
         print(f"Fichier fusionné créé : {output_file}")
-
-        send_to_google_sheets(output_file, dep_number)
     else:
         print("Aucun fichier à fusionner.")
+
+    if os.path.exists(output_file):
+        send_to_google_sheets(output_file, dep_number)
+    else:
+        print("Pas de fichier fussioner du coup as d'envoye")
 
 if __name__ == "__main__":
     print("Lancement des traitements en simultané...")
