@@ -23,17 +23,17 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-# # Configuration du proxy avec authentification via URL
-# seleniumwire_options = {
-#     'proxy': {
-#         'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-#         'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-#     }
-# }
+# Configuration du proxy avec authentification via URL
+seleniumwire_options = {
+    'proxy': {
+        'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+        'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+    }
+}
 
-for i in range(19,19):  # Départements de 8 à 12
+for i in range(19,20):  # Départements de 8 à 12
     dep_formatted = str(i).zfill(2)
-    parts = [f"part_{j}" for j in range(1,3)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1,31)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -68,7 +68,7 @@ def societe(file_path,sheets):
     chrome_driver_path = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/chromedriver/chromedriver.exe"
     chrome_options = Options()
     chrome_options.add_argument("--window-size=800,600")  # Dimensions de la fenêtre
-    # chrome_options.add_argument("--headless")  # Mode sans interface graphique
+    chrome_options.add_argument("--headless")  # Mode sans interface graphique
     chrome_options.add_argument("--disable-infobars")  # Désactive les barres d'information
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")  # Empêche la détection d'automatisation
     chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
