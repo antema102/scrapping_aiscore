@@ -15,10 +15,23 @@ from multiprocessing import Process,Lock
 import requests
 import time
 import pandas as pd
+import os
 
 # Verrou global
 files_and_sheets=[]
 lock = Lock()
+
+# Définir manuellement l'ID de la VM (1 à 5)
+VM_ID = 4  # Change cette valeur pour 2, 3, 4, ou 5 selon la VM sur laquelle tu exécutes le script
+
+# Nombre total de VMs
+NB_VMS = 5
+
+# Liste des départements (par exemple, de 1 à 20)
+departements = list(range(8, 30))  # Exemple : départements de 1 à 20
+
+# Répartition des départements en fonction de l'ID de la VM
+departements_vm = [departements[i] for i in range(VM_ID-1, len(departements), NB_VMS)]
 
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
@@ -31,9 +44,10 @@ seleniumwire_options = {
     }
 }
 
-for i in range(19,20):  # Départements de 8 à 12
-    dep_formatted = str(i).zfill(2)
-    parts = [f"part_{j}" for j in range(1,31)]  # Générer part_1 à part_6
+
+for dep  in departements_vm:  # Départements de 8 à 12
+    dep_formatted = str(dep).zfill(2)
+    parts = [f"part_{j}" for j in range(1,21)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -87,8 +101,7 @@ def societe(file_path,sheets):
     chrome_options.add_experimental_option("prefs", prefs)
 
     service = Service(chrome_driver_path)
-    # driver = webdriver.Chrome(service=service, options=chrome_options,seleniumwire_options=seleniumwire_options)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver = webdriver.Chrome(service=service, options=chrome_options,seleniumwire_options=seleniumwire_options)
 
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
     number = processed_text.split("_")[-1]
@@ -259,7 +272,7 @@ def retry_societe(file_path, sheet_name):
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
-            time.sleep(20)
+            time.sleep(25)
             print(f"Relance du traitement pour {file_path} - {sheet_name}")
       
 def launch_processes():
