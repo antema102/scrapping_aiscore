@@ -22,13 +22,13 @@ files_and_sheets=[]
 lock = Lock()
 
 # Définir manuellement l'ID de la VM (1 à 5)
-VM_ID = 4  # Change cette valeur pour 2, 3, 4, ou 5 selon la VM sur laquelle tu exécutes le script
+VM_ID = 1  # Change cette valeur pour 2, 3, 4, ou 5 selon la VM sur laquelle tu exécutes le script
 
 # Nombre total de VMs
 NB_VMS = 5
 
 # Liste des départements (par exemple, de 1 à 20)
-departements = list(range(8, 30))  # Exemple : départements de 1 à 20
+departements = list(range(8,30))  # Exemple : départements de 1 à 20
 
 # Répartition des départements en fonction de l'ID de la VM
 departements_vm = [departements[i] for i in range(VM_ID-1, len(departements), NB_VMS)]
@@ -43,7 +43,6 @@ seleniumwire_options = {
         'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
     }
 }
-
 
 for dep  in departements_vm:  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
@@ -98,14 +97,24 @@ def societe(file_path,sheets):
 
     # Désactiver JavaScript via les préférences
     prefs = {"profile.managed_default_content_settings.javascript": 2}
+
     chrome_options.add_experimental_option("prefs", prefs)
 
     service = Service(chrome_driver_path)
+
     driver = webdriver.Chrome(service=service, options=chrome_options,seleniumwire_options=seleniumwire_options)
 
     processed_text= os.path.splitext(os.path.basename(file_path))[0]
+
     number = processed_text.split("_")[-1]
+
     directory = os.path.join(f"DEPT_{number}")
+
+    processed_filename = os.path.join(directory, f"{processed_text}_{sheets}.txt")
+
+    new_file_path = os.path.join(directory, f"{processed_text}_{sheets}.xlsx")
+
+    processed_elements = load_processed_elements(processed_filename)
 
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -113,22 +122,22 @@ def societe(file_path,sheets):
     else:
         print(f"Le dossier {directory} existe déjà.")
 
-    processed_filename = os.path.join(directory, f"{processed_text}_{sheets}.txt")
-    new_file_path = os.path.join(directory, f"{processed_text}_{sheets}.xlsx")
-    processed_elements = load_processed_elements(processed_filename)
-    workbook = load_workbook(file_path)
-
-    # Parcourir toutes les feuilles et supprimer celles qui ne sont pas 'sheets'
-    for feuille in workbook.sheetnames:
-        if feuille != sheets:  # Si ce n'est pas l'onglet à garder
-            ws = workbook[feuille]
-            workbook.remove(ws)  # Supprimer l'onglet
-            # print(f"Onglet {feuille} supprimé.")  # Afficher le nom de l'onglet supprimé
-
+    # Charger ou créer le fichier Excel
+    if os.path.exists(new_file_path):
+        workbook = load_workbook(new_file_path)
+        print(f"Le fichier {new_file_path} existe déjà.")
+    else:
+        workbook = load_workbook(file_path)
+        print(f"Le fichier {new_file_path} a été créé.")
+        # Parcourir toutes les feuilles et supprimer celles qui ne sont pas 'sheets'
+        for feuille in workbook.sheetnames:
+            if feuille != sheets:  # Si ce n'est pas l'onglet à garder
+                ws = workbook[feuille]
+                workbook.remove(ws)
+ 
     # Sélectionner la feuille active
     worksheet_name = sheets  # Nom de la feuille à garder dans le fichier Excel
     worksheet = workbook[worksheet_name]
-
     try:
         url = "https://www.societe.com/cgi-bin/recherche"
         driver.get(url)
@@ -258,7 +267,7 @@ def societe(file_path,sheets):
             return True 
            
     except Exception as e:
-        print(f"Erreur lors de l'exécution ")
+        print(f"Erreur lors de l'exécution",e)
         driver.close()     
         driver.quit()  # Nettoyer correctement le driver
         return False  # Retourne False pour signaler une erreur
@@ -272,7 +281,7 @@ def retry_societe(file_path, sheet_name):
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
-            time.sleep(25)
+            time.sleep(20)
             print(f"Relance du traitement pour {file_path} - {sheet_name}")
       
 def launch_processes():
@@ -293,7 +302,7 @@ def launch_processes():
             process = Process(target=retry_societe, args=(file_path, sheet_name))
             processes.append(process)
             process.start()  # Lancer le processus
-            time.sleep(30)
+            time.sleep(20)
 
         # Attendre que tous les processus soient terminés
         for process in processes:
@@ -351,30 +360,24 @@ def send_to_google_sheets(excel_file, dep_number):
 # Fonction pour fusionner les fichiers Excel
 def merge_excel_files(output_file,dep_number,directory):
     all_data = []
-    i=0
     # Parcourir les fichiers générés
-    for  sheets in files_and_sheets:
-        for sheet_name in sheets:   
-            i += 1
-            basename = f"DEPT_{dep_number}_part_{i}"
+    for file_path, parts in files_and_sheets: 
+        for part_name in parts:
+            basename = f"DEPT_{dep_number}_{part_name}"
             individual_file = os.path.join(directory, f"{basename}.xlsx")
             if os.path.exists(individual_file):
                 df = pd.read_excel(individual_file)
                 all_data.append(df)
-                os.remove(individual_file)
     
     # Fusionner toutes les données
     if all_data:
         merged_df = pd.concat(all_data, ignore_index=True)
         merged_df.to_excel(output_file, index=False)
         print(f"Fichier fusionné créé : {output_file}")
+        send_to_google_sheets(output_file, dep_number)
     else:
         print("Aucun fichier à fusionner.")
 
-    if os.path.exists(output_file):
-        send_to_google_sheets(output_file, dep_number)
-    else:
-        print("Pas de fichier fussioner du coup as d'envoye")
 
 if __name__ == "__main__":
     print("Lancement des traitements en simultané...")
