@@ -293,7 +293,7 @@ def launch_processes():
         output_file = os.path.join(directory, f"news_dep_{departments_str}.xlsx")
         print(output_file)
 
-        # Une fois tous les processus terminés, fusionner les fichiers
+        # Une fois tous les processus terminés, fusionner les fichierss
         merge_excel_files(output_file, dep_number, directory)
 
     print("Tous les départements ont été traités.")
