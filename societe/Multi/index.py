@@ -259,7 +259,7 @@ def retry_societe(file_path, sheet_name):
         if success:
             break  # Sort de la boucle si le traitement est terminé
         else:
-            time.sleep(30)
+            time.sleep(20)
             print(f"Relance du traitement pour {file_path} - {sheet_name}")
       
 def launch_processes():
@@ -280,7 +280,7 @@ def launch_processes():
             process = Process(target=retry_societe, args=(file_path, sheet_name))
             processes.append(process)
             process.start()  # Lancer le processus
-            # time.sleep(20)
+            time.sleep(30)
 
         # Attendre que tous les processus soient terminés
         for process in processes:
