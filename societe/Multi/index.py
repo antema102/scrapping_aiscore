@@ -308,13 +308,11 @@ def launch_processes():
     Fonction pour lancer les traitements en simultané.
     """
      # Liste pour stocker les processus
-    departments = [] 
-    processes = [] 
+    
     for file_path, sheets in files_and_sheets:
         dep_number = os.path.basename(file_path).split('_')[1].split('.')[0]
-        if dep_number not in departments:
-            departments.append(dep_number)
-      
+        processes = [] 
+        
         for sheet_name in sheets:
             print(f"Création d'un processus pour {file_path} - {sheet_name}")
 
