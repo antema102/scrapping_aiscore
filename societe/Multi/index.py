@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from openpyxl import load_workbook
+from webdriver_manager.chrome import ChromeDriverManager
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
@@ -22,7 +23,7 @@ files_and_sheets=[]
 lock = Lock()
 
 # Définir manuellement l'ID de la VM (1 à 5)
-VM_ID = 1  # Change cette valeur pour 2, 3, 4, ou 5 selon la VM sur laquelle tu exécutes le script
+VM_ID = 3  # Change cette valeur pour 2, 3, 4, ou 5 selon la VM sur laquelle tu exécutes le script
 
 # Nombre total de VMs
 NB_VMS = 5
@@ -102,7 +103,7 @@ def societe(file_path,sheets):
 
         chrome_options.add_experimental_option("prefs", prefs)
 
-        service = Service(chrome_driver_path)
+        service = Service(ChromeDriverManager().install())
 
         driver = webdriver.Chrome(service=service, options=chrome_options,seleniumwire_options=seleniumwire_options)
 
@@ -279,8 +280,6 @@ def societe(file_path,sheets):
 
     except Exception as e:
         print(f"Erreur lors de l'exécution _1",e)
-        if driver:
-            driver.quit()  # Nettoyer correctement le driver
             
         return False  # Retourne False pour signaler une erreur
 
