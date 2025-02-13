@@ -18,7 +18,7 @@ seleniumwire_options = {
 }
 
 # Service ChromeDriver
-service = Service(r'C:\Users\antem\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe')
+service = Service(r'C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe')
 
 # Options Chrome
 options = Options()
