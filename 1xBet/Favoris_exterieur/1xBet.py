@@ -6,6 +6,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 import time
 import requests
 import os
@@ -33,7 +35,7 @@ def process_url():
     try:
         # Intialisations
         chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
-        service = Service(chrome_driver_path)
+        service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service)
 
         # Google sheets
@@ -231,4 +233,11 @@ def process_url():
         driver.quit()
 
 
-process_url()
+while True:
+    try:
+        print("Relance")
+        process_url()
+        time.sleep(25)
+    except Exception as e: 
+        print('erreur',e)
+
