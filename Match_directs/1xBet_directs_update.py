@@ -20,6 +20,8 @@ import re
 user_name = os.getlogin()
 
 # Fonction pour charger les éléments déjà traités depuis un fichier spécifique
+
+
 def load_processed_elements(filename):
     if os.path.exists(filename):
         with open(filename, 'r', encoding='utf-8') as file:
@@ -40,10 +42,27 @@ def parse_cote(cote_str):
     return list(map(int, cote_str.split('/')))
 
 
+def process_data(data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue):
+    date_obj = datetime.strptime(date, "%d/%m/%Y")
+
+    if date_obj.month == 2:
+        match_info = f"{nomEquipe} vs {deuxiementEquipe}"
+        total_but = f"{TotalButBet365}"
+        score = ""
+        score_info = f"{scoreButBetToTaux} {date}"
+
+        # Vérifier si la ligne existe déjà dans data_test
+        if not data_test or data_test[-1][2] != match_info:
+            data_test.append(
+                [times, ligue, match_info, total_but, score, score_info]),
+        else:
+            # Ajouter les nouvelles informations sur la même ligne
+            data_test[-1].append(score_info)
+
+
 def process_url():
     # Définir le chemin vers le ChromeDriver
     try:
-        chrome_driver_path = r"C:\Users\{Administrator}\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
         chrome_options = Options()
         # Démarrer en mode maximisé
         chrome_options.add_argument("--start-maximized")
@@ -53,16 +72,48 @@ def process_url():
         url = "https://www.aiscore.com/fr/"
         driver.get(url)
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(
-            f"C:\Users\{user_name}\Desktop\scrapping_aiscore/xbet-identifiants.json", scope)
-        client = gspread.authorize(creds)
 
-        sheet_id = "1mHDENqjj0riPMUHBIcDCBnSVzJ97mUm54fJe58G1tLU"
+        # 1 xbet
+        creds = ServiceAccountCredentials.from_json_keyfile_name(
+            f"C:\\Users\\{user_name}\\Desktop\\scrapping_aiscore\\xbet-identifiants.json", scope)
+
+        # ptyhon
+        credsPython = ServiceAccountCredentials.from_json_keyfile_name(
+            f"C:\\Users\\{user_name}\\Desktop\\scrapping_aiscore\\credentials.json", scope)
+
+        client = gspread.authorize(creds)
+        client_eternal = gspread.authorize(credsPython)
+
+        # Sheet pour la match en directs
+        sheet_id = "1IfTZnG5ggyU5P-t_5y6BlOEUbfQWsCnk3GQ0ZID6qAs"
         sheet = client.open_by_key(sheet_id)
 
+        # Sheet pour les donnés des matchs en directs
         sheet_data_id = "1ROzI-Xnz-Y4y-QGP_-KsCir3FBquSCNteUIWt2AB5DM"
         sheet_data = client.open_by_key(sheet_data_id)
 
+        # sheet pour les analyses de donnés
+        sheet_id = "1lH8i7RCzVkdo4CN71_h13I6yteebocQTqP6ZxHL1nYo"
+        sheet_analyse_test = client_eternal.open_by_key(sheet_id)
+
+        try:
+            # Tentative de récupération de la feuille "data"
+            sheet_result = sheet_analyse_test.worksheet("data")
+            print("La feuille 'Résultat' existe déjà.")
+
+        except gspread.exceptions.WorksheetNotFound:
+            # Si la feuille n'existe pas, création d'une nouvelle feuille
+            sheet_result = sheet_analyse_test.add_worksheet(
+                title="data", rows="100", cols="20")
+            print("La feuille 'data' a été créée.")
+
+            # Définir l'en-tête de la feuille
+            header = ["TIME", "LEAGUE", "MATCH", "Predictions",
+                      "SCORE", "COTE MATCH"]
+            sheet_result.append_row(header)
+
+        # Donné analyse
+        array_analyse = sheet_result.get_all_values()
         wb_comparison = sheet_data.sheet1
         ws_comparison = wb_comparison.get_all_values()
 
@@ -135,6 +186,7 @@ def process_url():
             aujourd_hui = datetime.today().date()
             aujourd_hui_str = aujourd_hui.strftime('%Y/%m/%d')
             date_deja_presenteMain = False
+            date_deja_Result = False
 
             # values_only=True pour obtenir les valeurs sans les objets cellule
             for row in rows_main[1:]:
@@ -144,7 +196,16 @@ def process_url():
                     date_deja_presenteMain = True
                     break  # On peut sortir de la boucle si on trouve la date
 
+            for row in array_analyse:
+                # Supposons que la date se trouve dans la première colonne
+                cell_date = row[0]
+                print(cell_date)
+                if cell_date == aujourd_hui_str:
+                    date_deja_Result = True
+                    break  # On peut sortir de la boucle si on trouve la date
+
             data_array = []
+            data_test = []
 
             # Ajouter la date si elle n'est pas déjà présente
             if not date_deja_presenteMain:
@@ -153,12 +214,16 @@ def process_url():
             else:
                 print("La date est déjà présente Main.")
 
-            # second_selector = "#app > DIV:nth-of-type(3) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > DIV:nth-of-type(1) > DIV:nth-of-type(2) > DIV:nth-of-type(2) > LABEL > SPAN > SPAN"
-            WebDriverWait(driver,5).until(EC.element_to_be_clickable(
+            # Ajouter la date si elle n'est pas déjà présente
+            if not date_deja_Result:
+                sheet_result.append_row([aujourd_hui_str, ""])
+            else:
+                print("La date est déjà présente Main.")
+
+            WebDriverWait(driver, 2).until(EC.element_to_be_clickable(
                 (By.CSS_SELECTOR, 'span.el-checkbox__inner[data-v-d4c6fef0]'))).click()
             time.sleep(5)  # Attendre un peu pour permettre le chargement
 
-            # Injecter un script JS pour écouter l'événement de scroll et stocker la position dans window
             script = """
                     window.lastScrollPosition = 0;  // Initialisation à 0
                     window.addEventListener('scroll', () => {
@@ -194,9 +259,6 @@ def process_url():
 
                         if scroll_position is None:
                             scroll_position = 0  # Par sécurité, éviter les None
-
-                        print(
-                            f"Nouvelle position de scroll : {scroll_position}px")
 
                         # Vérifier si l'équipe a déjà été traitée
                         if nomEquipe in processed_elements:
@@ -237,11 +299,11 @@ def process_url():
                                 "window.open(arguments[0]);", href)
                             driver.switch_to.window(driver.window_handles[-1])
                             thirst_selector = "#app > div.detail.view.border-box.back > div.tab-bar > div > div > a:nth-child(2)"
-                            thirst_selectorText = WebDriverWait(driver,5).until(
+                            thirst_selectorText = WebDriverWait(driver, 5).until(
                                 EC.presence_of_element_located((By.CSS_SELECTOR, thirst_selector))).text.strip()
                             temps = "#app > div.detail.view.border-box.back > div.top.color-333.flex-col.flex.align-center > div.flex.w-bar-100.homeBox > div.h-top-center.matchStatus2 > div.flex-1.text-center.scoreBox > div.h-16.m-b-4 > span > span:nth-child(1)"
 
-                            ligue = WebDriverWait(driver,5).until(EC.presence_of_element_located(
+                            ligue = WebDriverWait(driver, 5).until(EC.presence_of_element_located(
                                 (By.CSS_SELECTOR, "div.top.color-333.flex-col.flex.align-center > div.comp-name > a"))).text.strip()
 
                             try:
@@ -371,34 +433,34 @@ def process_url():
                                                                         diff_dom = abs(
                                                                             cote_dom - premiere_favoris)
                                                                         if diff_dom <= tolerance:
-                                                                            
+
                                                                             if (cote_dom <= 150):
                                                                                 for row in wb_home_150[2:]:
 
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                                        date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                                        if date_obj.month == 2:
-                                                                                            print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
+
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                             elif (150 < cote_dom <= 200):
                                                                                 for row in wb_home_150_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                                        date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                                        if date_obj.month == 2:
-                                                                                            print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
-                                                                                                                                           
+
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
+
                                                                             else:
                                                                                 for row in wb_home_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                                        date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                                        if date_obj.month == 2:
-                                                                                            print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
+
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                     else:
                                                                         diff_ext = abs(
@@ -410,31 +472,25 @@ def process_url():
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                                        date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                                        if date_obj.month == 2:
-                                                                                            print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
+
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                             elif (150 < cote_ext <= 200):
                                                                                 for row in wb_away_150_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                                        date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                                        if date_obj.month == 2:
-                                                                                            print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                             else:
                                                                                 for row in wb_away_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                                        date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                                        if date_obj.month == 2:
-                                                                                            print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
-                                                                                        
-                                                                            date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                            if date_obj.month == 2:
-                                                                                print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                 except ValueError:
                                                                     print(
@@ -509,21 +565,25 @@ def process_url():
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                             elif (150 < cote_dom <= 200):
                                                                                 for row in wb_home_150_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                             else:
                                                                                 for row in wb_home_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                            date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                            if date_obj.month == 2:
-                                                                                print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
+
                                                                     else:
                                                                         diff_ext = abs(
                                                                             cote_ext - troisieme_favoris)
@@ -533,28 +593,32 @@ def process_url():
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                             elif (150 < cote_ext <= 200):
                                                                                 for row in wb_away_150_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
                                                                             else:
                                                                                 for row in wb_away_200[2:]:
                                                                                     if row[0] == TotalButBet365:
                                                                                         data_array.append(["", "", "", "", "", "", "", TotalButBet365, cote_1xBet, scoreButBetToTaux, date, row[
                                                                                                           1], row[2],  row[3],  row[4], row[5], row[6], row[7], row[8], row[9], row[10]])
-                                                                            date_obj = datetime.strptime(date, "%d/%m/%Y")
-                                                                            if date_obj.month == 2:
-                                                                                print(times, ligue, f"{nomEquipe} vs {deuxiementEquipe}", f"{TotalButBet365} {cell_d}")
-                                                                except ValueError:
-                                                                    print(
-                                                                        "Erreur dans la conversion des cotes en entiers:", cote_comparaison)
+                                                                                        process_data(
+                                                                                            data_test, TotalButBet365, scoreButBetToTaux, date, nomEquipe, deuxiementEquipe, times, ligue)
 
-                                                            except ValueError:
+                                                                except ValueError as e:
+                                                                    print(
+                                                                        "Erreur dans la conversion des cotes en entiers:", e, cote_comparaison)
+
+                                                            except ValueError as e:
                                                                 print(
-                                                                    "Erreur dans la conversion des cotes en entiers:", favoris)
+                                                                    "Erreur dans la conversion des cotes en entiers:", e, favoris)
 
                                         except Exception:
                                             TotalButBet365 = ''  # En cas d'erreur, TotalButBet365 est vide
@@ -570,7 +634,9 @@ def process_url():
 
                                     print(nomEquipe, "ajouter")
                                     ws_main.append_rows(data_array)
+                                    sheet_result.append_rows(data_test)
                                     data_array = []
+                                    data_test = []
                                     save_processed_element(
                                         nomEquipe, processed_filename)
                                     processed_elements.add(nomEquipe)
