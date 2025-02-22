@@ -1,21 +1,16 @@
 import pandas as pd
-from openpyxl import load_workbook
 import os
 
+# Liste des fichiers d'entrée
+input_files = []
 user_name = os.getlogin()
-
-# Liste des fichiers Excel à traiter
-input_files = []  # Initialiser la liste des fichiers
-
-# Générer les noms de fichiers pour les départements 7 à 12
-for i in range(18,61):  # i va de 7 à 12
+for i in range(45, 50):  # i va de 45 à 49
     dep_formatted = str(i).zfill(2)
-    input_files.append(f"C:\\Users\\{user_name}\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT\\DEPT_{dep_formatted}.xlsx")
+    input_files.append(
+        f"C:\\Users\\{user_name}\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT\\DEPT_{dep_formatted}.xlsx")
 
-# Préfixe pour les fichiers de sortie
-output_file_prefix = 'partie_'
+# Fonction pour diviser un fichier Excel en plusieurs fichiers
 
-# Fonction pour diviser un fichier Excel en plusieurs parties et ajouter des onglets
 def split_excel(input_file):
     # Charger les données
     df = pd.read_excel(input_file)
@@ -24,30 +19,45 @@ def split_excel(input_file):
     total_rows = len(df)
 
     # Calculer la taille des différentes parties (environ 10 000 lignes par partie)
-    part_size = total_rows // 20  # On divise en 6 parties égales
+    part_size = total_rows // 16  # On divise en 16 parties égales
 
-    # Ouvrir le fichier Excel existant
-    with pd.ExcelWriter(input_file, engine='openpyxl', mode='a') as writer:
-        # Créer les 6 parties et les ajouter dans des onglets
-        for i in range(20):
-            # Définir l'indice de début et de fin pour chaque partie
-            start_idx = i * part_size
-            if i == 19:  # Dernière partie, prendre tout ce qui reste
-                end_idx = total_rows
-            else:
-                end_idx = (i + 1) * part_size
+    # Obtenir le chemin du dossier et le nom du fichier sans extension
+    dir_name = os.path.dirname(input_file)
+    base_name = os.path.splitext(os.path.basename(input_file))[0]
 
-            # Extraire la partie du DataFrame
-            df_part = df.iloc[start_idx:end_idx]
+    # Créer le nouveau dossier DEP_<numéro département>
+    dep_folder = os.path.join(dir_name, f"DEP_{base_name[-2:]}")
+    if not os.path.exists(dep_folder):
+        os.makedirs(dep_folder)
 
-            # Ajouter la partie comme un nouvel onglet dans le fichier Excel
-            sheet_name = f'part_{i + 1}'  # Nom de l'onglet
+    # Créer les 16 fichiers
+    for i in range(16):
+        # Définir l'indice de début et de fin pour chaque partie
+        start_idx = i * part_size
+        if i == 15:  # Dernière partie, prendre tout ce qui reste
+            end_idx = total_rows
+        else:
+            end_idx = (i + 1) * part_size
+
+        # Extraire la partie du DataFrame
+        df_part = df.iloc[start_idx:end_idx]
+
+        # Nom du fichier de sortie (avec le numéro de la partie)
+        output_file = os.path.join(dep_folder, f"{base_name}_part_{i + 1}.xlsx")
+
+        # Nom de la feuille dans le fichier Excel
+        sheet_name = f"part_{i + 1}"
+
+        # Utilisation d'ExcelWriter pour définir le nom de la feuille
+        with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
             df_part.to_excel(writer, index=False, sheet_name=sheet_name)
 
-            print(f"{input_file} - Partie {i + 1} ajoutée sous l'onglet {sheet_name}")
+        print(f"Fichier créé : {output_file} avec la feuille {sheet_name}")
+
 
 # Traiter chaque fichier de la liste
 for input_file in input_files:
-    split_excel(input_file)
-
-print("Séparation terminée pour tous les fichiers avec ajout d'onglets !")
+    if os.path.exists(input_file):
+        split_excel(input_file)
+    else:
+        print(f"Fichier non trouvé : {input_file}")
