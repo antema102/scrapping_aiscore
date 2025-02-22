@@ -41,7 +41,6 @@ def parse_cote(cote_str):
 def process_url():
     # Définir le chemin vers le ChromeDriver
     try:
-        chrome_driver_path = r"C:\Users\Administrator\Desktop\scrapping_aiscore\chromedriver\chromedriver.exe"
         chrome_options = Options()
         # Démarrer en mode maximisé
         chrome_options.add_argument("--start-maximized")
@@ -53,6 +52,7 @@ def process_url():
         scope = ["https://www.googleapis.com/auth/spreadsheets"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(
             r"C:\Users\Administrator\Desktop\scrapping_aiscore/xbet-identifiants.json", scope)
+            
         client = gspread.authorize(creds)
 
         sheet_id = "13h2YXSaJcKjaNa6PO19AJphd-s1VxdO4aBwORng_6Qs"
