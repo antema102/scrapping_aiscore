@@ -4,7 +4,7 @@ import os
 # Liste des fichiers d'entrée
 input_files = []
 user_name = os.getlogin()
-for i in range(45, 50):  # i va de 45 à 49
+for i in range(34,35):  # i va de 45 à 49
     dep_formatted = str(i).zfill(2)
     input_files.append(
         f"C:\\Users\\{user_name}\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT\\DEPT_{dep_formatted}.xlsx")
@@ -26,7 +26,7 @@ def split_excel(input_file):
     base_name = os.path.splitext(os.path.basename(input_file))[0]
 
     # Créer le nouveau dossier DEP_<numéro département>
-    dep_folder = os.path.join(dir_name, f"DEP_{base_name[-2:]}")
+    dep_folder = os.path.join(dir_name, f"DEPT_{base_name[-2:]}")
     if not os.path.exists(dep_folder):
         os.makedirs(dep_folder)
 
