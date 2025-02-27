@@ -119,7 +119,10 @@ def societe(file_path, sheets):
         chrome_options.add_argument("--disable-dev-shm-usage")
 
         # Désactiver JavaScript via les préférences
-        prefs = {"profile.managed_default_content_settings.javascript": 2}
+        prefs = {
+            "profile.managed_default_content_settings.javascript": 2,
+            "profile.managed_default_content_settings.images": 2
+        }
 
         chrome_options.add_experimental_option("prefs", prefs)
 
@@ -127,15 +130,6 @@ def societe(file_path, sheets):
 
         driver = webdriver.Chrome(
             service=service, options=chrome_options, seleniumwire_options=seleniumwire_options)
-
-        try:
-            url = "https://www.societe.com/cgi-bin/recherche"
-
-            driver.get(url)
-
-        except Exception as e:
-            print("erreur pour le driver", e)
-            return False
 
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
 
@@ -191,11 +185,7 @@ def societe(file_path, sheets):
 
                 cta_url = f'https://www.societe.com/cgi-bin/liste?ori=avance&nom={name_company}&exa=on&dirig=&pre=&ape=&dep={number}'
 
-                driver.execute_script("window.open(arguments[0]);", cta_url)
-
-                WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
-
-                driver.switch_to.window(driver.window_handles[-1])
+                driver.get(cta_url)
 
                 if not check_internet():
                     print("❌ Pas de connexion Internet. Fermeture du scripts.")
@@ -302,35 +292,27 @@ def societe(file_path, sheets):
                                             row=i, column=7, value=salarier_text)
                                         print(
                                             f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text}")
-                                        # Sauvegarder les modifications dans le fichier Excel
-                                        # Mise à jour du texte des salariés
                                         workbook.save(new_file_path)
                                     except Exception as e:
                                         print('error lors sauvegarde', e)
 
                             except Exception as e:
                                 print(
-                                    f"Erreur lors du traitement de l'élément : {e}")
+                                    f"Erreur lors du traitement de l'élément")
 
                         processed_elements.add(name_company)
                         save_processed_element(
                             name_company, processed_filename)
                         processed_count += 1
 
-                    driver.close()
-                    driver.switch_to.window(driver.window_handles[0])
-
                 except Exception as e:
                     print("Error")
-                    driver.close()
-                    driver.switch_to.window(driver.window_handles[0])
 
             # Vérifiez si tous les éléments ont été traités
             if processed_count >= total_elements:
                 print("Tous les éléments ont été traités.")
-                driver.close()  # Fermer l'onglet actif
-                driver.quit()   # Fermer complètement le navigateur
-                # Sortie immédiate
+                driver.close()
+                driver.quit()
                 print("Script arrêté car aucune correspondance n'a été trouvée.")
                 return True
 
@@ -452,24 +434,27 @@ def send_to_google_sheets(excel_file, dep_number):
 
 
 def merge_excel_files(output_file, dep_number, directory):
-    all_data = []
-    # Parcourir les fichiers générés
-    for file_path, parts in files_and_sheets:
-        for part_name in parts:
-            basename = f"DEPT_{dep_number}_{part_name}"
-            individual_file = os.path.join(directory, f"{basename}.xlsx")
-            if os.path.exists(individual_file):
-                df = pd.read_excel(individual_file)
-                all_data.append(df)
+    try:
+        all_data = []
+        # Parcourir les fichiers générés
+        for file_path, parts in files_and_sheets:
+            for part_name in parts:
+                basename = f"DEPT_{dep_number}_{part_name}"
+                individual_file = os.path.join(directory, f"{basename}.xlsx")
+                if os.path.exists(individual_file):
+                    df = pd.read_excel(individual_file)
+                    all_data.append(df)
 
-    # Fusionner toutes les données
-    if all_data:
-        merged_df = pd.concat(all_data, ignore_index=True)
-        merged_df.to_excel(output_file, index=False)
-        print(f"Fichier fusionné créé : {output_file}")
-        send_to_google_sheets(output_file, dep_number)
-    else:
-        print("Aucun fichier à fusionner.")
+        # Fusionner toutes les données
+        if all_data:
+            merged_df = pd.concat(all_data, ignore_index=True)
+            merged_df.to_excel(output_file, index=False)
+            print(f"Fichier fusionné créé : {output_file}")
+            send_to_google_sheets(output_file, dep_number)
+        else:
+            print("Aucun fichier à fusionner.")
+    except Exception as e:
+        print("error merge ")
 
 
 if __name__ == "__main__":
