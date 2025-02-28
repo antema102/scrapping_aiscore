@@ -40,9 +40,9 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(1, 2):  # Départements de 8 à 12
+for dep in range(6, 7):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 5)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -117,6 +117,10 @@ def societe(file_path, sheets):
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--silent")  # Réduit les logs inutiles
         chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--log-level=3")
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        chrome_options.add_argument("--disable-logging")
+
 
         # Désactiver JavaScript via les préférences
         prefs = {
@@ -221,7 +225,7 @@ def societe(file_path, sheets):
                                 sirene = item.find_element(
                                     By.CSS_SELECTOR, 'p:nth-child(3)').text.strip()
                                 sirene_result = sirene.split(' ')
-                                sirene_number = int(sirene_result[-1])
+                                sirene_number = sirene_result[-1]
                                 last_four_digits = str(sirene_number)[-4:]
                                 # Prend les 4 derniers chiffres
                                 href = item.get_attribute("href")
