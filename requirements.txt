@@ -1,0 +1,9 @@
+selenium-wire
+openpyxl
+webdriver-manager
+gspread
+pandas
+oauth2client
+requests
+blinker==1.4
+setuptools
