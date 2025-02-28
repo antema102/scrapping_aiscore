@@ -220,8 +220,9 @@ def societe(file_path, sheets):
                         processed_count += 1
 
                     else:
-                        for item in elements:
-                            try:
+                        try:
+                            for item in elements:
+                            
                                 sirene = item.find_element(
                                     By.CSS_SELECTOR, 'p:nth-child(3)').text.strip()
                                 sirene_result = sirene.split(' ')
@@ -300,9 +301,9 @@ def societe(file_path, sheets):
                                     except Exception as e:
                                         print('error lors sauvegarde', e)
 
-                            except Exception as e:
+                        except Exception as e:
                                 print(
-                                    f"Erreur lors du traitement de l'élément")
+                                    f"pas de donné dans le recheche ")
 
                         processed_elements.add(name_company)
                         save_processed_element(
