@@ -1,3 +1,4 @@
 # Ignorer tous les fichiers .xlsx
 *.xlsx
 *.txt
+!requirements.txt
