@@ -217,4 +217,4 @@ while True:
     except Exception:
         print("Erreur")
 
-    time.sleep(900)
+    time.sleep(60)
