@@ -170,7 +170,7 @@ def societe():
                                     span_adresse_str = ''
                             
                                         
-                            print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ") 
+                            print(f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i} ") 
                             # Mise à jour de la colonne B avec le nouveau sirene
                             wb.update_cell(i, 1, sirene_number)#update de la numero sirene
                             wb.update_cell(i, 7, salarier_text)#update de la nombre salarier  
