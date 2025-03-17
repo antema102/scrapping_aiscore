@@ -40,9 +40,9 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(75, 76):  # Départements de 8 à 12
+for dep in range(74, 75):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 7)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 17)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
