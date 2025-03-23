@@ -56,7 +56,7 @@ def filter_df2(df2, merged_df):
 
 
 # 📢 Boucle sur les départements (08 à 90)
-for dep in range(92,93):
+for dep in range(16,17):
     try:
         # Formate en deux chiffres (ex : '08', '09', '10')
         dep_str = f"{dep:02d}"
