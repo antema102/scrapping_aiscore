@@ -1,4 +1,7 @@
 # Ignorer tous les fichiers .xlsx
 *.xlsx
 *.txt
-!requirements.txt
+xbet-identifiants.json
+credentials.json
+score102.json
+!requirements.txtx

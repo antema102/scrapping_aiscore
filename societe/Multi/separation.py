@@ -4,7 +4,7 @@ import os
 # Liste des fichiers d'entrée
 input_files = []
 user_name = os.getlogin()
-for i in range(74,75):  # i va de 45 à 49
+for i in range(69,70):  # i va de 45 à 49
     dep_formatted = str(i).zfill(2)
     input_files.append(
         f"C:\\Users\\{user_name}\\Desktop\\scrapping_aiscore\\societe\\Multi\\DEPT\\DEPT_{dep_formatted}.xlsx")
