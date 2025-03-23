@@ -42,7 +42,7 @@ user_name = os.getlogin()
 
 for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -91,43 +91,44 @@ def societe(file_path, sheets):
 
         chrome_options = Options()
         # Dimensions de la fenêtre
-        # chrome_options.add_argument("--window-size=800,600")
-        # # Mode sans interface graphique
-        # # chrome_options.add_argument("--headless")
-        # # Désactive les barres d'information
-        # chrome_options.add_argument("--disable-infobars")
-        # # Empêche la détection d'automatisation
-        # chrome_options.add_argument(
-        #     "--disable-blink-features=AutomationControlled")
-        # chrome_options.add_argument(
-        #     "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-        # # Pour résoudre certains problèmes de sécurité
-        # chrome_options.add_argument("--no-sandbox")
-        # # Évite la mise en arrière-plan des processus de rendu
-        # chrome_options.add_argument("--disable-renderer-backgrounding")
-        # # Empêche le ralentissement des minuteries en arrière-plan
-        # chrome_options.add_argument("--disable-background-timer-throttling")
-        # # Évite la mise en arrière-plan des fenêtres occultées
-        # chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-        # # Désactive la détection de phishing côté client
-        # chrome_options.add_argument("--disable-client-side-phishing-detection")
-        # # Désactive le rapporteur de crash
-        # chrome_options.add_argument("--disable-crash-reporter")
+        chrome_options.add_argument("--window-size=800,600")
+        # Mode sans interface graphique
+        chrome_options.add_argument("--headless")
+        # Désactive les barres d'information
+        chrome_options.add_argument("--disable-infobars")
+        # Empêche la détection d'automatisation
+        chrome_options.add_argument(
+            "--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument(
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+        # Pour résoudre certains problèmes de sécurité
+        chrome_options.add_argument("--no-sandbox")
+        # Évite la mise en arrière-plan des processus de rendu
+        chrome_options.add_argument("--disable-renderer-backgrounding")
+        # Empêche le ralentissement des minuteries en arrière-plan
+        chrome_options.add_argument("--disable-background-timer-throttling")
+        # Évite la mise en arrière-plan des fenêtres occultées
+        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+        # Désactive la détection de phishing côté client
+        chrome_options.add_argument("--disable-client-side-phishing-detection")
+        # Désactive le rapporteur de crash
+        chrome_options.add_argument("--disable-crash-reporter")
         # # Désactive l'utilisation du GPU pour la compatibilité
-        # chrome_options.add_argument("--disable-gpu")
-        # chrome_options.add_argument("--silent")  # Réduit les logs inutiles
-        # chrome_options.add_argument("--disable-dev-shm-usage")
-        # chrome_options.add_argument("--log-level=3")
-        # chrome_options.add_experimental_option(
-        #     "excludeSwitches", ["enable-logging"])
-        # chrome_options.add_argument("--disable-logging")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--silent")  # Réduit les logs inutiles
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--log-level=3")
+        chrome_options.add_experimental_option(
+            "excludeSwitches", ["enable-logging"])
+        chrome_options.add_argument("--disable-logging")
 
-        # # Désactiver JavaScript via les préférences
-        # prefs = {
-        #     "profile.managed_default_content_settings.images": 2
-        # }
+        # Désactiver JavaScript via les préférences
+        prefs = {
+            "profile.managed_default_content_settings.javascript": 2,
+            "profile.managed_default_content_settings.images": 2
+        }
 
-        # chrome_options.add_experimental_option("prefs", prefs)
+        chrome_options.add_experimental_option("prefs", prefs)
 
         service = Service(ChromeDriverManager().install())
 
@@ -186,10 +187,16 @@ def societe(file_path, sheets):
                 if name_company in processed_elements:
                     processed_count += 1
                     continue
+                
+                #code avec le js activé
+                # ducker_go = f'https://duckduckgo.com/?q={name_company} {commune} societe.com'
 
-                ducker_go = f'https://www.google.com/search?q=site:societe.com {name_company} {commune}'
+                #code avec le js dessactivé
+                ducker_go = f'https://html.duckduckgo.com/html?q={name_company} {commune} societe.com'
 
                 driver.get(ducker_go)
+
+                # time.sleep(50000)
 
                 if not check_internet():
                     print("❌ Pas de connexion Internet. Fermeture du scripts.")
@@ -199,16 +206,25 @@ def societe(file_path, sheets):
 
                 try:
                     # Attendre que la liste des résultats soit présente
+                    #Code pour avec le js qui est activé 
+                    # WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+                    #     (By.CSS_SELECTOR, 'h2.LnpumSThxEWMIsDdAT17 a.eVNpHGjtxRBq_gLOfGDr')))
+
+                    # url = driver.find_elements(
+                    #     By.CSS_SELECTOR, 'h2.LnpumSThxEWMIsDdAT17 a.eVNpHGjtxRBq_gLOfGDr')
+
                     WebDriverWait(driver, 10).until(EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')))
+                        (By.CSS_SELECTOR, 'h2.result__title a.result__a')))
 
                     url = driver.find_elements(
-                        By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')
+                        By.CSS_SELECTOR, 'h2.result__title a.result__a')
 
                     try:
                         if url:
                             first_link = url[0]
+
                             href = first_link.get_attribute("href")
+
                             driver.get(href)
 
                             try:
@@ -222,6 +238,7 @@ def societe(file_path, sheets):
                                     try:
                                         span_text = item.find_element(
                                             By.CSS_SELECTOR, 'span.ui-label').text.strip()
+                                        
                                         if span_text == 'ADRESSE':
                                             span_adresse = item.find_element(
                                                 By.CSS_SELECTOR, 'span:nth-child(2) > a').text.strip()
@@ -236,15 +253,14 @@ def societe(file_path, sheets):
 
                                         if span_text == 'SIREN':
                                             sirene_result = item.find_element(
-                                                By.CSS_SELECTOR, 'span:nth-child(2) ').text.strip()
+                                                By.CSS_SELECTOR, 'span:nth-child(2)').text.strip()
+                                            sirene_result = sirene_result.replace(" ", "") 
 
                                     except Exception as e:
                                         print('erreur')
 
-                                sirene_number = sirene_result[-1]
-                                last_four_digits = str(sirene_number)[-4:]
-                                # Prend les 4 derniers chiffres
-
+                                last_four_digits = str(sirene_result)[-4:]
+          
                                 if last_four_digits == last_four_digits_sirene:
                                     try:
                                         # Mise à jour de la colonne B avec le nouveau sirene
@@ -270,9 +286,11 @@ def societe(file_path, sheets):
 
                     except Exception as e:
                         print("Error")
+                        return False
 
                 except Exception as e:
-                    print(e)
+                    print('error')
+                    return False
 
             # Vérifiez si tous les éléments ont été traités
             if processed_count >= total_elements:
