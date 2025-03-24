@@ -15,6 +15,8 @@ def filtrer_csv_et_convertir(input_csv, output_xlsx):
         # Garder uniquement les colonnes spécifiées
         df_filtre = df[colonnes_conservees]
         
+        df_filtre.drop_duplicates(inplace=True)
+
         # Sauvegarder en format Excel (XLSX)
         df_filtre.to_excel(output_xlsx, index=False)
         
@@ -23,7 +25,7 @@ def filtrer_csv_et_convertir(input_csv, output_xlsx):
         print(f'error pour le departement {input_file}',e)
 
 # Boucle sur les fichiers dep_01.csv à dep_90.csv
-for i in range(92,99):
+for i in range(6,7):
     input_file = f"dep_{i:02}.csv"
     output_file = f"dep_{i:02}_sources.xlsx"
     

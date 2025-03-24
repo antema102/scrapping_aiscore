@@ -46,17 +46,33 @@ def clean_dataframe(df):
 
 
 def filter_df2(df2, merged_df):
-    """Filtre df2 en supprimant les lignes qui ont matché avec df1."""
+    """Filtre df2 en supprimant uniquement les lignes qui ont exactement matché avec df1."""
     print("📌 Filtrage des données restantes...")
+    merged_pairs = set(zip(merged_df['sirene_last4'], merged_df['dénomination']))
+    
     filtered_df2 = df2[
-        ~df2['sirene_last4'].isin(merged_df['sirene_last4']) |
-        ~df2['dénomination'].isin(merged_df['dénomination'])
+        ~df2.apply(lambda row: (row['sirene_last4'], row['dénomination']) in merged_pairs, axis=1)
     ]
+    
     return filtered_df2.drop(columns=['sirene_last4'])
 
+def remove_duplicates(file_path):
+    """Supprime les doublons d'un fichier Excel et le sauvegarde."""
+    try:
+        df = pd.read_excel(file_path, engine='openpyxl')
+
+        # Suppression des doublons en fonction de toutes les colonnes
+        df_cleaned = df.drop_duplicates()
+
+        # Sauvegarde du fichier nettoyé
+        df_cleaned.to_excel(file_path, index=False)
+        print(f"✅ Doublons supprimés pour {file_path}")
+    
+    except Exception as e:
+        print(f"❌ Erreur lors de la suppression des doublons dans {file_path} : {e}")
 
 # 📢 Boucle sur les départements (08 à 90)
-for dep in range(16,17):
+for dep in range(59,60):
     try:
         # Formate en deux chiffres (ex : '08', '09', '10')
         dep_str = f"{dep:02d}"
@@ -89,6 +105,7 @@ for dep in range(16,17):
 
         # Nettoyage des colonnes en doublon
         print("🧹 Nettoyage des colonnes en doublon...")
+
         merged_df = clean_dataframe(merged_df)
 
         # Sauvegarde des résultats
@@ -97,6 +114,10 @@ for dep in range(16,17):
         merged_df.to_excel(output_matched, index=False)
 
         df2_filtered.to_excel(output_filtered, index=False)
+
+        remove_duplicates(output_matched)
+
+        remove_duplicates(output_filtered)
 
         print(f"✅ Suppresion fichiers sources {file_df2} traité ! 🚀")
 
