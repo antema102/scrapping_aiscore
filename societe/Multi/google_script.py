@@ -42,7 +42,7 @@ user_name = os.getlogin()
 
 for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 3)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -192,7 +192,7 @@ def societe(file_path, sheets):
                 # ducker_go = f'https://duckduckgo.com/?q={name_company} {commune} societe.com'
 
                 #code avec le js dessactivé
-                ducker_go = f'https://html.duckduckgo.com/html?q={name_company} {commune} societe.com'
+                ducker_go = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {commune} societe.com'
 
                 driver.get(ducker_go)
 
@@ -213,7 +213,7 @@ def societe(file_path, sheets):
                     # url = driver.find_elements(
                     #     By.CSS_SELECTOR, 'h2.LnpumSThxEWMIsDdAT17 a.eVNpHGjtxRBq_gLOfGDr')
 
-                    WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+                    WebDriverWait(driver,2).until(EC.presence_of_element_located(
                         (By.CSS_SELECTOR, 'h2.result__title a.result__a')))
 
                     url = driver.find_elements(
@@ -264,14 +264,17 @@ def societe(file_path, sheets):
                                 if last_four_digits == last_four_digits_sirene:
                                     try:
                                         # Mise à jour de la colonne B avec le nouveau sirene
+
+                                        worksheet.cell(
+                                            row=i, column=1, value=sirene_result)
+                                        
                                         worksheet.cell(
                                             row=i, column=3, value=span_adresse_str)
-                                        worksheet.cell(
-                                            row=i, column=1, value=sirene_number)
-
+                                    
                                         print(
                                             f"Sirène trouvé : noms {name_company} numero {sirene_result} addresse {span_adresse_str}  ligne {i}")
                                         workbook.save(new_file_path)
+
                                     except Exception as e:
                                         print('error lors sauvegarde', e)
 
@@ -285,11 +288,12 @@ def societe(file_path, sheets):
                             processed_count += 1
 
                     except Exception as e:
-                        print("Error")
+                        print("pas de donné dans le site societe.com")
                         return False
 
                 except Exception as e:
-                    print('error')
+                    driver.close()
+                    driver.quit()
                     return False
 
             # Vérifiez si tous les éléments ont été traités
@@ -329,10 +333,10 @@ def retry_societe(file_path, sheet_name):
             else:
                 print(
                     f"[WARNING] Échec, relance dans 10s : {file_path} - {sheet_name}")
-                time.sleep(10)
+                time.sleep(2)
         except Exception as e:
             print(f"[ERROR] Erreur fatale : {e}")
-            time.sleep(10)  # Attendre avant de réessayer
+            time.sleep(2)  # Attendre avant de réessayer
 
 
 def launch_processes():
