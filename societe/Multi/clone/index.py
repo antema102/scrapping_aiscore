@@ -17,6 +17,7 @@ def load_excel(file_path):
             if 'siren' not in df.columns or 'dénomination' not in df.columns:
                 print(f"⚠️ Colonnes manquantes dans {file_path} -> {df.columns.tolist()}")
                 return None
+            
             return df
         except Exception as e:
             print(f"❌ Erreur de lecture du fichier {file_path} : {e}")
@@ -72,7 +73,7 @@ def remove_duplicates(file_path):
         print(f"❌ Erreur lors de la suppression des doublons dans {file_path} : {e}")
 
 # 📢 Boucle sur les départements (08 à 90)
-for dep in range(59,60):
+for dep in range(1,100):
     try:
         # Formate en deux chiffres (ex : '08', '09', '10')
         dep_str = f"{dep:02d}"

@@ -17,7 +17,7 @@ donnees = []
 
 # Boucle sur les fichiers DEPT_01.xlsx à DEPT_90.xlsx
 for i in range(1, 100):
-    fichier = f"DEPT_{i:02d}.xlsx"
+    fichier = f"dep_{i:02d}_sources.xlsx"
     if os.path.exists(fichier):
         nombre_lignes = compter_lignes_excel(fichier)
         if nombre_lignes is not None:

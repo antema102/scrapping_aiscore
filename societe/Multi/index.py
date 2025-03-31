@@ -453,9 +453,14 @@ def merge_excel_files(output_file, dep_number, directory):
         # Fusionner toutes les données
         if all_data:
             merged_df = pd.concat(all_data, ignore_index=True)
+
+            print(f"Suppresion des doublons : {output_file}")
+
+            merged_df.drop_duplicates()
+
             merged_df.to_excel(output_file, index=False)
+
             print(f"Fichier fusionné créé : {output_file}")
-            send_to_google_sheets(output_file, dep_number)
         else:
             print("Aucun fichier à fusionner.")
     except Exception as e:

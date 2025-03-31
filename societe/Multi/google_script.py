@@ -179,6 +179,7 @@ def societe(file_path, sheets):
             # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
                 name_company = row[1]
+                code_postal = row[4]
                 commune = row[4]   # Nom entreprise
                 # Convertit en chaîne de caractères
                 sirene_number = str(row[0])
@@ -192,7 +193,7 @@ def societe(file_path, sheets):
                 # ducker_go = f'https://duckduckgo.com/?q={name_company} {commune} societe.com'
 
                 #code avec le js dessactivé
-                ducker_go = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {commune} societe.com'
+                ducker_go = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune} societe.com'
 
                 driver.get(ducker_go)
 
@@ -436,9 +437,15 @@ def merge_excel_files(output_file, dep_number, directory):
         # Fusionner toutes les données
         if all_data:
             merged_df = pd.concat(all_data, ignore_index=True)
+
+            print(f"Suppresion des doublons : {output_file}")  
+            
+            merged_df.drop_duplicates()
+
             merged_df.to_excel(output_file, index=False)
+            
             print(f"Fichier fusionné créé : {output_file}")
-            send_to_google_sheets(output_file, dep_number)
+
         else:
             print("Aucun fichier à fusionner.")
     except Exception as e:
