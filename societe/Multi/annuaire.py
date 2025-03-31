@@ -40,9 +40,9 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(74, 75):  # Départements de 8 à 12
+for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1,2)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -93,7 +93,7 @@ def societe(file_path, sheets):
         # Dimensions de la fenêtre
         chrome_options.add_argument("--window-size=800,600")
         # Mode sans interface graphique
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
         # Désactive les barres d'information
         chrome_options.add_argument("--disable-infobars")
         # Empêche la détection d'automatisation
@@ -118,13 +118,12 @@ def societe(file_path, sheets):
         chrome_options.add_argument("--silent")  # Réduit les logs inutiles
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--log-level=3")
-        chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        chrome_options.add_experimental_option(
+            "excludeSwitches", ["enable-logging"])
         chrome_options.add_argument("--disable-logging")
-
 
         # Désactiver JavaScript via les préférences
         prefs = {
-            "profile.managed_default_content_settings.javascript": 2,
             "profile.managed_default_content_settings.images": 2
         }
 
@@ -178,135 +177,112 @@ def societe(file_path, sheets):
 
             # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
+
+                sirene_number = str(row[0])
+
                 name_company = row[1]  # Nom entreprise
                 # Convertit en chaîne de caractères
-                sirene_number = str(row[0])
+
+                cote_postal = row[3]
+
+                comune = row[4]
+
                 # Prend les 4 derniers chiffres
                 last_four_digits_sirene = sirene_number[-4:]
+
                 if name_company in processed_elements:
                     processed_count += 1
                     continue
 
-                cta_url = f'https://www.societe.com/cgi-bin/liste?ori=avance&nom={name_company}&exa=on&dirig=&pre=&ape=&dep={number}'
+                cta_url = f'https://annuaire-entreprises.data.gouv.fr/rechercher?terme={name_company} {cote_postal} {comune}'
 
                 driver.get(cta_url)
 
+                if not check_internet():
+                    print("❌ Pas de connexion Internet. Fermeture du scripts.")
+                    driver.close()
+                    driver.quit()
+                    return False  # Quitte immédiatement
+
                 try:
-                    elements = driver.find_elements(
-                        By.CSS_SELECTOR, 'a.ResultBloc__link__content')
-                    
-                    if not elements:
-                        try:
-                            h1 = driver.find_element(
-                                By.CSS_SELECTOR, '#appMain > div > section > div > h1')
-                            if h1:
-                                print("ip bloquer")
-                                driver.close()
-                                driver.quit()
-                                return False
 
-                        except Exception as e:
-                            print("")
+                    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a.result-link')))
 
-                        print("pas donnée")
-                        processed_elements.add(name_company)
-                        save_processed_element(
-                            name_company, processed_filename)
-                        processed_count += 1
+                    elements = driver.find_elements(By.CSS_SELECTOR, 'a.result-link')
 
-                    else:
-                        try:
-                            for item in elements:
-                            
-                                sirene = item.find_element(
-                                    By.CSS_SELECTOR, 'p:nth-child(3)').text.strip()
-                                sirene_result = sirene.split(' ')
-                                sirene_number = sirene_result[-1]
-                                last_four_digits = str(sirene_number)[-4:]
-                                # Prend les 4 derniers chiffres
-                                href = item.get_attribute("href")
 
-                                if last_four_digits == last_four_digits_sirene:
-                                    driver.get(href)
+                    try:
+                        for item in elements:
+                            sirene = item.get_attribute('data-siren')
+                            # Prend les 4 derniers chiffres
 
-                                    WebDriverWait(driver, 10).until(
-                                        EC.presence_of_element_located((By.CSS_SELECTOR, "#identite")))
+                            last_four_digits = str(sirene)[-4:]
 
-                                    try:
-                                        # Trouver tous les éléments <li>
-                                        salarier_list = driver.find_elements(
-                                            By.CSS_SELECTOR, "#__summary > article.co-summary > ul > li")
+                            href = item.get_attribute("href")
 
-                                        for item_salarier in salarier_list:
+                            if last_four_digits == last_four_digits_sirene:
 
-                                            # Trouver le span contenant le texte
-                                            try:
-                                                span_text_salarier = item_salarier.find_element(
-                                                    By.CSS_SELECTOR, "div.ui-label.has-tip").text.strip()
-                                            except:
-                                                span_text_salarier = ""
+                                driver.get(href)
 
-                                            if "Effectif" in span_text_salarier:
-                                                try:
-                                                    span_adresse_salarie = item_salarier.find_element(
-                                                        By.CSS_SELECTOR, 'span.ui-tag.is-Info').text.strip()
-                                                    match = re.findall(
-                                                        r'\d+', span_adresse_salarie)
-                                                    print(match[-1])
-                                                    salarier_text = match[-1] if match else ''
-                                                except:
-                                                    salarier_text = ''
-                                            else:
-                                                salarier_text = ''
+                                WebDriverWait(driver, 10).until(
+                                    EC.presence_of_element_located((By.CSS_SELECTOR, "div#entreprise")))
 
-                                    except Exception as e:
-                                        salarier_text = ''
+                                try:
+                                    # Trouver tous les éléments <tr>
+                                    tr_list = driver.find_elements((By.CSS_SELECTOR, "table.styleSimple_two-column-table__KG2Pf > tbody > tr"))
 
-                                    li = driver.find_elements(
-                                        By.CSS_SELECTOR, '.co-resume > ul > li')
+                                    for i, tr_children in enumerate(tr_list, start=2):  # En ajoutant un index pour la ligne du fichier Excel
+                                        # Extraire les informations de chaque ligne
+                                        denomination = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div').text.strip()
+                                        siren_selector = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div').text.strip()
+                                        effectif_salarier_selctor = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div').text.strip()
+                                        addresse_postal = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div > a').text.strip()
 
-                                    for item in li:
-                                        try:
-                                            span_text = item.find_element(
-                                                By.CSS_SELECTOR, 'span.ui-label').text.strip()
-                                            if span_text == 'ADRESSE':
-                                                span_adresse = item.find_element(
-                                                    By.CSS_SELECTOR, 'span:nth-child(2) > a').text.strip()
-                                                span_adresse_parts = span_adresse.split(
-                                                    ',')
-                                                # Vérifie si des parties existent avant d'accéder à l'index
-                                                if len(span_adresse_parts) > 0:
-                                                    span_adresse_str = str(
-                                                        span_adresse_parts[0])
-                                                else:
-                                                    span_adresse_str = ''
-                                        except Exception as e:
-                                            span_adresse_str = ''
-                                    try:
-                                        # Mise à jour de la colonne B avec le nouveau sirene
-                                        worksheet.cell(
-                                            row=i, column=3, value=span_adresse_str)
-                                        worksheet.cell(
-                                            row=i, column=1, value=sirene_number)
-                                        worksheet.cell(
-                                            row=i, column=7, value=salarier_text)
-                                        print(
-                                            f"Sirène trouvé : noms {name_company} numero {sirene} addresse {span_adresse_str} salarié {salarier_text} ligne {i}")
+                                        # Comparer et récupérer les informations nécessaires
+                                        if 'Dénomination' in denomination:
+                                            name_company_str = tr_children.find_element(By.CSS_SELECTOR, 'button > span').text.strip()
+
+                                        if 'SIREN' in siren_selector:
+                                            siren_brute = tr_children.find_element(By.CSS_SELECTOR, 'button > span').text.strip()
+                                            siren_news = str(siren_brute)
+
+                                        if 'Effectif salarié' in effectif_salarier_selctor:
+                                            salarier = tr_children.find_element(By.CSS_SELECTOR, 'button > span').text.strip()
+
+                                        if 'Adresse postale salarié' in addresse_postal:
+                                            span_adresse_str = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div > span').text.strip()
+
+                                        # Mise à jour de la colonne B avec les nouvelles données
+                                        worksheet.cell(row=i, column=1, value=siren_news)
+                                        worksheet.cell(row=i, column=8, value=name_company_str)
+                                        worksheet.cell(row=i, column=3, value=span_adresse_str)
+                                        worksheet.cell(row=i, column=7, value=salarier)
+
+                                        print(f"Sirène trouvé : noms {name_company_str} numero {siren_news} adresse {span_adresse_str} salarié {salarier} ligne {i}")
+                                        
+                                        # Sauvegarder le fichier après chaque ligne
                                         workbook.save(new_file_path)
-                                    except Exception as e:
-                                        print('error lors sauvegarde', e)
 
-                        except Exception as e:
-                                print(
-                                    f"pas de donné dans le recheche ")
+                                except Exception as e:
+                                    print('Erreur dans la récupération des données du siren:', e)
 
-                        processed_elements.add(name_company)
-                        save_processed_element(
-                            name_company, processed_filename)
-                        processed_count += 1
+                    except Exception as e:
+                        print(f"Erreur lors de annuaire",e)
 
                 except Exception as e:
-                    print("Error")
+                    try:
+                        driver.find_element(By.CSS_SELECTOR, 'div.no-results')
+                        print(f"pas de donné dans le recheche")
+                        processed_elements.add(name_company)
+                        save_processed_element(
+                        name_company, processed_filename)
+                        processed_count += 1
+
+                    except Exception as e:
+                        print("Error",e)
+                        driver.close()
+                        driver.quit()
+                        return False
 
             # Vérifiez si tous les éléments ont été traités
             if processed_count >= total_elements:
