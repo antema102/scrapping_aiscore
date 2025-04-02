@@ -17,7 +17,7 @@ donnees = []
 
 # Boucle sur les fichiers DEPT_01.xlsx à DEPT_90.xlsx
 for i in range(1, 100):
-    fichier = f"dep_{i:02d}_.xlsx"
+    fichier = f"DEPT_{i:02d}.xlsx"
     if os.path.exists(fichier):
         nombre_lignes = compter_lignes_excel(fichier)
         if nombre_lignes is not None:
@@ -27,6 +27,6 @@ for i in range(1, 100):
 
 # Créer un DataFrame et enregistrer dans un fichier Excel
 resultat_df = pd.DataFrame(donnees, columns=["Département", "Nombre de lignes"])
-resultat_df.to_excel("resultats_news.xlsx", index=False)
+resultat_df.to_excel("resultats_news_xxx.xlsx", index=False)
 
 print("Les résultats ont été enregistrés dans resultats.xlsx")

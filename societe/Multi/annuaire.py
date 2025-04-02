@@ -194,22 +194,13 @@ def societe(file_path, sheets):
                     processed_count += 1
                     continue
 
-                cta_url = f'https://annuaire-entreprises.data.gouv.fr/rechercher?terme={name_company} {cote_postal} {comune}'
-
+                cta_url = f'https://annuaire-entreprises.data.gouv.fr/rechercher?terme= {name_company} {cote_postal} {comune}'
                 driver.get(cta_url)
-
-                if not check_internet():
-                    print("❌ Pas de connexion Internet. Fermeture du scripts.")
-                    driver.close()
-                    driver.quit()
-                    return False  # Quitte immédiatement
-
+                
                 try:
-
                     WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a.result-link')))
 
                     elements = driver.find_elements(By.CSS_SELECTOR, 'a.result-link')
-
 
                     try:
                         for item in elements:
@@ -225,43 +216,44 @@ def societe(file_path, sheets):
                                 driver.get(href)
 
                                 WebDriverWait(driver, 10).until(
-                                    EC.presence_of_element_located((By.CSS_SELECTOR, "div#entreprise")))
+                                    EC.presence_of_element_located((By.ID, "entreprise")))
 
                                 try:
                                     # Trouver tous les éléments <tr>
-                                    tr_list = driver.find_elements((By.CSS_SELECTOR, "table.styleSimple_two-column-table__KG2Pf > tbody > tr"))
+                                    
+                                    tr_list = driver.find_elements(By.CSS_SELECTOR, "#entreprise > div > div:nth-child(2) > table.styleSimple_two-column-table__KG2Pf > tbody > tr")
+                                
+                                    name_company_str = siren_news = salarier = span_adresse_str = ""
 
-                                    for i, tr_children in enumerate(tr_list, start=2):  # En ajoutant un index pour la ligne du fichier Excel
-                                        # Extraire les informations de chaque ligne
-                                        denomination = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div').text.strip()
-                                        siren_selector = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div').text.strip()
-                                        effectif_salarier_selctor = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div').text.strip()
-                                        addresse_postal = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div > a').text.strip()
+                                    for tr in tr_list:
 
-                                        # Comparer et récupérer les informations nécessaires
-                                        if 'Dénomination' in denomination:
-                                            name_company_str = tr_children.find_element(By.CSS_SELECTOR, 'button > span').text.strip()
+                                        label_element = tr.find_element(By.CSS_SELECTOR, "td:first-child").text.strip()
 
-                                        if 'SIREN' in siren_selector:
-                                            siren_brute = tr_children.find_element(By.CSS_SELECTOR, 'button > span').text.strip()
-                                            siren_news = str(siren_brute)
+                                        if "Dénomination" in label_element:
+                                            print("1",label_element)
+                                            name_company_str = tr.find_element(By.CSS_SELECTOR, "td:nth-child(2) > button > span")
+                                            print(name_company_str)
 
-                                        if 'Effectif salarié' in effectif_salarier_selctor:
-                                            salarier = tr_children.find_element(By.CSS_SELECTOR, 'button > span').text.strip()
+                                        # elif "SIREN" in label_element:
+                                        #     print("1",label_element)
+                                        #     siren_news = tr.find_element(By.CSS_SELECTOR, "td:nth-child(2) > button > span").text.strip()
 
-                                        if 'Adresse postale salarié' in addresse_postal:
-                                            span_adresse_str = tr_children.find_element(By.CSS_SELECTOR, 'td.styleSimple_cell__OckvR > div > span').text.strip()
+                                        # elif "Effectif salarié" in label_element:
+                                        #     print("1",label_element)
+                                        #     salarier = tr.find_element(By.CSS_SELECTOR, "td:nth-child(2) > button > span").text.strip()
 
-                                        # Mise à jour de la colonne B avec les nouvelles données
-                                        worksheet.cell(row=i, column=1, value=siren_news)
-                                        worksheet.cell(row=i, column=8, value=name_company_str)
-                                        worksheet.cell(row=i, column=3, value=span_adresse_str)
-                                        worksheet.cell(row=i, column=7, value=salarier)
+                                        # elif "Adresse postale" in label_element:
+                                        #     try:
+                                        #         print("1",label_element)
+                                        #         span_adresse_str = tr.find_element(By.CSS_SELECTOR, "td:last-child").text.strip()
+                                        #     except:
+                                        #         print('pas de nombre effectif')
+                                        #         span_adresse_str=''
 
-                                        print(f"Sirène trouvé : noms {name_company_str} numero {siren_news} adresse {span_adresse_str} salarié {salarier} ligne {i}")
+                                    print(f"Sirène trouvé : noms {name_company_str} numero {siren_news} adresse {span_adresse_str} salarié {salarier} ligne {i}")
                                         
-                                        # Sauvegarder le fichier après chaque ligne
-                                        workbook.save(new_file_path)
+                                    # Sauvegarder le fichier après chaque ligne
+                                    workbook.save(new_file_path)
 
                                 except Exception as e:
                                     print('Erreur dans la récupération des données du siren:', e)

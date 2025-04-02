@@ -295,7 +295,7 @@ def societe(file_path, sheets):
                                         workbook.save(new_file_path)
                                     except Exception as e:
                                         print('error lors sauvegarde', e)
-
+                                
                         except Exception as e:
                                 print(
                                     f"pas de donné dans le recheche ")

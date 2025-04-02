@@ -6,55 +6,30 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from openpyxl import load_workbook
 from webdriver_manager.chrome import ChromeDriverManager
-import gspread
 import pandas as pd
-# from oauth2client.service_account import ServiceAccountCredentials
 import socket
 from urllib3.connection import HTTPConnection
 import os
 from multiprocessing import Process, Lock
-import requests
 import time
 import pandas as pd
 import os
-import re
+import random
 
 
 # Verrou global
 files_and_sheets = []
 lock = Lock()
 
-# Définir manuellement l'ID de la VM (1 à 5)
-# VM_ID = 3  # Change cette valeur pour 2, 3, 4, ou 5 selon la VM sur laquelle tu exécutes le script
-
-# Nombre total de VMs
-# NB_VMS = 5
-
-# Liste des départements (par exemple, de 1 à 20)
-# departements = list(range(8,30))  # Exemple : départements de 1 à 20
-
-# Répartition des départements en fonction de l'ID de la VM
-# departements_vm = [departements[i] for i in range(VM_ID-1, len(departements), NB_VMS)]
-
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-
 for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
-
-
-def check_internet(url="https://www.google.com", timeout=5):
-    """Teste la connexion Internet en envoyant une requête à Google."""
-    try:
-        response = requests.get(url, timeout=timeout)
-        return response.status_code == 200
-    except requests.ConnectionError:
-        return False
 
 # Fonction pour charger les éléments déjà traités depuis un fichier spécifique
 
@@ -68,9 +43,9 @@ def load_processed_elements(filename):
 # Fonction pour enregistrer les éléments traités dans un fichier spécifique
 
 
-def save_processed_element(element, filename):
+def save_processed_element(element_sirene, element_name, filename):
     with open(filename, 'a', encoding="utf-8") as file:
-        file.write(f"{element}\n")
+        file.write(f"{element_sirene} {element_name}\n")
 
 
 def societe(file_path, sheets):
@@ -93,7 +68,7 @@ def societe(file_path, sheets):
         # Dimensions de la fenêtre
         chrome_options.add_argument("--window-size=800,600")
         # Mode sans interface graphique
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
         # Désactive les barres d'information
         chrome_options.add_argument("--disable-infobars")
         # Empêche la détection d'automatisation
@@ -172,106 +147,102 @@ def societe(file_path, sheets):
         worksheet = workbook[worksheet_name]
 
         try:
-
             total_elements = worksheet.max_row  # Total des éléments dans la source de données
             processed_count = 0       # Compteur des éléments déjà traités
 
             # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
                 name_company = row[1]
-                code_postal = row[4]
+                code_postal = row[3]
                 commune = row[4]   # Nom entreprise
                 # Convertit en chaîne de caractères
                 sirene_number = str(row[0])
+
                 # Prend les 4 derniers chiffres
                 last_four_digits_sirene = sirene_number[-4:]
-                if name_company in processed_elements:
+
+                str_comparaison = f'{last_four_digits_sirene} {name_company}'
+
+                if str_comparaison in processed_elements:
                     processed_count += 1
                     continue
-                
-                #code avec le js activé
-                # ducker_go = f'https://duckduckgo.com/?q={name_company} {commune} societe.com'
 
-                #code avec le js dessactivé
-                ducker_go = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune} societe.com'
+                
+                # code avec le js dessactivé
+                ducker_go = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune}'
 
                 driver.get(ducker_go)
 
-                # time.sleep(50000)
-
-                if not check_internet():
-                    print("❌ Pas de connexion Internet. Fermeture du scripts.")
-                    driver.close()
-                    driver.quit()
-                    return False  # Quitte immédiatement
-
                 try:
-                    # Attendre que la liste des résultats soit présente
-                    #Code pour avec le js qui est activé 
-                    # WebDriverWait(driver, 10).until(EC.presence_of_element_located(
-                    #     (By.CSS_SELECTOR, 'h2.LnpumSThxEWMIsDdAT17 a.eVNpHGjtxRBq_gLOfGDr')))
+                    WebDriverWait(driver, 5).until(EC.presence_of_element_located(
+                        (By.CSS_SELECTOR, '.result__extras__url a.result__url')))
 
-                    # url = driver.find_elements(
-                    #     By.CSS_SELECTOR, 'h2.LnpumSThxEWMIsDdAT17 a.eVNpHGjtxRBq_gLOfGDr')
+                    urls = driver.find_elements(
+                        By.CSS_SELECTOR, '.result__extras__url a.result__url')
 
-                    WebDriverWait(driver,2).until(EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, 'h2.result__title a.result__a')))
+                    for item in urls:
+                        try:
+                            # Lien qui est compatibles societes.com est e.g:
+                            # www.societe.com/societe/commune-de-balan-210800413.html
+                            # si c'est pas comment ça le format en récuper pas vu que l'on recupre les ces numero
+                            # 210800413
+                            # puis les 4 dernier numeros
+                            # 00413
 
-                    url = driver.find_elements(
-                        By.CSS_SELECTOR, 'h2.result__title a.result__a')
+                            sirene = item.text.split('-')[-1]
 
-                    try:
-                        if url:
-                            first_link = url[0]
+                            siren_last = sirene.split('.')[0]
 
-                            href = first_link.get_attribute("href")
+                            last_four_digits = str(siren_last)[-4:]
 
-                            driver.get(href)
+                            href = item.get_attribute("href")
 
-                            try:
-                                WebDriverWait(driver, 10).until(
-                                    EC.presence_of_element_located((By.CSS_SELECTOR, "#identite")))
+                            if last_four_digits == last_four_digits_sirene:
 
-                                li = driver.find_elements(
-                                    By.CSS_SELECTOR, '.co-resume > ul > li')
+                                driver.get(href)
 
-                                for item in li:
+                                try:
+                                    WebDriverWait(driver, 10).until(
+                                        EC.presence_of_element_located((By.CSS_SELECTOR, "#identite")))
+
+                                    li = driver.find_elements(
+                                        By.CSS_SELECTOR, '.co-resume > ul > li')
+
+                                    for item in li:
+
+                                        try:
+                                            span_text = item.find_element(
+                                                By.CSS_SELECTOR, 'span.ui-label').text.strip()
+
+                                            if span_text == 'ADRESSE':
+                                                span_adresse = item.find_element(
+                                                    By.CSS_SELECTOR, 'span:nth-child(2) > a').text.strip()
+                                                span_adresse_parts = span_adresse.split(
+                                                    ',')
+                                                # Vérifie si des parties existent avant d'accéder à l'index
+                                                if len(span_adresse_parts) > 0:
+                                                    span_adresse_str = str(
+                                                        span_adresse_parts[0])
+                                                else:
+                                                    span_adresse_str = ''
+
+                                            if span_text == 'SIREN':
+                                                sirene_result = item.find_element(
+                                                    By.CSS_SELECTOR, 'span:nth-child(2)').text.strip()
+                                                sirene_result = sirene_result.replace(
+                                                    " ", "")
+
+                                        except Exception as e:
+                                            print(
+                                                'erreur recuperation du sirene et addresse')
+
                                     try:
-                                        span_text = item.find_element(
-                                            By.CSS_SELECTOR, 'span.ui-label').text.strip()
-                                        
-                                        if span_text == 'ADRESSE':
-                                            span_adresse = item.find_element(
-                                                By.CSS_SELECTOR, 'span:nth-child(2) > a').text.strip()
-                                            span_adresse_parts = span_adresse.split(
-                                                ',')
-                                            # Vérifie si des parties existent avant d'accéder à l'index
-                                            if len(span_adresse_parts) > 0:
-                                                span_adresse_str = str(
-                                                    span_adresse_parts[0])
-                                            else:
-                                                span_adresse_str = ''
-
-                                        if span_text == 'SIREN':
-                                            sirene_result = item.find_element(
-                                                By.CSS_SELECTOR, 'span:nth-child(2)').text.strip()
-                                            sirene_result = sirene_result.replace(" ", "") 
-
-                                    except Exception as e:
-                                        print('erreur')
-
-                                last_four_digits = str(sirene_result)[-4:]
-          
-                                if last_four_digits == last_four_digits_sirene:
-                                    try:
-                                        # Mise à jour de la colonne B avec le nouveau sirene
-
                                         worksheet.cell(
                                             row=i, column=1, value=sirene_result)
-                                        
+
                                         worksheet.cell(
                                             row=i, column=3, value=span_adresse_str)
-                                    
+
                                         print(
                                             f"Sirène trouvé : noms {name_company} numero {sirene_result} addresse {span_adresse_str}  ligne {i}")
                                         workbook.save(new_file_path)
@@ -279,23 +250,29 @@ def societe(file_path, sheets):
                                     except Exception as e:
                                         print('error lors sauvegarde', e)
 
-                            except Exception as e:
-                                print(
-                                    f"pas de donné dans le recheche ")
+                                except Exception as e:
+                                    print(
+                                        f"erreur lors recuper du siren dans le societe")
 
-                            processed_elements.add(name_company)
-                            save_processed_element(
-                                name_company, processed_filename)
-                            processed_count += 1
+                                break
 
-                    except Exception as e:
-                        print("pas de donné dans le site societe.com")
-                        return False
+                        except Exception as e:
+                            print("Erreur lors de la récupération du SIRENE",e)
+                            return False
+
+                    processed_elements.add(
+                        f"{last_four_digits_sirene} {name_company}")
+                    save_processed_element(
+                        last_four_digits_sirene, name_company, processed_filename)
+                    processed_count += 1
 
                 except Exception as e:
+                    print("Captcha")
                     driver.close()
                     driver.quit()
                     return False
+                
+                time.sleep(random.uniform(1, 5))
 
             # Vérifiez si tous les éléments ont été traités
             if processed_count >= total_elements:
@@ -334,10 +311,10 @@ def retry_societe(file_path, sheet_name):
             else:
                 print(
                     f"[WARNING] Échec, relance dans 10s : {file_path} - {sheet_name}")
-                time.sleep(2)
+                time.sleep(5)
         except Exception as e:
             print(f"[ERROR] Erreur fatale : {e}")
-            time.sleep(2)  # Attendre avant de réessayer
+            time.sleep(5)  # Attendre avant de réessayer
 
 
 def launch_processes():
@@ -374,52 +351,9 @@ def launch_processes():
         print(output_file)
 
         # Une fois tous les processus terminés, fusionner les fichierss
-        # merge_excel_files(output_file, dep_number, directory)
+        merge_excel_files(output_file, dep_number, directory)
 
     print("Tous les départements ont été traités.")
-
-
-def send_to_google_sheets(excel_file, dep_number):
-    """Ajoute les nouvelles données dans Google Sheets sans effacer l'existant."""
-    try:
-        # Authentification Google Sheets
-        scope = ["https://www.googleapis.com/auth/spreadsheets"]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(
-            f'C:/Users/{user_name}/Desktop/scrapping_aiscore/credentials.json', scope
-        )
-        client = gspread.authorize(creds)
-        sheet_id = "1JkycUQRhV7kDnrA-wEfukJAUmEYFj_qFAN6JVx9wVto"
-        google_sheet = client.open_by_key(sheet_id)
-
-        # Vérifier si l'onglet existe
-        try:
-            dep_sheet = google_sheet.worksheet(f"dep_{dep_number}")
-            print(
-                f"L'onglet dep_{dep_number} existe déjà. Mise à jour en cours...")
-        except gspread.exceptions.WorksheetNotFound:
-            # Si l'onglet n'existe pas, le créer
-            dep_sheet = google_sheet.add_worksheet(
-                title=f"dep_{dep_number}", rows="1000", cols="20")
-            print(f"L'onglet dep_{dep_number} a été créé.")
-
-        # Lire le fichier Excel
-        df = pd.read_excel(excel_file)
-
-        # Remplacer les valeurs NaN par une chaîne vide (évite l'erreur JSON)
-        df = df.fillna("")
-
-        # Convertir les données en liste de listes
-        data = df.values.tolist()
-
-        # Ajouter les nouvelles données sous l'ancienne
-        dep_sheet.append_rows(data, value_input_option="RAW")
-        print(
-            f"Les données ont été ajoutées avec succès dans l'onglet dep_{dep_number}.")
-
-    except Exception as e:
-        print(f"Erreur lors de l'envoi des données à Google Sheets : {e}")
-
-# Fonction pour fusionner les fichiers Excel
 
 
 def merge_excel_files(output_file, dep_number, directory):
@@ -436,14 +370,15 @@ def merge_excel_files(output_file, dep_number, directory):
 
         # Fusionner toutes les données
         if all_data:
+
             merged_df = pd.concat(all_data, ignore_index=True)
 
-            print(f"Suppresion des doublons : {output_file}")  
-            
+            print(f"Suppresion des doublons : {output_file}")
+
             merged_df.drop_duplicates()
 
             merged_df.to_excel(output_file, index=False)
-            
+
             print(f"Fichier fusionné créé : {output_file}")
 
         else:
