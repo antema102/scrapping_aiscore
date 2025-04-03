@@ -68,7 +68,7 @@ def societe(file_path, sheets):
         # Dimensions de la fenêtre
         chrome_options.add_argument("--window-size=800,600")
         # Mode sans interface graphique
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         # Désactive les barres d'information
         chrome_options.add_argument("--disable-infobars")
         # Empêche la détection d'automatisation
@@ -290,7 +290,8 @@ def societe(file_path, sheets):
 
     except Exception as e:
         print(f"Erreur lors de l'exécution _1", e)
-
+        driver.close()
+        driver.quit()
         return False  # Retourne False pour signaler une erreur
 
 
