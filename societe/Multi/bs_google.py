@@ -22,12 +22,14 @@ user_name = os.getlogin()
 
 for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
 
 # Fonction pour charger les éléments déjà traités depuis un fichier spécifique
+
+
 def load_processed_elements(filename):
     if os.path.exists(filename):
         with open(filename, 'r', encoding="utf-8") as file:
@@ -35,6 +37,8 @@ def load_processed_elements(filename):
     return set()
 
 # Fonction pour enregistrer les éléments traités dans un fichier spécifique
+
+
 def save_processed_element(element_sirene, element_name, filename):
     with open(filename, 'a', encoding="utf-8") as file:
         file.write(f"{element_sirene} {element_name}\n")
@@ -55,8 +59,11 @@ def societe(file_path, sheets):
             "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QP1A.190711.020) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36"
         ]
 
+        api_key = 'AIzaSyD10QRiDcYLg6tMwnTzWPjOCcLc02_Lf-s'  # Remplacez par votre clé API
+        cx = 'f65d1bd411f3c41ef'
+
         user_agent = random.choice(user_agents)
-                
+
         # Configuration des headers avec le User-Agent
         headers = {
             "User-Agent": user_agent
@@ -97,7 +104,6 @@ def societe(file_path, sheets):
         worksheet_name = sheets  # Nom de la feuille à garder dans le fichier Excel
         worksheet = workbook[worksheet_name]
 
-
         try:
             total_elements = worksheet.max_row  # Total des éléments dans la source de données
             processed_count = 0       # Compteur des éléments déjà traités
@@ -118,87 +124,115 @@ def societe(file_path, sheets):
                 if str_comparaison in processed_elements:
                     processed_count += 1
                     continue
-                
-                url  = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune}'
 
-                response = requests.get(url, headers=headers, proxies=proxy,timeout=10,verify=False)
-                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-                
+                url = f'https://www.googleapis.com/customsearch/v1?q=site:www.societe.com {name_company} {code_postal} {commune} www.societe.com &cx={cx}&key={api_key}'
+
+                response = requests.get(
+                    url, headers=headers, proxies=proxy, timeout=10, verify=False)
+
+                urllib3.disable_warnings(
+                    urllib3.exceptions.InsecureRequestWarning)
+
                 try:
-                    response.raise_for_status() 
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    urls = soup.select('.result__extras__url a.result__url')
-                    max_retries = 3 
+                    response.raise_for_status()
+
+                    results = response.json()
+
+                    max_retries = 3
                     retry_delay = 5
                     found_match = False
 
-                    for item in urls:
-                        try:
-                            href = item['href']
-                            sirene = item.text.split('-')[-1]
-                            siren_last = sirene.split('.')[0]
-                            last_four_digits = str(siren_last)[-4:]
+                    if 'items' in results:
+                        for item in results['items']:
+                            print(f"Link: {item['link']}")
+                            
+                            try:
+                                href = item['link']
+                                sirene = href.split('-')[-1]
+                                siren_last = sirene.split('.')[0]
+                                last_four_digits = str(siren_last)[-4:]
 
-                            if last_four_digits == last_four_digits_sirene:
-                                found_match = True 
-                                # Essayer plusieurs fois en cas d'échec de la requête
-                                for attempt in range(max_retries):
-                                    try:
-                                        new_response = requests.get(href, headers=headers, proxies=proxy, timeout=10,verify=False)  # Timeout ajouté
-                                        new_response.raise_for_status()  # Vérifier les erreurs HTTP
-                                        # Si la requête réussit, traiter la réponse
-                                        new_soup = BeautifulSoup(new_response.text, 'html.parser')
-                                        li = new_soup.select('.co-resume > ul > li')
-
-                                        for item in li:
-                                            try:
-                                                span_text = item.select_one('span.ui-label').text.strip()
-                                                if span_text == 'ADRESSE':
-                                                    span_adresse = item.select_one('span:nth-child(2) > a').text.strip()
-                                                    span_adresse_parts = span_adresse.split(',')
-                                                    span_adresse_str = span_adresse_parts[0] if len(span_adresse_parts) > 0 else ''
-
-                                                if span_text == 'SIREN':
-                                                    sirene_result = item.select_one('span:nth-child(2)').text.strip().replace(" ", "")
-                                            except Exception as e:
-                                                print('Erreur récupération du sirene et adresse:', e)
-
-                                        # Sauvegarder les résultats
+                                print('last_four_digits',last_four_digits)
+                                print('last_four_digits_sirene',last_four_digits_sirene)
+                                if last_four_digits == last_four_digits_sirene:
+                                    found_match = True
+                                    # Essayer plusieurs fois en cas d'échec de la requête
+                                    for attempt in range(max_retries):
                                         try:
-                                            worksheet.cell(row=i, column=1, value=sirene_result)
-                                            worksheet.cell(row=i, column=3, value=span_adresse_str)
+                                            new_response = requests.get(
+                                                href, headers=headers, proxies=proxy, timeout=10, verify=False)  # Timeout ajouté
+                                            new_response.raise_for_status()  # Vérifier les erreurs HTTP
+                                            # Si la requête réussit, traiter la réponse
+                                            new_soup = BeautifulSoup(
+                                                new_response.text, 'html.parser')
+                                            li = new_soup.select(
+                                                '.co-resume > ul > li')
+
+                                            for item in li:
+                                                try:
+                                                    span_text = item.select_one(
+                                                        'span.ui-label').text.strip()
+                                                    if span_text == 'ADRESSE':
+                                                        span_adresse = item.select_one(
+                                                            'span:nth-child(2) > a').text.strip()
+                                                        span_adresse_parts = span_adresse.split(
+                                                            ',')
+                                                        span_adresse_str = span_adresse_parts[0] if len(
+                                                            span_adresse_parts) > 0 else ''
+
+                                                    if span_text == 'SIREN':
+                                                        sirene_result = item.select_one(
+                                                            'span:nth-child(2)').text.strip().replace(" ", "")
+                                                except Exception as e:
+                                                    print(
+                                                        'Erreur récupération du sirene et adresse:', e)
+
+                                            # Sauvegarder les résultats
+                                            try:
+                                                worksheet.cell(
+                                                    row=i, column=1, value=sirene_result)
+                                                worksheet.cell(
+                                                    row=i, column=3, value=span_adresse_str)
+                                                print(
+                                                    f"Sirène trouvé : noms {name_company} numero {sirene_result} addresse {span_adresse_str}  ligne {i}")
+                                                workbook.save(new_file_path)
+                                            except Exception as e:
+                                                print(
+                                                    'Erreur lors de la sauvegarde:', e)
+
+                                            break
+                                        except requests.exceptions.RequestException as e:
                                             print(
-                                            f"Sirène trouvé : noms {name_company} numero {sirene_result} addresse {span_adresse_str}  ligne {i}")
-                                            workbook.save(new_file_path)
-                                        except Exception as e:
-                                            print('Erreur lors de la sauvegarde:', e)
+                                                f"Tentative {attempt + 1} échouée : {e}")
+                                            if attempt < max_retries - 1:
+                                                print(
+                                                    f"Réessayer dans {retry_delay} secondes...")
+                                                time.sleep(retry_delay)
+                                            else:
+                                                print(
+                                                    f"Échec après {max_retries} tentatives.")
 
-                                        break                  
-                                    except requests.exceptions.RequestException as e:
-                                        print(f"Tentative {attempt + 1} échouée : {e}")
-                                        if attempt < max_retries - 1:
-                                            print(f"Réessayer dans {retry_delay} secondes...")
-                                            time.sleep(retry_delay)
-                                        else:
-                                            print(f"Échec après {max_retries} tentatives.")
+                            except Exception as e:
+                                print(
+                                    f"Erreur lors de la récupération du SIRENE: {e}")
 
-                        except Exception as e:
-                            print(f"Erreur lors de la récupération du SIRENE: {e}")
+                        # Si aucun match n'a été trouvé après la boucle
+                        if not found_match:
+                            print(
+                                f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
 
-                    # Si aucun match n'a été trouvé après la boucle
-                    if not found_match:
-                        print(f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
-
-                    processed_elements.add(
-                        f"{last_four_digits_sirene} {name_company}")
-                    save_processed_element(
-                        last_four_digits_sirene, name_company, processed_filename)
-                    processed_count += 1
+                        processed_elements.add(
+                            f"{last_four_digits_sirene} {name_company}")
+                        save_processed_element(
+                            last_four_digits_sirene, name_company, processed_filename)
+                        processed_count += 1
+                    else:
+                        print("Aucun résultat trouvé.")
 
                 except Exception as e:
-                    print("Captcha",e)
+                    print("Error", e)
                     return False
-                
+
                 time.sleep(random.uniform(1, 5))
 
             # Vérifiez si tous les éléments ont été traités
