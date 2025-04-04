@@ -9,6 +9,8 @@ import os
 import random
 import requests
 from bs4 import BeautifulSoup
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # Verrou global
@@ -64,9 +66,7 @@ def societe(file_path, sheets):
             "User-Agent": user_agent
         }
 
-
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
-
         number = processed_text.split("_")[-1]
 
         directory = os.path.join(f"DEPT_{number}")
@@ -101,6 +101,7 @@ def societe(file_path, sheets):
         worksheet_name = sheets  # Nom de la feuille à garder dans le fichier Excel
         worksheet = workbook[worksheet_name]
 
+
         try:
             total_elements = worksheet.max_row  # Total des éléments dans la source de données
             processed_count = 0       # Compteur des éléments déjà traités
@@ -125,14 +126,16 @@ def societe(file_path, sheets):
                 # code avec le js dessactivé
                 url  = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune}'
 
-                response = requests.get(url, headers=headers, proxies=proxy,timeout=10)
-
+                response = requests.get(url, headers=headers, proxies=proxy,timeout=10,verify=False)
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                
                 try:
                     response.raise_for_status() 
                     soup = BeautifulSoup(response.text, 'html.parser')
                     urls = soup.select('.result__extras__url a.result__url')
                     max_retries = 3 
                     retry_delay = 5
+
                     for item in urls:
                         try:
                             href = item['href']
@@ -144,7 +147,7 @@ def societe(file_path, sheets):
                                 # Essayer plusieurs fois en cas d'échec de la requête
                                 for attempt in range(max_retries):
                                     try:
-                                        new_response = requests.get(href, headers=headers, proxies=proxy, timeout=10)  # Timeout ajouté
+                                        new_response = requests.get(href, headers=headers, proxies=proxy, timeout=10,verify=False)  # Timeout ajouté
                                         new_response.raise_for_status()  # Vérifier les erreurs HTTP
                                         # Si la requête réussit, traiter la réponse
                                         new_soup = BeautifulSoup(new_response.text, 'html.parser')

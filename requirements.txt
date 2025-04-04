@@ -8,3 +8,4 @@ requests
 blinker==1.4
 setuptools
 xlsxwriter
+bs4
