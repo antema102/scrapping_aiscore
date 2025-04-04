@@ -1,20 +1,14 @@
-from seleniumwire import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support import expected_conditions as EC
 from openpyxl import load_workbook
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
-import socket
-from urllib3.connection import HTTPConnection
 import os
 from multiprocessing import Process, Lock
 import time
 import pandas as pd
 import os
 import random
+import requests
+from bs4 import BeautifulSoup
 
 
 # Verrou global
@@ -26,7 +20,7 @@ user_name = os.getlogin()
 
 for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -50,65 +44,26 @@ def save_processed_element(element_sirene, element_name, filename):
 
 def societe(file_path, sheets):
     try:
-        HTTPConnection.default_socket_options = (
-            HTTPConnection.default_socket_options + [
-                (socket.SOL_SOCKET, socket.SO_SNDBUF, 1000000),  # 1MB in byte
-                (socket.SOL_SOCKET, socket.SO_RCVBUF, 1000000)
-            ])
-
-        # Configuration du proxy avec authentification via URL
-        seleniumwire_options = {
-            'proxy': {
-                'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-                'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-            }
+        # Proxy avec authentification (nom d'utilisateur et mot de passe)
+        proxy = {
+            'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+            'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
         }
 
-        chrome_options = Options()
-        # Dimensions de la fenêtre
-        chrome_options.add_argument("--window-size=800,600")
-        # Mode sans interface graphique
-        # chrome_options.add_argument("--headless")
-        # Désactive les barres d'information
-        chrome_options.add_argument("--disable-infobars")
-        # Empêche la détection d'automatisation
-        chrome_options.add_argument(
-            "--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument(
-            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-        # Pour résoudre certains problèmes de sécurité
-        chrome_options.add_argument("--no-sandbox")
-        # Évite la mise en arrière-plan des processus de rendu
-        chrome_options.add_argument("--disable-renderer-backgrounding")
-        # Empêche le ralentissement des minuteries en arrière-plan
-        chrome_options.add_argument("--disable-background-timer-throttling")
-        # Évite la mise en arrière-plan des fenêtres occultées
-        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-        # Désactive la détection de phishing côté client
-        chrome_options.add_argument("--disable-client-side-phishing-detection")
-        # Désactive le rapporteur de crash
-        chrome_options.add_argument("--disable-crash-reporter")
-        # # Désactive l'utilisation du GPU pour la compatibilité
-        chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--silent")  # Réduit les logs inutiles
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--log-level=3")
-        chrome_options.add_experimental_option(
-            "excludeSwitches", ["enable-logging"])
-        chrome_options.add_argument("--disable-logging")
+        # Liste de User-Agents
+        user_agents = [
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36",
+            "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QP1A.190711.020) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36"
+        ]
 
-        # Désactiver JavaScript via les préférences
-        prefs = {
-            "profile.managed_default_content_settings.javascript": 2,
-            "profile.managed_default_content_settings.images": 2
+        user_agent = random.choice(user_agents)
+                
+        # Configuration des headers avec le User-Agent
+        headers = {
+            "User-Agent": user_agent
         }
 
-        chrome_options.add_experimental_option("prefs", prefs)
-
-        service = Service(ChromeDriverManager().install())
-
-        driver = webdriver.Chrome(
-            service=service, options=chrome_options, seleniumwire_options=seleniumwire_options)
 
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
 
@@ -166,99 +121,69 @@ def societe(file_path, sheets):
                 if str_comparaison in processed_elements:
                     processed_count += 1
                     continue
-
                 
                 # code avec le js dessactivé
-                ducker_go = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune}'
+                url  = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune}'
 
-                driver.get(ducker_go)
+                response = requests.get(url, headers=headers, proxies=proxy,timeout=10)
 
                 try:
-                    WebDriverWait(driver, 5).until(EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, '.result__extras__url a.result__url')))
-
-                    urls = driver.find_elements(
-                        By.CSS_SELECTOR, '.result__extras__url a.result__url')
-
+                    response.raise_for_status() 
+                    soup = BeautifulSoup(response.text, 'html.parser')
+                    urls = soup.select('.result__extras__url a.result__url')
+                    max_retries = 3 
+                    retry_delay = 5
                     for item in urls:
                         try:
-                            # Lien qui est compatibles societes.com est e.g:
-                            # www.societe.com/societe/commune-de-balan-210800413.html
-                            # si c'est pas comment ça le format en récuper pas vu que l'on recupre les ces numero
-                            # 210800413
-                            # puis les 4 dernier numeros
-                            # 00413
-
+                            href = item['href']
                             sirene = item.text.split('-')[-1]
-
                             siren_last = sirene.split('.')[0]
-
                             last_four_digits = str(siren_last)[-4:]
 
-                            href = item.get_attribute("href")
-
                             if last_four_digits == last_four_digits_sirene:
-
-                                driver.get(href)
-
-                                try:
-                                    WebDriverWait(driver, 10).until(
-                                        EC.presence_of_element_located((By.CSS_SELECTOR, "#identite")))
-
-                                    li = driver.find_elements(
-                                        By.CSS_SELECTOR, '.co-resume > ul > li')
-
-                                    for item in li:
-
-                                        try:
-                                            span_text = item.find_element(
-                                                By.CSS_SELECTOR, 'span.ui-label').text.strip()
-
-                                            if span_text == 'ADRESSE':
-                                                span_adresse = item.find_element(
-                                                    By.CSS_SELECTOR, 'span:nth-child(2) > a').text.strip()
-                                                span_adresse_parts = span_adresse.split(
-                                                    ',')
-                                                # Vérifie si des parties existent avant d'accéder à l'index
-                                                if len(span_adresse_parts) > 0:
-                                                    span_adresse_str = str(
-                                                        span_adresse_parts[0])
-                                                else:
-                                                    span_adresse_str = ''
-
-                                            if span_text == 'SIREN':
-                                                sirene_result = item.find_element(
-                                                    By.CSS_SELECTOR, 'span:nth-child(2)').text.strip()
-                                                sirene_result = sirene_result.replace(
-                                                    " ", "")
-
-                                        except Exception as e:
-                                            print(
-                                                'erreur recuperation du sirene et addresse')
-
+                                # Essayer plusieurs fois en cas d'échec de la requête
+                                for attempt in range(max_retries):
                                     try:
-                                        worksheet.cell(
-                                            row=i, column=1, value=sirene_result)
+                                        new_response = requests.get(href, headers=headers, proxies=proxy, timeout=10)  # Timeout ajouté
+                                        new_response.raise_for_status()  # Vérifier les erreurs HTTP
+                                        # Si la requête réussit, traiter la réponse
+                                        new_soup = BeautifulSoup(new_response.text, 'html.parser')
+                                        li = new_soup.select('.co-resume > ul > li')
 
-                                        worksheet.cell(
-                                            row=i, column=3, value=span_adresse_str)
+                                        for item in li:
+                                            try:
+                                                span_text = item.select_one('span.ui-label').text.strip()
+                                                if span_text == 'ADRESSE':
+                                                    span_adresse = item.select_one('span:nth-child(2) > a').text.strip()
+                                                    span_adresse_parts = span_adresse.split(',')
+                                                    span_adresse_str = span_adresse_parts[0] if len(span_adresse_parts) > 0 else ''
 
-                                        print(
+                                                if span_text == 'SIREN':
+                                                    sirene_result = item.select_one('span:nth-child(2)').text.strip().replace(" ", "")
+                                            except Exception as e:
+                                                print('Erreur récupération du sirene et adresse:', e)
+
+                                        # Sauvegarder les résultats
+                                        try:
+                                            worksheet.cell(row=i, column=1, value=sirene_result)
+                                            worksheet.cell(row=i, column=3, value=span_adresse_str)
+                                            print(
                                             f"Sirène trouvé : noms {name_company} numero {sirene_result} addresse {span_adresse_str}  ligne {i}")
-                                        workbook.save(new_file_path)
+                                            workbook.save(new_file_path)
+                                        except Exception as e:
+                                            print('Erreur lors de la sauvegarde:', e)
 
-                                    except Exception as e:
-                                        print('error lors sauvegarde', e)
-
-                                except Exception as e:
-                                    print(
-                                        f"erreur lors recuper du siren dans le societe")
-
-                                break
+                                        break  
+                                    except requests.exceptions.RequestException as e:
+                                        print(f"Tentative {attempt + 1} échouée : {e}")
+                                        if attempt < max_retries - 1:
+                                            print(f"Réessayer dans {retry_delay} secondes...")
+                                            time.sleep(retry_delay)
+                                        else:
+                                            print(f"Échec après {max_retries} tentatives.")
 
                         except Exception as e:
-                            print("Erreur lors de la récupération du SIRENE",e)
-                            return False
+                            print(f"Erreur lors de la récupération du SIRENE: {e}")
 
                     processed_elements.add(
                         f"{last_four_digits_sirene} {name_company}")
@@ -268,8 +193,6 @@ def societe(file_path, sheets):
 
                 except Exception as e:
                     print("Captcha")
-                    driver.close()
-                    driver.quit()
                     return False
                 
                 time.sleep(random.uniform(1, 5))
@@ -277,21 +200,15 @@ def societe(file_path, sheets):
             # Vérifiez si tous les éléments ont été traités
             if processed_count >= total_elements:
                 print("Tous les éléments ont été traités.")
-                driver.close()
-                driver.quit()
                 print("Script arrêté car aucune correspondance n'a été trouvée.")
                 return True
 
         except Exception as e:
             print(f"Erreur lors de l'exécution", e)
-            driver.close()
-            driver.quit()  # Nettoyer correctement le driver
             return False  # Retourne False pour signaler une erreur
 
     except Exception as e:
         print(f"Erreur lors de l'exécution _1", e)
-        driver.close()
-        driver.quit()
         return False  # Retourne False pour signaler une erreur
 
 
@@ -313,6 +230,7 @@ def retry_societe(file_path, sheet_name):
                 print(
                     f"[WARNING] Échec, relance dans 10s : {file_path} - {sheet_name}")
                 time.sleep(5)
+
         except Exception as e:
             print(f"[ERROR] Erreur fatale : {e}")
             time.sleep(5)  # Attendre avant de réessayer
