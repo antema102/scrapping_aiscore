@@ -1,3 +1,4 @@
+import urllib.parse
 from openpyxl import load_workbook
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
@@ -20,7 +21,7 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-for dep in range(1, 2):  # Départements de 8 à 12
+for dep in range(59, 60):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
     parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -56,7 +57,7 @@ def societe(file_path, sheets):
         ]
 
         user_agent = random.choice(user_agents)
-                
+
         # Configuration des headers avec le User-Agent
         headers = {
             "User-Agent": user_agent
@@ -64,12 +65,9 @@ def societe(file_path, sheets):
 
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
         number = processed_text.split("_")[-1]
-
         directory = os.path.join(f"DEPT_{number}")
-
         processed_filename = os.path.join(
             directory, f"{processed_text}_{sheets}.txt")
-
         new_file_path = os.path.join(
             directory, f"{processed_text}_{sheets}.xlsx")
 
@@ -97,11 +95,9 @@ def societe(file_path, sheets):
         worksheet_name = sheets  # Nom de la feuille à garder dans le fichier Excel
         worksheet = workbook[worksheet_name]
 
-
         try:
             total_elements = worksheet.max_row  # Total des éléments dans la source de données
             processed_count = 0       # Compteur des éléments déjà traités
-
             # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
                 name_company = row[1]
@@ -109,96 +105,134 @@ def societe(file_path, sheets):
                 commune = row[4]   # Nom entreprise
                 # Convertit en chaîne de caractères
                 sirene_number = str(row[0])
-
                 # Prend les 4 derniers chiffres
                 last_four_digits_sirene = sirene_number[-4:]
-
                 str_comparaison = f'{last_four_digits_sirene} {name_company}'
-
                 if str_comparaison in processed_elements:
                     processed_count += 1
                     continue
-                
-                url  = f'https://html.duckduckgo.com/html?q=site:www.societe.com {name_company} {code_postal} {commune}'
 
-                response = requests.get(url, headers=headers, proxies=proxy,timeout=10,verify=False)
-                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-                
-                try:
-                    response.raise_for_status() 
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    urls = soup.select('.result__extras__url a.result__url')
-                    max_retries = 3 
-                    retry_delay = 5
-                    found_match = False
+                base_url = 'https://html.duckduckgo.com/html?q='
+                query = f'site:www.societe.com {name_company} {code_postal} {commune}'
+                encoded_query = urllib.parse.quote_plus(query)
+                url = base_url + encoded_query
 
-                    for item in urls:
-                        try:
-                            href = item['href']
-                            sirene = item.text.split('-')[-1]
-                            siren_last = sirene.split('.')[0]
-                            last_four_digits = str(siren_last)[-4:]
+                max_retries = 4
+                retry_delay = 5
 
-                            if last_four_digits == last_four_digits_sirene:
-                                found_match = True 
-                                # Essayer plusieurs fois en cas d'échec de la requête
-                                for attempt in range(max_retries):
-                                    try:
-                                        new_response = requests.get(href, headers=headers, proxies=proxy, timeout=10,verify=False)  # Timeout ajouté
-                                        new_response.raise_for_status()  # Vérifier les erreurs HTTP
-                                        # Si la requête réussit, traiter la réponse
-                                        new_soup = BeautifulSoup(new_response.text, 'html.parser')
-                                        li = new_soup.select('.co-resume > ul > li')
+                for attempt in range(max_retries):
+                    try:
+                        response = requests.get(
+                            url, headers=headers, proxies=proxy, timeout=5, verify=False)
 
-                                        for item in li:
+                        urllib3.disable_warnings(
+                            urllib3.exceptions.InsecureRequestWarning)
+
+                        if response.status_code == 200:
+
+                            found_match = False
+                            soup = BeautifulSoup(response.text, 'html.parser')
+                            urls = soup.select(
+                                '.result__extras__url a.result__url')
+
+                            for item in urls:
+                                try:
+                                    href = item['href']
+                                    sirene = item.text.split('-')[-1]
+                                    siren_last = sirene.split('.')[0]
+                                    last_four_digits = str(siren_last)[-4:]
+
+                                    if last_four_digits == last_four_digits_sirene:
+                                        found_match = True
+                                        max_societe = 4
+                                        retry_societe = 5
+                                        # Essayer plusieurs fois en cas d'échec de la requête
+                                        for attemp_societe in range(max_societe):
+
                                             try:
-                                                span_text = item.select_one('span.ui-label').text.strip()
-                                                if span_text == 'ADRESSE':
-                                                    span_adresse = item.select_one('span:nth-child(2) > a').text.strip()
-                                                    span_adresse_parts = span_adresse.split(',')
-                                                    span_adresse_str = span_adresse_parts[0] if len(span_adresse_parts) > 0 else ''
+                                                new_response = requests.get(
+                                                    href, headers=headers, proxies=proxy, timeout=10, verify=False)  # Timeout ajouté
+                                                new_response.raise_for_status()  # Vérifier les erreurs HTTP
+                                                # Si la requête réussit, traiter la réponse
+                                                new_soup = BeautifulSoup(
+                                                    new_response.text, 'html.parser')
+                                                li = new_soup.select(
+                                                    '.co-resume > ul > li')
 
-                                                if span_text == 'SIREN':
-                                                    sirene_result = item.select_one('span:nth-child(2)').text.strip().replace(" ", "")
-                                            except Exception as e:
-                                                print('Erreur récupération du sirene et adresse:', e)
+                                                for item in li:
+                                                    try:
 
-                                        # Sauvegarder les résultats
-                                        try:
-                                            worksheet.cell(row=i, column=1, value=sirene_result)
-                                            worksheet.cell(row=i, column=3, value=span_adresse_str)
-                                            print(
-                                            f"Sirène trouvé : noms {name_company} numero {sirene_result} addresse {span_adresse_str}  ligne {i}")
-                                            workbook.save(new_file_path)
-                                        except Exception as e:
-                                            print('Erreur lors de la sauvegarde:', e)
+                                                        span_text = item.select_one(
+                                                            'span.ui-label').text.strip()
+                                                        if span_text == 'ADRESSE':
+                                                            span_adresse = item.select_one(
+                                                                'span:nth-child(2) > a').text.strip()
+                                                            span_adresse_parts = span_adresse.split(
+                                                                ',')
+                                                            span_adresse_str = span_adresse_parts[0] if len(
+                                                                span_adresse_parts) > 0 else ''
 
-                                        break                  
-                                    except requests.exceptions.RequestException as e:
-                                        print(f"Tentative {attempt + 1} échouée : {e}")
-                                        if attempt < max_retries - 1:
-                                            print(f"Réessayer dans {retry_delay} secondes...")
-                                            time.sleep(retry_delay)
-                                        else:
-                                            print(f"Échec après {max_retries} tentatives.")
+                                                        if span_text == 'SIREN':
+                                                            sirene_result = item.select_one(
+                                                                'span:nth-child(2)').text.strip().replace(" ", "")
 
-                        except Exception as e:
-                            print(f"Erreur lors de la récupération du SIRENE: {e}")
+                                                    except Exception as e:
+                                                        print(
+                                                            'Erreur récupération du sirene et adresse:', e)
 
-                    # Si aucun match n'a été trouvé après la boucle
-                    if not found_match:
-                        print(f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
+                                                worksheet.cell(
+                                                    row=i, column=1, value=sirene_result)
+                                                worksheet.cell(
+                                                    row=i, column=3, value=span_adresse_str)
 
-                    processed_elements.add(
-                        f"{last_four_digits_sirene} {name_company}")
-                    save_processed_element(
-                        last_four_digits_sirene, name_company, processed_filename)
-                    processed_count += 1
+                                                print(
+                                                    f"Sirène trouvé : noms {name_company} numero {sirene_result} addresse {span_adresse_str}  ligne {i}")
+                                                workbook.save(
+                                                    new_file_path)
 
-                except Exception as e:
-                    print("Captcha",e)
-                    return False
-                
+                                                break
+
+                                            except requests.exceptions.RequestException as e:
+
+                                                print(
+                                                    f"Tentative {attemp_societe + 1} échouée : {e}")
+                                                if attemp_societe < max_societe - 1:
+                                                    print(
+                                                        f"Réessayer dans {retry_societe} secondes...")
+                                                    time.sleep(retry_societe)
+                                                else:
+                                                    print(
+                                                        f"Échec après {max_retries} tentatives.")
+                                        break
+
+                                except Exception as e:
+                                    print(
+                                        f"Erreur lors de la récupération du SIRENE: {e}")
+
+                            # Si aucun match n'a été trouvé après la boucle
+                            if not found_match:
+                                print(
+                                    f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
+
+                            processed_elements.add(
+                                f"{last_four_digits_sirene} {name_company}")
+                            save_processed_element(
+                                last_four_digits_sirene, name_company, processed_filename)
+                            processed_count += 1
+
+                            break
+
+                        else:
+                            print(
+                                f"⚠️ Statut {response.status_code}  pour le noms societes {name_company} != 200, tentative {attempt + 1}/{max_retries}")
+
+                            if attempt < max_retries - 1:
+                                time.sleep(retry_delay)
+
+                    except Exception as e:
+                        print("Captcha", e)
+                        return False
+
                 time.sleep(random.uniform(1, 5))
 
             # Vérifiez si tous les éléments ont été traités
@@ -233,11 +267,11 @@ def retry_societe(file_path, sheet_name):
             else:
                 print(
                     f"[WARNING] Échec, relance dans 10s : {file_path} - {sheet_name}")
-                time.sleep(5)
+                time.sleep(10)
 
         except Exception as e:
             print(f"[ERROR] Erreur fatale : {e}")
-            time.sleep(5)  # Attendre avant de réessayer
+            time.sleep(10)  # Attendre avant de réessayer
 
 
 def launch_processes():
