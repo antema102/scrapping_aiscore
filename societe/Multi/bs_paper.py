@@ -27,9 +27,9 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-for dep in range(59, 60):  # Départements de 8 à 12
+for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -69,9 +69,11 @@ def societe(file_path, sheets):
         # Configuration du proxy avec authentification via URL
         seleniumwire_options = {
             'proxy': {
-                'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-                'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-            }
+                "http": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
+                "https": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
+            },
+            'exclude_hosts': ['www.pappers.fr', 'pappers.fr'],
+            'verify_ssl': False,
         }
 
         user_agent = random.choice(user_agents)
@@ -85,7 +87,7 @@ def societe(file_path, sheets):
         # Dimensions de la fenêtre
         chrome_options.add_argument("--window-size=800,600")
         # Mode sans interface graphique
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         # Désactive les barres d'information
         chrome_options.add_argument("--disable-infobars")
         # Empêche la détection d'automatisation
@@ -115,7 +117,6 @@ def societe(file_path, sheets):
 
         # Désactiver JavaScript via les préférences
         prefs = {
-            "profile.managed_default_content_settings.javascript": 2,
             "profile.managed_default_content_settings.images": 2
         }
         chrome_options.add_experimental_option("prefs", prefs)
@@ -211,7 +212,7 @@ def societe(file_path, sheets):
 
                                             try:
                                                 driver.get(href)
-                                                
+
                                                 WebDriverWait(driver, 10).until(
                                                     EC.presence_of_element_located((By.CSS_SELECTOR, "#resume")))
 
