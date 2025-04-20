@@ -23,7 +23,7 @@ user_name = os.getlogin()
 
 for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 12)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -183,6 +183,7 @@ def societe(file_path, sheets):
 
                     # Si aucun match n'a été trouvé dans la première recherche, on effectue une seconde recherche
                     if not found_match_frist:
+                        time.sleep(random.uniform(1, 5))
                         base_url = 'https://recherche-entreprises.api.gouv.fr/search?q='
                         query = f'{name_company} {code_postal} {commune}'
                         encoded_query = urllib.parse.quote_plus(query)
