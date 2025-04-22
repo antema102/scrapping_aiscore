@@ -1,3 +1,4 @@
+import re
 from openpyxl import load_workbook
 from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
@@ -23,7 +24,7 @@ user_name = os.getlogin()
 
 for dep in range(1, 2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 12)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1,2)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -108,7 +109,18 @@ def societe(file_path, sheets):
 
             # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
+
                 name_company = row[1]
+                # Vérifier si la cellule est vide
+                adresse = row[2]
+
+                if not adresse:
+                    continue
+
+                adresse_nettoyee = str(adresse).replace(
+                    "X", "").replace("x", "").strip()
+                adresse_nettoyee = re.sub(r"\s+", " ", adresse_nettoyee)
+
                 code_postal = row[3]
                 commune = row[4]   # Nom entreprise
                 # Convertit en chaîne de caractères
@@ -127,7 +139,7 @@ def societe(file_path, sheets):
 
                 try:
 
-                    url = f'https://recherche-entreprises.api.gouv.fr/search?q={name_company}'
+                    url = f'https://recherche-entreprises.api.gouv.fr/search?q={name_company}&per_page=25'
                     max_retries = 3
                     retry_delay = 5
 
@@ -150,7 +162,6 @@ def societe(file_path, sheets):
                                             siege = item.get('siege', {})
                                             span_adresse_str = siege.get(
                                                 'adresse')
-
                                             try:
                                                 worksheet.cell(
                                                     row=i, column=1, value=siren)
@@ -183,25 +194,35 @@ def societe(file_path, sheets):
 
                     # Si aucun match n'a été trouvé dans la première recherche, on effectue une seconde recherche
                     if not found_match_frist:
+
                         time.sleep(random.uniform(1, 5))
+
                         base_url = 'https://recherche-entreprises.api.gouv.fr/search?q='
-                        query = f'{name_company} {code_postal} {commune}'
-                        encoded_query = urllib.parse.quote_plus(query)
-                        url_ = base_url + encoded_query
-                        max_retries = 3
-                        retry_delay = 5
+                        search_query = f"{name_company} {adresse_nettoyee}"
+                        encoded_query = urllib.parse.quote_plus(search_query)
+                        initial_url = f"{base_url}{encoded_query}&per_page=25&page=1"
 
-                        for attempt in range(max_retries):
-                            try:
+                        try:
+                            response = requests.get(
+                                initial_url, headers=headers, proxies=proxy, timeout=10, verify=False)
+
+                            urllib3.disable_warnings(
+                                urllib3.exceptions.InsecureRequestWarning)
+
+                            response.raise_for_status()
+                            results = response.json()
+                            total_pages = results.get("total_pages", 1)
+                            found_match_two = False
+
+                            for page_num in range(1, total_pages + 1):
+                                time.sleep(random.uniform(1, 5))
+                                url_ = f"{base_url}{encoded_query}&per_page=25&page={page_num}"
                                 response = requests.get(
-                                    url_, headers=headers, proxies=proxy, timeout=10, verify=False)
-
-                                urllib3.disable_warnings(
-                                    urllib3.exceptions.InsecureRequestWarning)
-
+                                    url_, headers=headers, proxies=proxy, timeout=10, verify=False
+                                )
                                 response.raise_for_status()
                                 results = response.json()
-
+                                
                                 if response.status_code == 200:
                                     if 'results' in results:
                                         for item in results['results']:
@@ -235,16 +256,13 @@ def societe(file_path, sheets):
                                                 print(
                                                     f"Erreur lors de la récupération du SIRENE: {e}")
                                     break
-
                                 else:
                                     print(
-                                        f"⚠️ Statut {response.status_code}  pour le noms societes {name_company} != 200, tentative {attempt + 1}/{max_retries}")
-                                    if attempt < max_retries - 1:
-                                        time.sleep(retry_delay)
+                                        f"⚠️ Statut {response.status_code}  pour le noms societes")
 
-                            except Exception as e:
-                                print("Error lors récuperation api", e)
-                                return False
+                        except Exception as e:
+                            print("Error lors récuperation api", e)
+                            return False
 
                         if not found_match_two:
                             print(
