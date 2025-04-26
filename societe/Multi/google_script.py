@@ -27,7 +27,7 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(59, 60):  # Départements de 8 à 12
+for dep in range(1,2):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
     parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -57,10 +57,13 @@ def societe(file_path, sheets):
 
         seleniumwire_options = {
             'proxy': {
-                'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-                'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-            }
+                "http": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
+                "https": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
+            },
+            'exclude_hosts': ['www.google.com', 'google.com'],
+            'verify_ssl': False,
         }
+
 
         random_user_agent = random.choice(user_agents)
         chrome_options = uc.ChromeOptions()
@@ -151,13 +154,9 @@ def societe(file_path, sheets):
                     continue
 
                 base_url = 'https://www.google.com/search?q='
-
-                query = f'site:www.societe.com {name_company} {code_postal} {commune}'
-
+                query = f'{name_company} {commune} societe.com'
                 encoded_query = urllib.parse.quote_plus(query)
-
                 url = base_url + encoded_query
-
                 driver.get(url)
 
                 try:
@@ -185,7 +184,7 @@ def societe(file_path, sheets):
 
                             try:
                                 new_response = requests.get(
-                                    href, headers=headers, proxies=proxy, timeout=10, verify=False)  # Timeout ajouté
+                                    href, headers=headers, timeout=10, verify=False)  # Timeout ajouté
                                 new_response.raise_for_status()  # Vérifier les erreurs HTTP
                                 # Si la requête réussit, traiter la réponse
                                 new_soup = BeautifulSoup(
