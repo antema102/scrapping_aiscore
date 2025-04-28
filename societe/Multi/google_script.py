@@ -157,18 +157,18 @@ def societe(file_path, sheets):
                 url = base_url + encoded_query
                 driver.get(url)
                 try:
-                    capchat = driver.find_element(
-                        By.CSS_SELECTOR, '.g-recaptcha')
+                    capchat = driver.find_elements(By.CSS_SELECTOR, '.g-recaptcha')
+
                     if capchat:
                         print(f"Il y a une captacha")
                         driver.close()
                         driver.quit()
                         return False
                     else:
-                        elements = driver.find_elements(
-                            By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')
+
+                        elements = driver.find_elements(By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')
                         found_match = False
-                        
+
                         if elements:
                             for item in elements:
                                 # Vérifier si l'élément est cliquable
