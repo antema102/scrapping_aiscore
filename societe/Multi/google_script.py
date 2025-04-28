@@ -27,7 +27,7 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(1,13):
+for dep in range(1, 13):
     dep_formatted = str(dep).zfill(2)
     parts = [f"part_{j}" for j in range(1, 5)]
     files_and_sheets.append(
@@ -43,6 +43,7 @@ def load_processed_elements(filename):
     return set()
 
 # Fonction pour enregistrer les éléments traités dans un fichier spécifique
+
 
 def save_processed_element(element_sirene, element_name, filename):
     with open(filename, 'a', encoding="utf-8") as file:
@@ -65,12 +66,14 @@ def societe(file_path, sheets):
         chrome_options = uc.ChromeOptions()
         chrome_options.headless = True  # Exécuter en mode sans tête
         chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument(
+            "--disable-blink-features=AutomationControlled")
         chrome_options.add_argument(f"--user-agent={random_user_agent}")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-popup-blocking")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_argument(
+            "--disable-blink-features=AutomationControlled")
         chrome_options.add_argument('--disable-notifications')
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument('--disable-extensions')
@@ -92,13 +95,14 @@ def societe(file_path, sheets):
 
         chrome_options.add_experimental_option("prefs", prefs)
         # Démarrage du navigateur
-        driver = uc.Chrome(options=chrome_options,seleniumwire_options=seleniumwire_options)
+        driver = uc.Chrome(options=chrome_options,
+                           seleniumwire_options=seleniumwire_options)
         driver.set_window_position(-2000, 0)
 
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
         number = processed_text.split("_")[-1]
         directory = os.path.join(f"DEPT_{number}")
-        
+
         processed_filename = os.path.join(
             directory, f"{processed_text}_{sheets}.txt")
 
@@ -126,7 +130,7 @@ def societe(file_path, sheets):
                     ws = workbook[feuille]
                     workbook.remove(ws)
 
-        worksheet_name = sheets 
+        worksheet_name = sheets
         worksheet = workbook[worksheet_name]
         try:
 
@@ -153,44 +157,51 @@ def societe(file_path, sheets):
                 url = base_url + encoded_query
                 driver.get(url)
                 try:
-                    WebDriverWait(driver, 10).until(EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')))
-                    elements = driver.find_elements(
-                        By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')
-                    # Attendre que les éléments soient chargés
-                    found_match = False
+                    capchat = driver.find_element(
+                        By.CSS_SELECTOR, '.g-recaptcha')
+                    if capchat:
+                        print(f"Il y a une captacha")
+                        driver.close()
+                        driver.quit()
+                        return False
+                    else:
+                        elements = driver.find_elements(
+                            By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')
+                        found_match = False
+                        
+                        if elements:
+                            for item in elements:
+                                # Vérifier si l'élément est cliquable
+                                href = item.get_attribute("href")
+                                sirene = href.split('-')[-1]
+                                siren_last = sirene.split('.')[0]
+                                last_four_digits = str(siren_last)[-4:]
 
-                    for item in elements:
-                        # Vérifier si l'élément est cliquable
-                        href = item.get_attribute("href")
-                        sirene = href.split('-')[-1]
-                        siren_last = sirene.split('.')[0]
-                        last_four_digits = str(siren_last)[-4:]
+                                if last_four_digits == last_four_digits_sirene:
+                                    found_match = True
+                                    worksheet.cell(
+                                        row=i, column=1, value=siren_last)
+                                    print(
+                                        f"Sirène trouvé : noms {name_company} numero {siren_last}   ligne {i}")
+                                    workbook.save(new_file_path)
+                                    break
+                                    # Si aucun match n'a été trouvé après la boucle
 
-                        if last_four_digits == last_four_digits_sirene:
-                            found_match = True
-                            worksheet.cell(row=i, column=1, value=siren_last)
-                            print(f"Sirène trouvé : noms {name_company} numero {siren_last}   ligne {i}")
-                            workbook.save(new_file_path)
-                            break
-                            # Si aucun match n'a été trouvé après la boucle
+                        processed_elements.add(
+                            f"{last_four_digits_sirene} {name_company}")
 
-                    if not found_match:
-                        print(f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
+                        save_processed_element(
+                            last_four_digits_sirene, name_company, processed_filename)
+                        processed_count += 1
 
-                    # Attendre avant de passer à l'élément suivant
-                    processed_elements.add(
-                        f"{last_four_digits_sirene} {name_company}")
+                        if not found_match:
+                            print(
+                                f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
 
-                    save_processed_element(
-                        last_four_digits_sirene, name_company, processed_filename)
-                    processed_count += 1
-
-                    time.sleep(random.uniform(1,5))
-                    # Enregistrer l'élément traité
+                        time.sleep(random.uniform(1, 5))
 
                 except Exception as e:
-                    print(f"captacha")
+                    print(f"Error dans le script ",e)
                     driver.close()
                     driver.quit()
                     return False  # Retourne False pour signaler une erreur
