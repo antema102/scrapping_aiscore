@@ -1,6 +1,7 @@
 import random
-from seleniumwire import undetected_chromedriver as uc
-from selenium.webdriver.common.by import By
+from selenium.webdriver import Remote, ChromeOptions
+from selenium.webdriver.chromium.remote_connection import ChromiumRemoteConnection
+from selenium.webdriver.common.by import By  
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from openpyxl import load_workbook
@@ -9,7 +10,6 @@ import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 from multiprocessing import Process, Lock
-import requests
 import time
 import pandas as pd
 import os
@@ -27,9 +27,9 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(1,13):
+for dep in range(6, 7):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 5)]
+    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -44,6 +44,7 @@ def load_processed_elements(filename):
 
 # Fonction pour enregistrer les éléments traités dans un fichier spécifique
 
+
 def save_processed_element(element_sirene, element_name, filename):
     with open(filename, 'a', encoding="utf-8") as file:
         file.write(f"{element_sirene} {element_name}\n")
@@ -51,54 +52,12 @@ def save_processed_element(element_sirene, element_name, filename):
 
 def societe(file_path, sheets):
     try:
-        with open("user_agents.txt", "r", encoding="utf-8") as f:
-            user_agents = [line.strip() for line in f if line.strip()]
-
-        seleniumwire_options = {
-            'proxy': {
-                "http": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
-                "https": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
-            }
-        }
-
-        random_user_agent = random.choice(user_agents)
-        chrome_options = uc.ChromeOptions()
-        chrome_options.headless = True  # Exécuter en mode sans tête
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument(f"--user-agent={random_user_agent}")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-popup-blocking")
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument('--disable-notifications')
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument('--disable-extensions')
-        chrome_options.add_argument("--disable-setuid-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-modal-animations")
-        chrome_options.add_argument("--disable-logging")
-        chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-        chrome_options.add_argument("--disable-background-timer-throttling")
-        chrome_options.add_argument("--disable-renderer-backgrounding")
-        chrome_options.add_argument("--disable-crash-reporter")
-        chrome_options.add_argument("--disable-crashpad-for-testing")
-        # Désactiver JavaScript via les préférences
-        prefs = {
-            "profile.managed_default_content_settings.images": 2,
-            "profile.managed_default_content_settings.stylesheets": 2,
-        }
-
-        chrome_options.add_experimental_option("prefs", prefs)
-        # Démarrage du navigateur
-        driver = uc.Chrome(options=chrome_options,seleniumwire_options=seleniumwire_options)
-        driver.set_window_position(-2000, 0)
-
+        AUTH = 'brd-customer-hl_01ca6a46-zone-scraping_browser4:clgh82uv3gav'
+        SBR_WEBDRIVER = f'https://{AUTH}@brd.superproxy.io:9515'
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
         number = processed_text.split("_")[-1]
         directory = os.path.join(f"DEPT_{number}")
-        
+
         processed_filename = os.path.join(
             directory, f"{processed_text}_{sheets}.txt")
 
@@ -126,93 +85,99 @@ def societe(file_path, sheets):
                     ws = workbook[feuille]
                     workbook.remove(ws)
 
-        worksheet_name = sheets 
+        worksheet_name = sheets  # Nom de la feuille à garder dans le fichier Excel
         worksheet = workbook[worksheet_name]
+
         try:
+            sbr_connection = ChromiumRemoteConnection(SBR_WEBDRIVER, 'goog', 'chrome')
 
-            total_elements = worksheet.max_row  # Total des éléments dans la source de données
-            processed_count = 0       # Compteur des éléments déjà traités
+            with Remote(sbr_connection, options=ChromeOptions()) as driver:
 
-            # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
-            for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
-                name_company = row[1]
-                code_postal = row[3]
-                commune = row[4]   # Nom entreprise
-                # Convertit en chaîne de caractères
-                sirene_number = str(row[0])
-                # Prend les 4 derniers chiffres
-                last_four_digits_sirene = sirene_number[-4:]
-                str_comparaison = f'{last_four_digits_sirene} {name_company}'
-                if str_comparaison in processed_elements:
-                    processed_count += 1
-                    continue
+                print('Connected! Navigating...')
+                total_elements = worksheet.max_row 
+                processed_count = 0 
 
-                base_url = 'https://www.google.com/search?q='
-                query = f'{name_company} {commune} societe.com'
-                encoded_query = urllib.parse.quote_plus(query)
-                url = base_url + encoded_query
-                driver.get(url)
-                try:
-                    WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+                for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
+                    name_company = row[1]
+                    code_postal = row[3]
+                    commune = row[4]   # Nom entreprise
+                    # Convertit en chaîne de caractères
+                    sirene_number = str(row[0])
+                    # Prend les 4 derniers chiffres
+                    last_four_digits_sirene = sirene_number[-4:]
+                    str_comparaison = f'{last_four_digits_sirene} {name_company}'
+                    if str_comparaison in processed_elements:
+                        processed_count += 1
+                        continue
+                    
+                    base_url = 'https://www.google.com/search?q='
+                    query = f'{name_company} {commune} societe.com'
+                    encoded_query = urllib.parse.quote_plus(query)
+                    url = base_url + encoded_query
+                    driver.get(url)
+                    driver.get_screenshot_as_file(f'./page_DEPT__{sheets}.png') 
+                    try:
+                        html = driver.page_source
+                        WebDriverWait(driver, 10).until(EC.presence_of_element_located(
                         (By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')))
-                    elements = driver.find_elements(
-                        By.CSS_SELECTOR, 'span[jscontroller="msmzHf"] a')
-                    # Attendre que les éléments soient chargés
-                    found_match = False
+                        soup = BeautifulSoup(html, 'html.parser')
 
-                    for item in elements:
-                        # Vérifier si l'élément est cliquable
-                        href = item.get_attribute("href")
-                        sirene = href.split('-')[-1]
-                        siren_last = sirene.split('.')[0]
-                        last_four_digits = str(siren_last)[-4:]
+                        urls = soup.select('span[jscontroller="msmzHf"] a')
+                        # Attendre que les éléments soient chargés
+                        found_match = False
+                        for item in urls:
+                            # Vérifier si l'élément est cliquable
+                            href = item['href']
+                            sirene = href.split('-')[-1]
+                            siren_last = sirene.split('.')[0]
+                            last_four_digits = str(siren_last)[-4:]
 
-                        if last_four_digits == last_four_digits_sirene:
-                            found_match = True
-                            worksheet.cell(row=i, column=1, value=siren_last)
-                            print(f"Sirène trouvé : noms {name_company} numero {siren_last}   ligne {i}")
-                            workbook.save(new_file_path)
-                            break
-                            # Si aucun match n'a été trouvé après la boucle
+                            if last_four_digits == last_four_digits_sirene:
 
-                    if not found_match:
-                        print(f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
+                                found_match = True
+                                worksheet.cell(
+                                    row=i, column=1, value=siren_last)
+                                print(
+                                    f"Sirène trouvé : noms {name_company} numero {siren_last}   ligne {i}")
+                                workbook.save(
+                                    new_file_path)
+                                break
+                                # Si aucun match n'a été trouvé après la boucle
 
-                    # Attendre avant de passer à l'élément suivant
-                    processed_elements.add(
-                        f"{last_four_digits_sirene} {name_company}")
+                        if not found_match:
+                            print(
+                                f"Aucun sirene trouvé pour le nom  {name_company} code postal {code_postal} comune {commune}  ligne {i}")
 
-                    save_processed_element(
-                        last_four_digits_sirene, name_company, processed_filename)
-                    processed_count += 1
+                        # Attendre avant de passer à l'élément suivant
+                        processed_elements.add(
+                            f"{last_four_digits_sirene} {name_company}")
 
-                    time.sleep(random.uniform(1,5))
-                    # Enregistrer l'élément traité
+                        save_processed_element(
+                            last_four_digits_sirene, name_company, processed_filename)
+                        processed_count += 1
 
-                except Exception as e:
-                    print(f"captacha")
-                    driver.close()
-                    driver.quit()
-                    return False  # Retourne False pour signaler une erreur
+                        time.sleep(random.uniform(1,5))
+                        # Enregistrer l'élément traité
 
-            # Vérifiez si tous les éléments ont été traités
-            if processed_count >= total_elements:
-                print("Tous les éléments ont été traités.")
-                driver.close()
-                driver.quit()
-                print("Script arrêté car aucune correspondance n'a été trouvée.")
-                return True
+                    except Exception as e:
+                        print(
+                            f"captacha")
+                        return False  # Retourne False pour signaler une erreur
+
+                    # Vérifiez si tous les éléments ont été traités
+                    if processed_count >= total_elements:
+                        print("Tous les éléments ont été traités.")
+                        print(
+                            "Script arrêté car aucune correspondance n'a été trouvée.")
+                        return True
 
         except Exception as e:
             print(f"Erreur lors de l'exécution", e)
-            driver.close()
-            driver.quit()  # Nettoyer correctement le driver
             return False  # Retourne False pour signaler une erreur
 
     except Exception as e:
         print(f"Erreur lors de l'exécution _1", e)
-        driver.close()
-        driver.quit()  # Nettoyer correctement le driver
+
         return False  # Retourne False pour signaler une erreur
 
 
@@ -246,6 +211,7 @@ def launch_processes():
     # Liste pour stocker les processus
 
     for file_path, sheets in files_and_sheets:
+
         dep_number = os.path.basename(file_path).split('_')[1].split('.')[0]
         processes = []
 
@@ -257,7 +223,7 @@ def launch_processes():
                               args=(file_path, sheet_name))
             processes.append(process)
             process.start()  # Lancer le processus
-            time.sleep(10)
+            time.sleep(20)
 
         # Attendre que tous les processus soient terminés
         for process in processes:
