@@ -27,9 +27,9 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(1,2):  # Départements de 8 à 12
+for dep in range(26,35):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 3)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -180,50 +180,19 @@ def societe(file_path, sheets):
                         if last_four_digits == last_four_digits_sirene:
 
                             found_match = True
-                            span_adresse_str=''
+              
 
-                            try:
-                                new_response = requests.get(
-                                    href, headers=headers, timeout=10, verify=False)  # Timeout ajouté
-                                new_response.raise_for_status()  # Vérifier les erreurs HTTP
-                                # Si la requête réussit, traiter la réponse
-                                new_soup = BeautifulSoup(
-                                    new_response.text, 'html.parser')
-                                li = new_soup.select(
-                                    '.co-resume > ul > li')
-
-                                for item in li:
-                                    try:
-                                        span_text = item.select_one(
-                                            'span.ui-label').text.strip()
-                                        if span_text == 'ADRESSE':
-                                            span_adresse = item.select_one(
-                                                'span:nth-child(2) > a').text.strip()
-                                            span_adresse_parts = span_adresse.split(
-                                                ',')
-                                            span_adresse_str = span_adresse_parts[0] if len(
-                                                span_adresse_parts) > 0 else ''
-
-                                    except Exception as e:
-                                        print(
-                                            'Erreur récupération du sirene et adresse:', e)
-
-                                worksheet.cell(
+                            worksheet.cell(
                                     row=i, column=1, value=siren_last)
-                                worksheet.cell(
-                                    row=i, column=3, value=span_adresse_str)
 
-                                print(
-                                    f"Sirène trouvé : noms {name_company} numero {siren_last} addresse {span_adresse_str}  ligne {i}")
-                                workbook.save(
+                            print(
+                                    f"Sirène trouvé : noms {name_company} numero {siren_last}   ligne {i}")
+                            workbook.save(
                                     new_file_path)
 
-                                break
+                            break
 
-                            except Exception as e:
-                                print(
-                                    f"error lors de la recuper dans le societes", e)
-
+      
                                 # Si aucun match n'a été trouvé après la boucle
 
                     if not found_match:
