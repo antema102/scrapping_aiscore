@@ -73,7 +73,7 @@ def remove_duplicates(file_path):
         print(f"❌ Erreur lors de la suppression des doublons dans {file_path} : {e}")
 
 # 📢 Boucle sur les départements (08 à 90)
-for dep in range(13,99):
+for dep in range(80,89):
     try:
         # Formate en deux chiffres (ex : '08', '09', '10')
         dep_str = f"{dep:02d}"
