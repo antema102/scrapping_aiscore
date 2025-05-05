@@ -27,9 +27,9 @@ lock = Lock()
 user_name = os.getlogin()
 
 
-for dep in range(1, 13):
+for dep in range(99, 100):
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 5)]
+    parts = [f"part_{j}" for j in range(1, 2)]
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -92,10 +92,12 @@ def societe(file_path, sheets):
             "profile.managed_default_content_settings.images": 2,
             "profile.managed_default_content_settings.stylesheets": 2,
         }
+        driver_path = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/chromedriver.exe"
 
         chrome_options.add_experimental_option("prefs", prefs)
         # Démarrage du navigateur
         driver = uc.Chrome(options=chrome_options,
+                            driver_executable_path=driver_path,
                            seleniumwire_options=seleniumwire_options)
         driver.set_window_position(-2000, 0)
 
