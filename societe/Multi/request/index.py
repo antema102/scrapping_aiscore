@@ -284,7 +284,6 @@ def societe(file_path, sheets):
                             worksheet.cell(row=i, column=12, value=span_diregeants)
                             worksheet.cell(row=i, column=13, value=span_forme_juridique)
                             worksheet.cell(row=i, column=14, value=montant)
-                            worksheet.cell(row=i, column=15, value=url)
                             workbook.save(new_file_path)
                             print(f"donnés creé {denominations}")
                     else:
