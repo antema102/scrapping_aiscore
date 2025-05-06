@@ -19,9 +19,9 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-for dep in range(1, 2):  # Départements de 8 à 12
+for dep in range(1, 13):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -103,8 +103,7 @@ def societe(file_path, sheets):
                 found_match = False
                 try:
                     lien_societe = url
-                    response = requests.get(
-                        lien_societe, headers=headers, timeout=5, verify=False)
+                    response = requests.get(lien_societe, headers=headers, timeout=5, verify=False,proxies=proxy)
 
                     if response.status_code == 200:
 
@@ -285,7 +284,7 @@ def societe(file_path, sheets):
                             worksheet.cell(row=i, column=13, value=span_forme_juridique)
                             worksheet.cell(row=i, column=14, value=montant)
                             workbook.save(new_file_path)
-                            print(f"donnés creé {denominations}")
+                            print(f"donnés creé {denominations} {i}")
                     else:
                         print(
                             f"⚠️ Statut {response.status_code} pour {lien_societe} {i}")
