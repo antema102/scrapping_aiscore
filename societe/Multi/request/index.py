@@ -94,13 +94,15 @@ def societe(file_path, sheets):
             total_elements = worksheet.max_row  # Total des éléments dans la source de données
             processed_count = 0       # Compteur des éléments déjà traités
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
-                sirene_number = row[0]
+                sirene_number = str(row[0]).strip()  
+
                 if sirene_number in processed_elements:
                     processed_count += 1
                     continue
 
                 url = f'https://www.societe.com/cgi-bin/search?q={sirene_number}'
                 found_match = False
+
                 try:
                     lien_societe = url
                     response = requests.get(lien_societe, headers=headers, timeout=5, verify=False,proxies=proxy)
@@ -297,7 +299,7 @@ def societe(file_path, sheets):
                 if not found_match:
                     print(f"Aucun sirene correspondand {sirene_number}")
 
-                processed_elements.add(f"{sirene_number}")
+                processed_elements.add(sirene_number)
                 save_processed_element(sirene_number, processed_filename)
                 processed_count += 1
 
