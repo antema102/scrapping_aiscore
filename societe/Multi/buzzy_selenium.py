@@ -26,7 +26,7 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-for dep in range(75, 76):  # Départements de 8 à 12
+for dep in range(6, 7):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
     parts = [f"part_{j}" for j in range(1, 5)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -179,12 +179,12 @@ def societe(file_path, sheets):
                 try:
                     WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located(
-                            (By.CSS_SELECTOR, "styles_tile__F0oXN"))
+                            (By.CSS_SELECTOR, ".styles_layout__SjnEg"))
                     )
                     html = driver.page_source
                     found_match = False
                     soup = BeautifulSoup(html, 'html.parser')
-                    twitter = youtube = instagram = linkedin = facebook = None
+                    twitter = youtube = instagram = linkedin = facebook = phone =web = email =None
                     try:
                         phone = content(soup, 'labels.phone-number')
                         web = content(soup, 'labels.website')
@@ -214,6 +214,8 @@ def societe(file_path, sheets):
                         if any([phone, web, facebook, twitter, youtube, instagram, linkedin, email]):
                             found_match = True
                             # Affichage final
+                            print("phone",phone,"web",web,"facebook",facebook,"twitter",twitter,"youtube",youtube,"instagram",instagram,"linkedin",linkedin,"email",email)
+
                             worksheet.cell(
                                 row=i, column=8, value=phone)
                             worksheet.cell(row=i, column=9, value=web)
@@ -245,6 +247,7 @@ def societe(file_path, sheets):
                     save_processed_element(
                         sirene_number, processed_filename)
                     processed_count += 1
+                    time.sleep(random.uniform(1, 5))
                     
 
                 except Exception as e:
@@ -252,8 +255,6 @@ def societe(file_path, sheets):
                     driver.close()
                     driver.quit()
                     return False
-
-            time.sleep(random.uniform(1, 5))
 
             # Vérifiez si tous les éléments ont été traités
             if processed_count >= total_elements:
