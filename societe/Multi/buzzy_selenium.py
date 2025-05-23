@@ -8,7 +8,6 @@ import pandas as pd
 import os
 import random
 from bs4 import BeautifulSoup
-from seleniumwire import undetected_chromedriver as uc
 from seleniumwire import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -92,36 +91,40 @@ def societe(file_path, sheets):
                 'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
             }
         }
-        with open("user_agents.txt", "r", encoding="utf-8") as f:
-            user_agents = [line.strip() for line in f if line.strip()]
 
-        chrome_options =uc.ChromeOptions()
-        random_user_agent = random.choice(user_agents)
-
+        chrome_options = Options()
         # Dimensions de la fenêtre
-        chrome_options.headless = True  # Exécuter en mode sans tête
+        chrome_options.add_argument("--window-size=800,600")
+        # Mode sans interface graphique
+        chrome_options.add_argument("--headless")
+        # Désactive les barres d'information
         chrome_options.add_argument("--disable-infobars")
+        # Empêche la détection d'automatisation
         chrome_options.add_argument(
             "--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument(f"--user-agent={random_user_agent}")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-popup-blocking")
         chrome_options.add_argument(
-            "--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument('--disable-notifications')
+            "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+        # Pour résoudre certains problèmes de sécurité
         chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument('--disable-extensions')
-        chrome_options.add_argument("--disable-setuid-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-modal-animations")
-        chrome_options.add_argument("--disable-logging")
-        chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-        chrome_options.add_argument("--disable-background-timer-throttling")
+        # Évite la mise en arrière-plan des processus de rendu
         chrome_options.add_argument("--disable-renderer-backgrounding")
+        # Empêche le ralentissement des minuteries en arrière-plan
+        chrome_options.add_argument("--disable-background-timer-throttling")
+        # Évite la mise en arrière-plan des fenêtres occultées
+        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+        # Désactive la détection de phishing côté client
+        chrome_options.add_argument("--disable-client-side-phishing-detection")
+        # Désactive le rapporteur de crash
         chrome_options.add_argument("--disable-crash-reporter")
-        chrome_options.add_argument("--disable-crashpad-for-testing")
+        # Désactive l'utilisation du GPU pour la compatibilité
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--silent")  # Réduit les logs inutiles
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--log-level=3")
+        chrome_options.add_experimental_option(
+            "excludeSwitches", ["enable-logging"])
+        chrome_options.add_argument("--disable-logging")
+
         # Désactiver JavaScript via les préférences
         prefs = {
             "profile.managed_default_content_settings.images": 2,
@@ -129,9 +132,8 @@ def societe(file_path, sheets):
         }
         chrome_options.add_experimental_option("prefs", prefs)
         service = Service(ChromeDriverManager().install())
-        driver = uc.Chrome(
+        driver = webdriver.Chrome(
             service=service, options=chrome_options, seleniumwire_options=seleniumwire_options)
-        # driver.set_window_position(-2000, 0)
 
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
         number = processed_text.split("_")[-1]
@@ -177,12 +179,12 @@ def societe(file_path, sheets):
                 try:
                     WebDriverWait(driver, 10).until(
                         EC.presence_of_element_located(
-                            (By.CSS_SELECTOR, "styles_label__aiJOy"))
+                            (By.CSS_SELECTOR, "styles_tile__F0oXN"))
                     )
                     html = driver.page_source
                     found_match = False
                     soup = BeautifulSoup(html, 'html.parser')
-                    twitter = youtube = instagram = linkedin = facebook = phone  = web = email = None
+                    twitter = youtube = instagram = linkedin = facebook = None
                     try:
                         phone = content(soup, 'labels.phone-number')
                         web = content(soup, 'labels.website')
@@ -243,6 +245,7 @@ def societe(file_path, sheets):
                     save_processed_element(
                         sirene_number, processed_filename)
                     processed_count += 1
+                    
 
                 except Exception as e:
                     print("Captcha", e)
