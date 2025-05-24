@@ -360,6 +360,7 @@ def launch_processes():
 def merge_excel_files(output_file, dep_number, directory):
     try:
         all_data = []
+
         # Parcourir les fichiers générés
         for file_path, parts in files_and_sheets:
             for part_name in parts:
@@ -372,15 +373,17 @@ def merge_excel_files(output_file, dep_number, directory):
         # Fusionner toutes les données
         if all_data:
             merged_df = pd.concat(all_data, ignore_index=True)
-            print(f"Suppresion des doublons : {output_file}")
-            merged_df.drop_duplicates()
+
+            print(f"Suppression des doublons : {output_file}")
+            merged_df = merged_df.drop_duplicates()  # Appliquer le résultat à merged_df
+
             merged_df.to_excel(output_file, index=False)
             print(f"Fichier fusionné créé : {output_file}")
 
         else:
             print("Aucun fichier à fusionner.")
     except Exception as e:
-        print("error merge ")
+        print(f"Erreur lors de la fusion : {e}")
 
 
 if __name__ == "__main__":
