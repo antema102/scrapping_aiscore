@@ -26,7 +26,7 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-for dep in range(6, 7):  # Départements de 8 à 12
+for dep in range(75, 76):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
     parts = [f"part_{j}" for j in range(1, 5)]  # Générer part_1 à part_6
     files_and_sheets.append(
@@ -170,85 +170,102 @@ def societe(file_path, sheets):
 
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
                 sirene_number = str(row[0])
+
                 if sirene_number in processed_elements:
                     processed_count += 1
                     continue
 
                 url = f'https://bizzy.org/fr/fr/{sirene_number}'
                 driver.get(url)
+                found_match = False
+
                 try:
-                    WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located(
-                            (By.CSS_SELECTOR, ".styles_layout__SjnEg"))
-                    )
-                    html = driver.page_source
-                    found_match = False
-                    soup = BeautifulSoup(html, 'html.parser')
-                    twitter = youtube = instagram = linkedin = facebook = phone =web = email =None
-                    try:
-                        phone = content(soup, 'labels.phone-number')
-                        web = content(soup, 'labels.website')
-                        email = content(soup, 'labels.email')
+
+                    try:        
+                        WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located(
+                                (By.CSS_SELECTOR, ".styles_tile__F0oXN"))
+                        )
+
+                        html = driver.page_source
+                        soup = BeautifulSoup(html, 'html.parser')
+                        twitter = youtube = instagram = linkedin = facebook = phone =web = email =None
                         try:
-                            reseau = soup.find(
-                                "div", attrs={"titlekey": 'labels.socials'})
-                            if not reseau:
+                            phone = content(soup, 'labels.phone-number')
+                            web = content(soup, 'labels.website')
+                            email = content(soup, 'labels.email')
+                            try:
+                                reseau = soup.find(
+                                    "div", attrs={"titlekey": 'labels.socials'})
+                                if not reseau:
+                                    pass
+                                links = reseau.select("div:last-child a")
+                                for a in links:
+                                    aria_label = a.get(
+                                        "aria-label", "").upper()
+                                    if "TWITTER" in aria_label:
+                                        twitter = a.get("href")
+                                    elif "YOUTUBE" in aria_label:
+                                        youtube = a.get("href")
+                                    elif "INSTAGRAM" in aria_label:
+                                        instagram = a.get("href")
+                                    elif "LINKEDIN" in aria_label:
+                                        linkedin = a.get("href")
+                                    elif "FACEBOOK" in aria_label:
+                                        facebook = a.get("href")
+                            except:
                                 pass
-                            links = reseau.select("div:last-child a")
-                            for a in links:
-                                aria_label = a.get(
-                                    "aria-label", "").upper()
-                                if "TWITTER" in aria_label:
-                                    twitter = a.get("href")
-                                elif "YOUTUBE" in aria_label:
-                                    youtube = a.get("href")
-                                elif "INSTAGRAM" in aria_label:
-                                    instagram = a.get("href")
-                                elif "LINKEDIN" in aria_label:
-                                    linkedin = a.get("href")
-                                elif "FACEBOOK" in aria_label:
-                                    facebook = a.get("href")
-                        except:
-                            print(f"pas de reseau trouvé")
 
-                        if any([phone, web, facebook, twitter, youtube, instagram, linkedin, email]):
-                            found_match = True
-                            # Affichage final
-                            print("phone",phone,"web",web,"facebook",facebook,"twitter",twitter,"youtube",youtube,"instagram",instagram,"linkedin",linkedin,"email",email)
+                            if any([phone, web, facebook, twitter, youtube, instagram, linkedin, email]):
+                                found_match = True
+                                # Affichage final
+                                print("phone",phone,"web",web,"facebook",facebook,"twitter",twitter,"youtube",youtube,"instagram",instagram,"linkedin",linkedin,"email",email)
 
-                            worksheet.cell(
-                                row=i, column=8, value=phone)
-                            worksheet.cell(row=i, column=9, value=web)
-                            worksheet.cell(
-                                row=i, column=10, value=facebook)
-                            worksheet.cell(
-                                row=i, column=11, value=twitter)
-                            worksheet.cell(
-                                row=i, column=12, value=youtube)
-                            worksheet.cell(
-                                row=i, column=13, value=instagram)
-                            worksheet.cell(
-                                row=i, column=14, value=linkedin)
-                            worksheet.cell(
-                                row=i, column=15, value=email)
-                            workbook.save(new_file_path)
-                            print(f"donnés creé {sirene_number} {i}")
+                                worksheet.cell(
+                                    row=i, column=8, value=phone)
+                                worksheet.cell(row=i, column=9, value=web)
+                                worksheet.cell(
+                                    row=i, column=10, value=facebook)
+                                worksheet.cell(
+                                    row=i, column=11, value=twitter)
+                                worksheet.cell(
+                                    row=i, column=12, value=youtube)
+                                worksheet.cell(
+                                    row=i, column=13, value=instagram)
+                                worksheet.cell(
+                                    row=i, column=14, value=linkedin)
+                                worksheet.cell(
+                                    row=i, column=15, value=email)
+                                workbook.save(new_file_path)
+                                print(f"donnés creé {sirene_number} {i}")
 
-                    except Exception as e:
-                        print(
-                            f"Erreur lors de la récupération du SIRENE: {e}")
-
-                    # Si aucun match n'a été trouvé après la boucle
-                    if not found_match:
-                        print(
-                            f"Aucun Donné trouvé pour le nom  {sirene_number} code postal ligne {i}")
+                        except Exception as e:
+                            print(
+                                f"Erreur lors de la récupération du SIRENE: {e}")
+                    except:
+                        try:
+                            WebDriverWait(driver, 5).until(
+                                EC.presence_of_element_located(
+                                    (By.CSS_SELECTOR, "#hs-web-interactives-top-push-anchor"))
+                            )
+                            print(f"page not found")
+                        except :
+                            print(f"Captcha coudlfaire")
+                            driver.close()
+                            driver.quit()
+                            return False
+                            
 
                     processed_elements.add(sirene_number)
                     save_processed_element(
                         sirene_number, processed_filename)
                     processed_count += 1
                     time.sleep(random.uniform(1, 5))
-                    
+
+                    # Si aucun match n'a été trouvé après la boucle
+                    if not found_match:
+                            print(
+                                f"Aucun Donné trouvé pour le nom  {sirene_number} code postal ligne {i}")
 
                 except Exception as e:
                     print("Captcha", e)
