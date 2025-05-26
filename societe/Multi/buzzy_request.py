@@ -20,9 +20,9 @@ lock = Lock()
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
 
-for dep in range(6, 7):  # Départements de 8 à 12
+for dep in range(75, 76):  # Départements de 8 à 12
     dep_formatted = str(dep).zfill(2)
-    parts = [f"part_{j}" for j in range(1, 2)]  # Générer part_1 à part_6
+    parts = [f"part_{j}" for j in range(1, 11)]  # Générer part_1 à part_6
     files_and_sheets.append(
         (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
@@ -75,6 +75,20 @@ def content(soup, title):
         print(
             f"❌ Erreur lors de l'extraction du contenu pour titlekey = {title} :", e)
         return None
+    
+def get_with_retry(url, headers=None, proxies=None, timeout=10, retries=3, delay=10):
+    for attempt in range(retries):
+        try:
+            response = requests.get(
+                url, headers=headers, proxies=proxies, timeout=timeout, verify=False
+            )
+            return response
+        except requests.exceptions.Timeout:
+            print(f"[WARNING] Timeout, tentative {attempt + 1}/{retries} dans {delay}s")
+        except requests.exceptions.RequestException as e:
+            print(f"[ERROR] Requête échouée : {e}, tentative {attempt + 1}/{retries}")
+        time.sleep(delay)
+    raise Exception(f"Échec après {retries} tentatives : {url}")
 
 
 def societe(file_path, sheets):
@@ -140,23 +154,22 @@ def societe(file_path, sheets):
                 url = f'https://bizzy.org/fr/fr/{sirene_number}'
                 max_retries = 4
                 retry_delay = 5
+                found_match = False
+
                 for attempt in range(max_retries):
                     try:
-                        response = requests.get(
-
-                            url, headers=headers, proxies=proxy, timeout=5, verify=False)
+                        response = get_with_retry(url, headers=headers, proxies=proxy, timeout=10)
                         urllib3.disable_warnings(
                             urllib3.exceptions.InsecureRequestWarning)
 
                         if response.status_code == 200:
-                            found_match = False
                             soup = BeautifulSoup(response.text, 'html.parser')
                             twitter = youtube = instagram = linkedin = facebook = None
 
                             try:
                                 phone = content(soup, 'labels.phone-number')
                                 web = content(soup, 'labels.website')
-                                email = content(soup, 'labels.email')
+                                # email = content(soup, 'labels.email')
 
                                 try:
                                     reseau = soup.find(
@@ -178,9 +191,9 @@ def societe(file_path, sheets):
                                         elif "FACEBOOK" in aria_label:
                                             facebook = a.get("href")
                                 except:
-                                    print(f"pas de reseau trouvé")
+                                    pass
 
-                                if any([phone, web, facebook, twitter, youtube, instagram, linkedin, email]):
+                                if any([phone, web, facebook, twitter, youtube, instagram, linkedin]):
                                     found_match = True
                                     # Affichage final
                                     worksheet.cell(
@@ -196,25 +209,17 @@ def societe(file_path, sheets):
                                         row=i, column=13, value=instagram)
                                     worksheet.cell(
                                         row=i, column=14, value=linkedin)
-                                    worksheet.cell(
-                                        row=i, column=15, value=email)
+                                    # worksheet.cell(
+                                    #     row=i, column=15, value=email)
                                     workbook.save(new_file_path)
                                     print(f"donnés creé {sirene_number} {i}")
 
                             except Exception as e:
                                 print(
                                     f"Erreur lors de la récupération du SIRENE: {e}")
-
-                            # Si aucun match n'a été trouvé après la boucle
-                            if not found_match:
-                                print(
-                                    f"Aucun Donné trouvé pour le nom  {sirene_number} code postal ligne {i}")
-
-                            processed_elements.add(sirene_number)
-                            save_processed_element(
-                                sirene_number, processed_filename)
-                            processed_count += 1
                             break
+                        elif response.status_code == 404:
+                            pass
                         else:
                             print(
                                 f"⚠️ Statut {response.status_code}  pour le sirene societes {sirene_number} != 200, tentative {attempt + 1}/{max_retries}")
@@ -225,6 +230,14 @@ def societe(file_path, sheets):
                         print("Captcha", e)
                         return False
 
+                # Si aucun match n'a été trouvé après la boucle
+                if not found_match:
+                    print(
+                        f"Aucun Donné trouvé pour le nom  {sirene_number} code postal ligne {i}")
+
+                processed_elements.add(sirene_number)
+                save_processed_element(sirene_number, processed_filename)
+                processed_count += 1
                 time.sleep(random.uniform(1, 5))
 
             # Vérifiez si tous les éléments ont été traités
@@ -308,6 +321,7 @@ def launch_processes():
 def merge_excel_files(output_file, dep_number, directory):
     try:
         all_data = []
+
         # Parcourir les fichiers générés
         for file_path, parts in files_and_sheets:
             for part_name in parts:
@@ -320,15 +334,17 @@ def merge_excel_files(output_file, dep_number, directory):
         # Fusionner toutes les données
         if all_data:
             merged_df = pd.concat(all_data, ignore_index=True)
-            print(f"Suppresion des doublons : {output_file}")
-            merged_df.drop_duplicates()
+
+            print(f"Suppression des doublons : {output_file}")
+            merged_df = merged_df.drop_duplicates() 
+
             merged_df.to_excel(output_file, index=False)
             print(f"Fichier fusionné créé : {output_file}")
 
         else:
             print("Aucun fichier à fusionner.")
     except Exception as e:
-        print("error merge ")
+        print(f"Erreur lors de la fusion : {e}")
 
 
 if __name__ == "__main__":

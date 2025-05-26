@@ -19,7 +19,7 @@ def split_excel(input_file):
     total_rows = len(df)
 
     # Calculer la taille des différentes parties (environ 10 000 lignes par partie)
-    part_size = total_rows // 4  # On divise en 16 parties égales
+    part_size = total_rows // 10  # On divise en 16 parties égales
 
     # Obtenir le chemin du dossier et le nom du fichier sans extension
     dir_name = os.path.dirname(input_file)
@@ -31,10 +31,10 @@ def split_excel(input_file):
         os.makedirs(dep_folder)
 
     # Créer les 16 fichiers
-    for i in range(4):
+    for i in range(10):
         # Définir l'indice de début et de fin pour chaque partie
         start_idx = i * part_size
-        if i == 3:  # Dernière partie, prendre tout ce qui reste
+        if i == 9:  # Dernière partie, prendre tout ce qui reste
             end_idx = total_rows
         else:
             end_idx = (i + 1) * part_size
