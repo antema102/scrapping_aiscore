@@ -37,8 +37,6 @@ def load_processed_elements(filename):
     return set()
 
 # Fonction pour enregistrer les éléments traités dans un fichier spécifique
-
-
 def save_processed_element(element_sirene,  filename):
     with open(filename, 'a', encoding="utf-8") as file:
         file.write(f"{element_sirene}\n")
@@ -76,41 +74,18 @@ def content(soup, title):
             f"❌ Erreur lors de l'extraction du contenu pour titlekey = {title} :", e)
         return None
     
-def get_with_retry(url, headers=None, proxies=None, timeout=10, retries=3, delay=10):
-    for attempt in range(retries):
-        try:
-            response = requests.get(
-                url, headers=headers, proxies=proxies, timeout=timeout, verify=False
-            )
-            return response
-        except requests.exceptions.Timeout:
-            print(f"[WARNING] Timeout, tentative {attempt + 1}/{retries} dans {delay}s")
-        except requests.exceptions.RequestException as e:
-            print(f"[ERROR] Requête échouée : {e}, tentative {attempt + 1}/{retries}")
-        time.sleep(delay)
-    raise Exception(f"Échec après {retries} tentatives : {url}")
-
 
 def societe(file_path, sheets):
     try:
         # Proxy avec authentification (nom d'utilisateur et mot de passe)
-        proxy = {
-            'http': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
-            'https': 'http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000',
+        proxies = {
+            "http": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
+            "https": "http://antema103.gmail.com:9yucvu@gate2.proxyfuel.com:2000",
         }
 
-        # Liste de User-Agents
-        user_agents = [
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36",
-            "Mozilla/5.0 (Linux; Android 10; Pixel 3 XL Build/QP1A.190711.020) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36"
-        ]
-        user_agent = random.choice(user_agents)
+        with open("user_agents.txt", "r", encoding="utf-8") as f:
+            user_agents = [line.strip() for line in f if line.strip()]
 
-        # Configuration des headers avec le User-Agent
-        headers = {
-            "User-Agent": user_agent
-        }
 
         processed_text = os.path.splitext(os.path.basename(file_path))[0]
         number = processed_text.split("_")[-1]
@@ -147,21 +122,23 @@ def societe(file_path, sheets):
 
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
                 sirene_number = str(row[0])
+
                 if sirene_number in processed_elements:
                     processed_count += 1
                     continue
 
-                url = f'https://bizzy.org/fr/fr/{sirene_number}'
+                url = f'https://bizzy.org/fr/fr/424264281'
                 max_retries = 4
                 retry_delay = 5
                 found_match = False
 
                 for attempt in range(max_retries):
                     try:
-                        response = get_with_retry(url, headers=headers, proxies=proxy, timeout=10)
-                        urllib3.disable_warnings(
-                            urllib3.exceptions.InsecureRequestWarning)
-
+                        user_agent = random.choice(user_agents)
+                        headers = {
+                            "User-Agent": user_agent
+                        }
+                        response = requests.get(url, headers=headers, proxies=proxies, timeout=15)
                         if response.status_code == 200:
                             soup = BeautifulSoup(response.text, 'html.parser')
                             twitter = youtube = instagram = linkedin = facebook = None
@@ -170,7 +147,6 @@ def societe(file_path, sheets):
                                 phone = content(soup, 'labels.phone-number')
                                 web = content(soup, 'labels.website')
                                 # email = content(soup, 'labels.email')
-
                                 try:
                                     reseau = soup.find(
                                         "div", attrs={"titlekey": 'labels.socials'})
