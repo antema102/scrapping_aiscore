@@ -127,7 +127,7 @@ def societe(file_path, sheets):
                     processed_count += 1
                     continue
 
-                url = f'https://bizzy.org/fr/fr/424264281'
+                url = f'https://bizzy.org/fr/fr/{sirene_number}'
                 max_retries = 4
                 retry_delay = 5
                 found_match = False
