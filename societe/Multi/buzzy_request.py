@@ -138,7 +138,7 @@ def societe(file_path, sheets):
                         headers = {
                             "User-Agent": user_agent
                         }
-                        response = requests.get(url, headers=headers, proxies=proxies, timeout=15)
+                        response = requests.get(url, headers=headers, proxies=proxies, timeout=15,verify=False)
                         if response.status_code == 200:
                             soup = BeautifulSoup(response.text, 'html.parser')
                             twitter = youtube = instagram = linkedin = facebook = None
