@@ -240,33 +240,31 @@ def societe(file_path, sheets):
 
                                 WebDriverWait(driver, 10).until(
                                     EC.presence_of_element_located((By.CSS_SELECTOR, '.CsEnBe')))
+                                
                                 elements_ = driver.find_elements(
                                     By.CSS_SELECTOR, '.CsEnBe')
                                 
                                 for element_ in elements_:
-        
-                                    url_element = element_.get_attribute(
-                                        'href')
-                                
-                                    number_label = element_.get_attribute(
-                                        'aria-label')
-                                    
-                                    if number_label and '+' in number_label:
-                                        number = element_.find_element(
-                                            By.CSS_SELECTOR,
-                                            'div.Io6YTe.fontBodyMedium.kR99db.fdkmkc'
-                                        ).text
+                                    label = element_.get_attribute('aria-label')
+                                    if label in '+':
+                                        number_ = element_.get_attribute('id').split('+')
+                                        number=number_[-1]
+                                        worksheet.cell(row=i, column=16, value=number)
 
-                                    if url_element:
-                                        sites_url = url_element
+                                    if label in 'Site Web':
+                                        site_web = element_.get_attribute('href')
+                                        sites_url=site_web
+                                        worksheet.cell(row=i, column=17, value=sites_url)
+                                
+                                workbook.save(new_file_path)
+                                print(
+                                    f"Numero tele: {number}  url : {sites_url} lignes {i}")
 
                             except Exception as e:
                                 print(
                                     f"Aucun donné trouvé pour le siren {sirene}  {name_company} ligne {i}")
 
-                        print(
-                            f"donner {number} {sites_url}  {facebook} {instagram} {instagram} {linkedin} {youtube} {twitter} lignes {i}")
-
+            
                         processed_elements.add(
                             f"{sirene} {name_company}")
                         save_processed_element(
