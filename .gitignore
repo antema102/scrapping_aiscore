@@ -1,7 +1,26 @@
-# Ignorer tous les fichiers .xlsx
+# --- Fichiers Excel : toujours ignorés ---
 *.xlsx
+
+# --- Fichiers texte : ignorés sauf exceptions importantes ---
 *.txt
+!categorie.txt
+!requirements.txt
+!user_agents.txt
+
+# --- Exécutables Windows : jamais dans Git ---
+*.exe
+
+# --- Fichiers sensibles (identifiants, credentials, etc) ---
 xbet-identifiants.json
 credentials.json
 score102.json
-!requirements.txtx
+
+# --- Cache / fichiers temporaires Python ---
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Dossiers ou fichiers temporaires divers ---
+tmp/
+temp/
+*.log

@@ -32,7 +32,7 @@ for dep in range(90, 91):
     dep_formatted = str(dep).zfill(2)
     parts = [f"part_{j}" for j in range(1, 2)]
     files_and_sheets.append(
-        (f"C:/Users/{user_name}/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
+        (f"C:/Users/{user_name}/OneDrive/Desktop/scrapping_aiscore/societe/Multi/DEPT/DEPT_{dep_formatted}.xlsx", parts)
     )
 
 
@@ -65,7 +65,7 @@ def societe(file_path, sheets):
 
         random_user_agent = random.choice(user_agents)
         chrome_options = uc.ChromeOptions()
-        # chrome_options.headless = True  # Exécuter en mode sans tête
+        # chrome_options.headless = True  
         chrome_options.add_argument("--disable-infobars")
         chrome_options.add_argument(
             "--disable-blink-features=AutomationControlled")
@@ -95,7 +95,7 @@ def societe(file_path, sheets):
             "profile.managed_default_content_settings.stylesheets": 2,
         }
 
-        driver_path = f"C:/Users/{user_name}/Desktop/scrapping_aiscore/chromedriver.exe"
+        driver_path = f"C:/Users/{user_name}/OneDrive/Desktop/scrapping_aiscore/chromedriver.exe"
 
         chrome_options.add_experimental_option("prefs", prefs)
         # Démarrage du navigateur
@@ -149,7 +149,12 @@ def societe(file_path, sheets):
             # si ignoer alors code est for i, row in enumerate(ws[1:], start=2):
             for i, row in enumerate(worksheet.iter_rows(min_row=1, values_only=True), start=1):
                 name_company = row[1]
-                addresse = row[2].lower()
+                
+                if row[2]:
+                    addresse = row[2].lower()
+                else:
+                    addresse = ''
+
                 code_postal = row[3]
                 commune = row[4]   # Nom entreprise
                 sirene = str(row[0])
@@ -169,6 +174,7 @@ def societe(file_path, sheets):
 
                 twitter = youtube = instagram = linkedin = facebook = sites_url = number = None
 
+                data_found=False
                 try:
                     capchat = driver.find_elements(
                         By.CSS_SELECTOR, '.g-recaptcha')
@@ -198,7 +204,9 @@ def societe(file_path, sheets):
                                         By.CSS_SELECTOR,
                                         '.UaQhfb.fontBodyMedium > .W4Efsd:last-child > .W4Efsd:first-child > span:last-child > span:last-child'
                                     )
+
                                     text_addresse = address_element.text.lower()
+
                                     if addresse in text_addresse:
                                         item.click()
                                         try:
@@ -243,35 +251,40 @@ def societe(file_path, sheets):
                                 
                                 elements_ = driver.find_elements(
                                     By.CSS_SELECTOR, '.CsEnBe')
-                                
+                                                                
                                 for element_ in elements_:
                                     label = element_.get_attribute('aria-label')
-                                    if label in '+':
-                                        number_ = element_.get_attribute('id').split('+')
-                                        number=number_[-1]
-                                        worksheet.cell(row=i, column=16, value=number)
 
-                                    if label in 'Site Web':
-                                        site_web = element_.get_attribute('href')
-                                        sites_url=site_web
-                                        worksheet.cell(row=i, column=17, value=sites_url)
+                                    if label and 'Phone' in label:
+                                        number_parts = label.split('+')
+                                        if len(number_parts) > 1:
+                                            number = number_parts[-1]
+                                            worksheet.cell(row=i, column=16, value=number)
+
+                                    elif label and 'Website' in label:
+                                            sites_url = label
+                                            worksheet.cell(row=i, column=17, value=sites_url)
                                 
                                 workbook.save(new_file_path)
+                                data_found=True
                                 print(
-                                    f"Numero tele: {number}  url : {sites_url} lignes {i}")
+                                    f"Numero telephone: {number}  url : {sites_url} lignes {i}")
 
                             except Exception as e:
                                 print(
+                                    f"erreur",e)
+                            
+                        if not data_found:
+                            print(
                                     f"Aucun donné trouvé pour le siren {sirene}  {name_company} ligne {i}")
 
-            
                         processed_elements.add(
                             f"{sirene} {name_company}")
                         save_processed_element(
                             sirene, name_company, processed_filename)
                         processed_count += 1
 
-                        time.sleep(10)
+                        time.sleep(random.uniform(1,10))
 
                 except Exception as e:
                     print(f"Error dans le script ", e)
