@@ -1,5 +1,5 @@
 import random
-from seleniumwire import undetected_chromedriver as uc
+from seleniumbase import Driver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -47,59 +47,13 @@ def process_url(urls,dep,port):
         with open("user_agents.txt", "r", encoding="utf-8") as f:
             user_agents = [line.strip() for line in f if line.strip()]
 
-        seleniumwire_options = {
-            'proxy': {
-                "http": "https://brd-customer-hl_f02d64dc-zone-datacenter_proxy1:91f6w4tnbla5@brd.superproxy.io:33335",
-                "https": "https://brd-customer-hl_f02d64dc-zone-datacenter_proxy1:91f6w4tnbla5@brd.superproxy.io:33335",
-            },
-            'disable_encoding': True,
-        }
-
-        options = {
-        'disable_encoding': True,
-        }
 
         random_user_agent = random.choice(user_agents)
-        chrome_options = uc.ChromeOptions()
-        chrome_options.add_argument("--disable-infobars")
-        chrome_options.add_argument(
-            "--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-popup-blocking")
-        chrome_options.add_argument(
-            "--disable-blink-features=AutomationControlled")
-        chrome_options.add_argument('--disable-notifications')
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument('--disable-extensions')
-        chrome_options.add_argument("--disable-setuid-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--disable-modal-animations")
-        chrome_options.add_argument("--disable-logging")
-        chrome_options.add_argument('--blink-settings=imagesEnabled=false')
-        chrome_options.add_argument("--disable-backgrounding-occluded-windows")
-        chrome_options.add_argument("--disable-background-timer-throttling")
-        chrome_options.add_argument("--disable-renderer-backgrounding")
-        chrome_options.add_argument("--disable-crash-reporter")
-        chrome_options.add_argument("--disable-crashpad-for-testing")
-        chrome_options.add_argument("--disable-features=ServiceWorker")
-        chrome_options.add_argument(f"--user-agent={random_user_agent}")
-
-        # Désactiver JavaScript via les préférences
-        prefs = {
-            "profile.managed_default_content_settings.images": 2,
-            "profile.managed_default_content_settings.stylesheets": 2,
-        }
-        chrome_options.add_experimental_option("prefs", prefs)
-        #Akshay
-        # driver_path =f"C:/Users/{user_name}/OneDrive/Desktop/scrapping_aiscore/chromedriver.exe"
-        #Local
-        driver_path =f"C:/Users/{user_name}/Desktop/scrapping_aiscore/chromedriver.exe"
-
-        driver = uc.Chrome(
-            options=chrome_options,
-            driver_executable_path=driver_path,
-            seleniumwire_options=seleniumwire_options
+        driver = Driver(
+            uc=True,
+            block_images=True,
+            disable_js=True,
+            agent=random_user_agent
         )
 
         departement = f"{dep}"
@@ -130,18 +84,17 @@ def process_url(urls,dep,port):
             print(f"Fichier Excel créé : {new_file_path}")
         try:
             driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-            driver.request_interceptor = interceptor
-            # driver.get('https://www.google.fr')
-            human_scroll(driver)
             base_url = "https://www.pagesjaunes.fr/annuaire/chercherlespros?quoiqui="
             encoded_quoiqui = urllib.parse.quote_plus(urls)
             encoded_ou = urllib.parse.quote_plus(departement)
             url = f"{base_url}{encoded_quoiqui}&ou={encoded_ou}"
-            driver.get(url)
-            time.sleep(1000000)
 
             while True:
                 try:
+                    driver.uc_open_with_reconnect(url, 10)
+
+                    driver.uc_gui_click_captcha()
+
                     WebDriverWait(driver, 30).until(
                         EC.visibility_of_element_located(
                             (By.CSS_SELECTOR, "a.bi-denomination"))
@@ -152,8 +105,10 @@ def process_url(urls,dep,port):
                     
                     if not urls_pages_jaunes:
                         print("Aucun résultat trouvé.")
-                        break
-
+                        driver.close()
+                        driver.quit()
+                        return True
+                        
                     print(f"{len(urls_pages_jaunes)} résultats trouvés sur cette page.")
 
                     for element in urls_pages_jaunes:
@@ -261,7 +216,6 @@ def process_url(urls,dep,port):
                             current_url = driver.current_url
                             ws.append([siren,nom, current_url, numero, addresse, site_url,tranche_effectif,forme, date_creation, autres_denom_str])
                             wb.save(new_file_path)
-                            driver.requests.clear()
                             driver.close()
                             driver.switch_to.window(original_tabs[0])
                             time.sleep(random.uniform(1, 10))
@@ -271,6 +225,7 @@ def process_url(urls,dep,port):
                             if len(driver.window_handles) > 1:
                                 driver.close()
                                 driver.switch_to.window(driver.window_handles[0])
+
 
                     try:
                         next_button = WebDriverWait(driver, 10).until(
@@ -321,6 +276,7 @@ for url in urls:
     if url in done_urls:
         print(f"[SKIP] {url} déjà traité")
         continue
+
 
     print(f"[START] Traitement de : {url}")
     while True:
