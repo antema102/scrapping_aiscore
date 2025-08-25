@@ -15,6 +15,7 @@ import os
 import urllib.parse
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 # Récupérer l'utilisateur courant
 user_name = os.getlogin()
@@ -37,6 +38,14 @@ def human_scroll(driver, steps=10, min_pause=0.2, max_pause=0.7, min_scroll=80, 
         driver.execute_script(f"window.scrollBy(0, {scroll_amount});")
         time.sleep(random.uniform(min_pause, max_pause))
 
+def update_page_param(url, page_number):
+    url = url.rstrip('#') 
+    parsed_url = urlparse(url)
+    query = parse_qs(parsed_url.query)
+    query['page'] = [str(page_number)]
+    new_query = urlencode(query, doseq=True)
+    return urlunparse(parsed_url._replace(query=new_query))
+
 def interceptor(request):
     # Bloquer tout sauf le HTML principal
     if request.path.endswith(('.css', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.woff', '.woff2', '.ttf', '.svg', '.ico')):
@@ -52,8 +61,8 @@ def process_url(urls,dep,port):
         driver = Driver(
             uc=True,
             block_images=True,
-            disable_js=True,
-            agent=random_user_agent
+            agent=random_user_agent,
+            headless=True
         )
 
         departement = f"{dep}"
@@ -88,13 +97,10 @@ def process_url(urls,dep,port):
             encoded_quoiqui = urllib.parse.quote_plus(urls)
             encoded_ou = urllib.parse.quote_plus(departement)
             url = f"{base_url}{encoded_quoiqui}&ou={encoded_ou}"
-
+            driver.uc_open_with_reconnect(url, 20)
+            page = 2 
             while True:
                 try:
-                    driver.uc_open_with_reconnect(url, 10)
-
-                    driver.uc_gui_click_captcha()
-
                     WebDriverWait(driver, 30).until(
                         EC.visibility_of_element_located(
                             (By.CSS_SELECTOR, "a.bi-denomination"))
@@ -225,27 +231,41 @@ def process_url(urls,dep,port):
                             if len(driver.window_handles) > 1:
                                 driver.close()
                                 driver.switch_to.window(driver.window_handles[0])
-
-
+                    
                     try:
-                        next_button = WebDriverWait(driver, 10).until(
-                            EC.element_to_be_clickable((By.ID, 'pagination-next'))
-                        )
-                        if next_button:
-                            print("➡️ Page suivante...")
-                            next_button.click()
-                        else:
-                            print("❌ Fin de pagination.")
-                            break
+                            next_button = WebDriverWait(driver, 10).until(
+                                EC.element_to_be_clickable((By.ID, 'pagination-next'))
+                            )
+
+                            if next_button:
+                                raw_url = next_button.get_attribute('href')
+                                url_ = update_page_param(raw_url, page)
+                                print(f"➡️ Chargement de la page {page} → {url_}")
+                                driver.get(url_)
+                                page += 1
+
+                            else:
+                                print("❌ Fin de pagination.")
+                                driver.quit()
+                                return True
+                                break
 
                     except Exception as e:
-                        print(f"Erreur pagination ou fin des pages : {e}")
+                            print(f"⚠️ Erreur pagination ou fin des pages : {e}")
+                            driver.quit()
+                            return True
+                            break
+                                     
+                except Exception as e:
+                    try:
+                        WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "h1")))
+                        print(f"Aucun donné pour cette categorie ${urls} ")
                         driver.quit()
                         return True
                     
-                except Exception as e:
-                    print(f"Erreur lors du chargement de la page ,il y a une le cloudflary")
-                    break
+                    except Exception as e :
+                        print(f"Erreur lors du chargement de la page ,il y a une le cloudflary")
+                        break
         
             driver.quit()
 
@@ -260,7 +280,7 @@ def process_url(urls,dep,port):
         return False
 
 # Lire les URLs depuis le fichier
-with open('categorie.txt', 'r', encoding='utf-8') as file:
+with open('categorie__.txt', 'r', encoding='utf-8') as file:
     urls = [line.strip() for line in file if line.strip()]
 
 # Charger les URLs déjà traitées
